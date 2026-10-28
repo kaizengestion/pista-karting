@@ -362,7 +362,7 @@
         const nInv = lista.filter(i => i.invitado).length;
         counts.replaceChildren(
           h('strong', { class: 'tnum' }, plural(lista.length, 'anotado', 'anotados')),
-          nInv ? ' · ' + plural(nInv, 'invitado', 'invitados') : null,
+          nInv ? ' · ' + plural(nInv, 'invitado', 'invitados') : '',
           lista.length ? ' · ' : null,
           lista.length ? (sinAut ? h('span', { class: 'warn tnum' }, sinAut + ' sin autorización') : 'todos con autorización') : null);
       }
