@@ -215,17 +215,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .92rem; }
 <main class="wrap" id="app"><p class="loading">Cargando…</p></main>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
+<!-- Al publicar cambios en js/, subir el número de ?v= para que los navegadores no usen la versión guardada -->
 <script>window.PK_FORZAR_DEMO = true; window.PK_URL = location.origin + location.pathname.replace(/inscripcion\.html$/, '');</script>
-<script src="js/core.js"></script>
-<script src="js/demo-data.js"></script>
-<script src="js/store.js"></script>
-<script src="js/views/inicio.js"></script>
-<script src="js/views/competidores.js"></script>
-<script src="js/views/buscar.js"></script>
-<script src="js/views/registro.js"></script>
-<script src="js/views/torneo-actual.js"></script>
-<script src="js/views/proximos-torneos.js"></script>
-<script src="js/views/torneos-pasados.js"></script>
+<script src="js/core.js?v=7"></script>
+<script src="js/demo-data.js?v=7"></script>
+<script src="js/store.js?v=7"></script>
+<script src="js/views/inicio.js?v=7"></script>
+<script src="js/views/competidores.js?v=7"></script>
+<script src="js/views/buscar.js?v=7"></script>
+<script src="js/views/registro.js?v=7"></script>
+<script src="js/views/torneo-actual.js?v=7"></script>
+<script src="js/views/proximos-torneos.js?v=7"></script>
+<script src="js/views/torneos-pasados.js?v=7"></script>
 <script>App.start();</script>
 </body>
 </html>
