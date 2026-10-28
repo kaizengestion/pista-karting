@@ -167,13 +167,25 @@
         return h('section', { class: 'card hero', 'aria-label': actual ? 'Torneo en curso' : 'Próximo torneo' },
           h('div', { class: 'hero-top' },
             h('span', { class: 'eyebrow' }, actual ? 'Torneo en curso' : 'Próximo torneo · sin torneo en curso'),
-            actual ? h('span', { class: 'pill pill-live' }, 'En curso') : h('span', { class: 'pill' }, 'Inscripción abierta')),
+            actual ? h('span', { class: 'pill pill-live' }, 'En curso') : h('span', { class: 'pill' }, 'Inscripción abierta'),
+            etiquetaFecha(t)),
           h('h1', null, t.nombre || 'Torneo sin nombre'),
           h('div', { class: 'hero-meta' },
             h('span', null, App.fmt.fechasTexto(t, true)),
             t.lugar ? h('span', null, t.lugar) : null,
             h('span', null, h('strong', { class: 'tnum' }, plural(delTorneo.length, 'anotado', 'anotados')), cupoTotal ? ' de ' + cupoTotal + ' lugares' : '')),
           cats.length ? h('div', { class: 'cats' }, cats) : h('p', { class: 'muted small' }, 'Este torneo todavía no tiene categorías.'));
+      }
+
+      /* "Fecha 2 de 3" en un torneo de varias fechas: la última que ya llegó (o la 1 si ninguna) */
+      function etiquetaFecha(t) {
+        const fs = App.fmt.fechasDe(t);
+        if (fs.length < 2) return null;
+        const d = new Date();
+        const hoy = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        let n = 1;
+        fs.forEach((f, k) => { if (f <= hoy) n = k + 1; });
+        return h('span', { class: 'pill' }, 'Fecha ' + n + ' de ' + fs.length);
       }
 
       function tile(href, ico, title, sub, hot) {

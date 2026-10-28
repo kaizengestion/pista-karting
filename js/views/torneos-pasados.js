@@ -9,9 +9,9 @@
 .v-pasados .pp-meta { color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
 .v-pasados .pp-meta .pp-fecha::first-letter { text-transform: uppercase; }
 .v-pasados .pp-list { display: flex; flex-direction: column; gap: 14px; }
-.v-pasados a.pp-item { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 18px; align-items: start; color: inherit; text-decoration: none; }
-.v-pasados a.pp-item:hover { border-color: var(--ink-3); }
-.v-pasados a.pp-item:hover .pp-title { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.v-pasados .pp-item { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 18px; align-items: start; color: inherit; text-decoration: none; }
+.v-pasados .pp-item:hover { border-color: var(--ink-3); }
+.v-pasados .pp-item:hover .pp-title { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; text-underline-offset: 4px; }
 .v-pasados .pp-date { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 6px; border-radius: var(--radius);
   background: var(--surface-2); border: 1px solid var(--line); text-align: center; line-height: 1; }
 .v-pasados .pp-day { font: 800 2.4rem/0.9 var(--font-display); font-variant-numeric: tabular-nums; }
@@ -51,9 +51,15 @@
 .v-pasados .pp-fechas button { font: 700 1rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; min-height: 44px;
   border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
 .v-pasados .pp-fechas button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.v-pasados .pp-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.v-pasados .pp-chip { display: inline-flex; flex-direction: column; gap: 1px; padding: 6px 10px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface-2);
+  color: var(--ink); text-decoration: none; font: 700 .85rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; }
+.v-pasados .pp-chip small { font: 500 .75rem/1.1 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink-3); }
+.v-pasados .pp-chip:hover { border-color: var(--accent); }
+.v-pasados .pp-item-wrap { position: relative; }
 .v-pasados .pp-none { border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 16px; color: var(--ink-3); text-align: center; }
 @media (max-width: 520px) {
-  .v-pasados a.pp-item { grid-template-columns: 1fr; gap: 12px; }
+  .v-pasados .pp-item { grid-template-columns: 1fr; gap: 12px; }
   .v-pasados .pp-date { flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 8px; padding: 8px 12px; width: max-content; }
   .v-pasados .pp-day { font-size: 1.7rem; }
 }
@@ -131,7 +137,12 @@
 
       function draw() {
         if (!ctx.isCurrent() || torneos == null) return;
-        if (ctx.param) drawDetalle(ctx.param); else drawLista();
+        // Detalle: 'torneos-pasados~<id>' o 'torneos-pasados~<id>@<n>' para abrir directo en la fecha n
+        if (ctx.param) {
+          const [id, n] = String(ctx.param).split('@');
+          if (n && fechaSel == null) fechaSel = Number(n);
+          drawDetalle(id);
+        } else drawLista();
       }
 
       /* ---------- Lista ---------- */
@@ -150,13 +161,27 @@
         root.replaceChildren(head, body);
       }
 
+      /* Cada torneo de la lista: tarjeta con link al detalle y, si tiene varias fechas, accesos a cada una */
       function item(t) {
+        const ns = fechasConPlanilla(t);
+        const fs = App.fmt.fechasDe(t);
+        const card = tarjeta(t);
+        if (ns.length < 2) return card;
+        card.querySelector('.pp-body').appendChild(h('div', { class: 'pp-chips' }, ns.map(n =>
+          h('a', { class: 'pp-chip', href: '#torneos-pasados~' + encodeURIComponent(t.id) + '@' + n, onclick: (e) => e.stopPropagation() },
+            'Resultados fecha ' + n, fs[n - 1] ? h('small', null, App.fmt.fecha(fs[n - 1])) : null))));
+        return card;
+      }
+
+      function tarjeta(t) {
         const f = partesFecha(t.fecha);
         const ns = fechasConPlanilla(t);
         const ultima = ns[ns.length - 1];
         const cats = categoriasDe(t, ultima);
         const pilotos = cats.reduce((s, c) => s + c.filas.length, 0);
-        return h('a', { class: 'card pp-item', href: '#torneos-pasados~' + encodeURIComponent(t.id) },
+        return h('article', { class: 'card pp-item', role: 'link', tabindex: '0', style: { cursor: 'pointer' },
+          onclick: () => App.go('torneos-pasados~' + encodeURIComponent(t.id)),
+          onkeydown: (e) => { if (e.key === 'Enter') App.go('torneos-pasados~' + encodeURIComponent(t.id)); } },
           h('div', { class: 'pp-date', 'aria-hidden': 'true' },
             h('span', { class: 'pp-day' }, f.day), h('span', { class: 'pp-mon' }, f.mon), h('span', { class: 'pp-year' }, f.year)),
           h('div', { class: 'pp-body' },
@@ -165,7 +190,7 @@
               h('div', { class: 'pp-sub' },
                 h('span', null, App.fmt.fechasTexto(t) + (t.lugar ? ' · ' + t.lugar : '')),
                 h('span', { class: 'pill' }, pl(pilotos, 'piloto', 'pilotos')),
-                ns.length > 1 ? h('span', { class: 'pill' }, 'Podio de la fecha ' + ultima) : null)),
+                ns.length > 1 ? h('span', { class: 'pill' }, pl(ns.length, 'fecha', 'fechas') + ' · podio de la fecha ' + ultima) : null)),
             cats.length ? h('div', { class: 'pp-podios' }, cats.map(c => {
               const conT = c.filas.filter(x => x.posicion != null);
               const p1 = conT[0];

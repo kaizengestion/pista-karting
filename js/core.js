@@ -177,7 +177,7 @@
       wrap.appendChild(h('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
         const ok = await confirmDialog({ title: 'Volver a los datos de ejemplo', body: 'Se borran los cambios que hiciste en este dispositivo y se cargan otra vez los datos de ejemplo.', okLabel: 'Reiniciar', danger: true });
         if (!ok) return;
-        try { localStorage.removeItem('pista-karting-demo-v1'); localStorage.removeItem('pista-karting-demo-archivos'); } catch (e) {}
+        try { localStorage.removeItem('pista-karting-demo-v1'); localStorage.removeItem('pista-karting-demo-v2'); localStorage.removeItem('pista-karting-demo-archivos'); } catch (e) {}
         location.hash = 'inicio'; location.reload();
       } }, 'Reiniciar prueba'));
     }

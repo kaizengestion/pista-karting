@@ -313,8 +313,11 @@
             h('b', null, String(s.n), s.hayCupo ? h('small', null, ' / ' + s.cupo) : null),
             h('span', null, s.hayCupo ? 'Anotados / cupo total' : 'Anotados')),
           h('div', { class: 'ta-stat' }, h('b', null, s.hayCupo ? String(s.libres) : '—'), h('span', null, 'Lugares disponibles')),
-          h('div', { class: 'ta-stat' }, h('b', null, String(s.conT), h('small', null, ' / ' + s.n)), h('span', null, 'Tiempos cargados')),
-          h('div', { class: 'ta-stat' }, h('b', null, String(s.conOk), h('small', null, ' / ' + s.n)), h('span', null, 'Con Ok')));
+          h('div', { class: 'ta-stat' }, h('b', null, String(s.conT), h('small', null, ' / ' + s.n)), h('span', null, 'Tiempos cargados' + deFecha())),
+          h('div', { class: 'ta-stat' }, h('b', null, String(s.conOk), h('small', null, ' / ' + s.n)), h('span', null, 'Con Ok' + deFecha())));
+      }
+      function deFecha() {
+        return torneo && App.fmt.fechasDe(torneo).length > 1 ? ' · fecha ' + (nFecha || 1) : '';
       }
 
       function posText(p) { return p == null ? '—' : String(p); }
@@ -371,6 +374,7 @@
 
         return h('section', { class: 'ta-section', 'aria-label': c.nombre },
           h('div', { class: 'section-title' }, h('h2', null, c.nombre), sub, conTiempo,
+            deFecha() ? h('span', { class: 'pill pill-live' }, 'Fecha ' + nFecha) : null,
             c.extra ? h('span', { class: 'pill pill-warn' }, 'Categoría fuera del torneo') : null,
             c.cupo != null && n > c.cupo ? h('span', { class: 'pill pill-danger' }, 'Cupo excedido') : null),
           h('div', { class: 'table-wrap' },
