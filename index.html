@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="img/logo-icono.svg?v=8">
 <meta name="description" content="Versión de prueba de RGK Santafesino: inscripciones, tiempos y resultados de torneos de karting.">
 <style>[hidden]{display:none!important}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 <title>RGK Santafesino</title>
@@ -68,15 +69,13 @@ a { color: var(--track); }
 .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bar); color: var(--bar-ink); border-bottom: 3px solid var(--accent); }
 .topbar-in { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: 16px; padding-block: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.brand b { color: var(--accent-text); font-weight: 800; }
+.brand img { display: block; height: 40px; width: auto; }
+@media (max-width: 640px) { .brand img { height: 34px; } }
 .brand { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 1.25rem; letter-spacing: .04em; }
-.flag { width: 28px; height: 20px; flex: none; border-radius: 2px;
-  background: conic-gradient(var(--bar-ink) 25%, var(--bar) 0 50%, var(--bar-ink) 0 75%, var(--bar) 0) 0 0 / 10px 10px; border: 1px solid var(--bar-ink); }
 .topnav { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; }
 .topnav a { color: var(--bar-ink); opacity: .75; text-decoration: none; font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; font-size: .9rem; padding: 6px 10px; border-radius: 4px; white-space: nowrap; }
 .topnav a:hover { opacity: 1; }
 .topnav a[aria-current="page"] { opacity: 1; background: var(--accent); color: var(--accent-ink); }
-.checker { height: 6px; background: conic-gradient(#fff 25%, #000 0 50%, #fff 0 75%, #000 0) 0 0 / 12px 12px; opacity: .9; }
 
 .demo-banner { background: var(--warn-bg); color: var(--warn); font-size: .88rem; }
 .demo-banner .wrap { padding-block: 8px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -197,7 +196,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .92rem; }
 
 <header class="topbar">
   <div class="topbar-in">
-    <a class="brand" href="#inicio" id="brand"><span class="flag" aria-hidden="true"></span><span><b>RGK</b> Santafesino</span></a>
+    <a class="brand" href="#inicio" id="brand"><img src="img/logo.svg?v=8" alt="RGK Santafesino" width="211" height="40"></a>
     <nav class="topnav" id="topnav" aria-label="Secciones">
       <a href="#inicio" data-route="inicio">Inicio</a>
       <a href="#competidores" data-route="competidores">Competidores</a>
@@ -207,7 +206,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .92rem; }
       <a href="#buscar" data-route="buscar">Buscar</a>
     </nav>
   </div>
-  <div class="checker" aria-hidden="true"></div>
 </header>
 <div class="demo-banner" id="demo-banner" hidden>
   <div class="wrap"><span id="demo-banner-text"></span></div>
@@ -217,16 +215,16 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .92rem; }
 
 <!-- Al publicar cambios en js/, subir el número de ?v= para que los navegadores no usen la versión guardada -->
 <script>window.PK_FORZAR_DEMO = true; window.PK_URL = location.origin + location.pathname.replace(/inscripcion\.html$/, '');</script>
-<script src="js/core.js?v=7"></script>
-<script src="js/demo-data.js?v=7"></script>
-<script src="js/store.js?v=7"></script>
-<script src="js/views/inicio.js?v=7"></script>
-<script src="js/views/competidores.js?v=7"></script>
-<script src="js/views/buscar.js?v=7"></script>
-<script src="js/views/registro.js?v=7"></script>
-<script src="js/views/torneo-actual.js?v=7"></script>
-<script src="js/views/proximos-torneos.js?v=7"></script>
-<script src="js/views/torneos-pasados.js?v=7"></script>
+<script src="js/core.js?v=8"></script>
+<script src="js/demo-data.js?v=8"></script>
+<script src="js/store.js?v=8"></script>
+<script src="js/views/inicio.js?v=8"></script>
+<script src="js/views/competidores.js?v=8"></script>
+<script src="js/views/buscar.js?v=8"></script>
+<script src="js/views/registro.js?v=8"></script>
+<script src="js/views/torneo-actual.js?v=8"></script>
+<script src="js/views/proximos-torneos.js?v=8"></script>
+<script src="js/views/torneos-pasados.js?v=8"></script>
 <script>App.start();</script>
 </body>
 </html>
