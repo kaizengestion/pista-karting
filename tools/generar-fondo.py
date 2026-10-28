@@ -1,7 +1,7 @@
 # Genera img/fondo-wire.svg (uso: python3 tools/generar-fondo.py img/fondo-wire.svg): figuras de karting en 3D (perspectiva caballera), solo contorno.
 import math, sys
 OUT = sys.argv[1]
-CZ, SZ = 0.42, 0.24   # proyección del eje de profundidad z
+CZ, SZ = -0.34, 0.22  # proyección del eje de profundidad z: vista desde adelante a la derecha, un poco desde arriba
 def P(x, y, z): return (x + CZ*z, -y - SZ*z)
 def f(v): return f"{v:.1f}"
 class Fig:
@@ -17,15 +17,17 @@ class Fig:
         for x,y in [(x0,y0),(x1,y0),(x1,y1),(x0,y1)]: s.poly([c(x,y,z0),c(x,y,z1)],far=(x,y)==(x0,y0) or far)
     def circle_xy(s, cx, cy, z, r, far=False):
         x,y=P(cx,cy,z); s.add(f"M{f(x-r)} {f(y)} a{f(r)} {f(r)} 0 1 0 {f(2*r)} 0 a{f(r)} {f(r)} 0 1 0 {f(-2*r)} 0", far)
-    def cyl_z(s, cx, cy, z0, z1, r, hub=0):  # rueda: eje en z
-        s.circle_xy(cx,cy,z0,r); s.circle_xy(cx,cy,z1,r,far=True)
+    def cyl_z(s, cx, cy, z0, z1, r, hub=0, banda=True, solo_frente=False):  # rueda: eje en z
+        s.circle_xy(cx,cy,z0,r, far=solo_frente)
+        if not solo_frente: s.circle_xy(cx,cy,z1,r,far=True)
         if hub: s.circle_xy(cx,cy,z0,hub); s.circle_xy(cx,cy,z0,hub*0.45)
         # tangentes perpendiculares a la dirección de proyección de z
         dx,dy=CZ,-SZ; L=math.hypot(dx,dy); nx,ny=-dy/L,dx/L
         for sg in (1,-1):
+            if solo_frente: break
             a=P(cx,cy,z0); b=P(cx,cy,z1)
             s.add(f"M{f(a[0]+sg*nx*r)} {f(a[1]+sg*ny*r)} L{f(b[0]+sg*nx*r)} {f(b[1]+sg*ny*r)}")
-        for k in range(8):   # dibujo de la banda de rodadura
+        for k in range(8 if banda else 0):   # dibujo de la banda de rodadura
             t=k*math.pi/4+0.3; px,py=math.cos(t)*r, math.sin(t)*r
             a=P(cx+px,cy+py,z0); b=P(cx+px,cy+py,z1)
             s.add(f"M{f(a[0])} {f(a[1])} L{f(b[0])} {f(b[1])}", far=True)
@@ -37,27 +39,24 @@ class Fig:
         return ('<path class="l" d="'+" ".join(s.far)+'"/>' if s.far else '')+'<path d="'+" ".join(s.near)+'"/>'
 
 def kart():
-    k=Fig()
-    for x,r in [(28,15),(128,12)]:
-        k.cyl_z(x,r,-4,12,r,hub=r*0.55); k.cyl_z(x,r,66,82,r,hub=0)
-    k.poly([(14,8,10),(150,8,18),(150,8,62),(14,8,70)],True)                     # chasis
-    k.poly([(28,15,12),(28,15,66)],far=True); k.poly([(128,12,12),(128,12,66)],far=True)  # ejes
-    k.poly([(2,10,6),(2,24,6),(2,24,74),(2,10,74)],True)                          # paragolpes trasero
-    k.poly([(2,17,6),(14,10,12)]); k.poly([(2,17,74),(14,10,68)],far=True)
-    k.box(46,6,-2, 106,18,10); k.poly([(46,18,-2),(52,24,-2),(100,24,-2),(106,18,-2)])  # pontón cercano
-    k.box(46,6,70, 106,18,82,far=True)
-    k.poly([(122,8,16),(160,8,22),(160,8,58),(122,8,64)],True)                    # trompa
-    k.poly([(122,8,16),(126,22,22),(156,16,26),(160,8,22)]); k.poly([(126,22,22),(126,22,58),(156,16,54),(156,16,26)],True)
-    k.poly([(126,22,58),(122,8,64)],far=True); k.poly([(156,16,54),(160,8,58)],far=True)
-    k.box(14,10,50, 38,30,70)                                                      # motor
-    k.poly([(48,10,30),(44,42,30),(56,42,30),(60,12,30)]); k.poly([(48,10,50),(44,42,50),(56,42,50),(60,12,50)],far=True)  # butaca
-    k.poly([(44,42,30),(44,42,50)]); k.poly([(56,42,30),(56,42,50)])
-    k.poly([(108,10,40),(92,36,40)])                                               # columna
-    cx,cy=P(90,38,40); k.ell(cx,cy,10,5)                                           # volante
-    k.poly([(54,40,40),(66,46,40),(86,40,34)]); k.poly([(66,46,40),(86,40,46)],far=True)   # piloto
-    k.poly([(56,26,40),(78,20,40),(98,12,40)])
-    hx,hy=P(58,58,40); k.add(f"M{f(hx-11)} {f(hy)} a11 11 0 1 0 22 0 a11 11 0 1 0 -22 0")
-    k.ell(hx+3,hy-1,8.5,4,half='front'); k.add(f"M{f(hx-11)} {f(hy)} Q{f(hx)} {f(hy+5)} {f(hx+11)} {f(hy)}")
+    # Karting simplificado: pocas líneas, se lee el volumen por las ruedas y el chasis
+    k=Fig(); W=60   # ancho del karting (profundidad)
+    for x,r in [(30,15),(130,12)]:
+        k.circle_xy(x,r,W+4,r,far=True)                     # rueda del lado de atrás
+        k.cyl_z(x,r,-4,10,r,hub=r*0.5,banda=False)         # rueda del lado cercano
+    k.poly([(14,9,8),(148,9,14),(148,9,W-6),(14,9,W-8)],True)         # chasis
+    k.poly([(4,14,4),(4,14,W-4)])                                      # paragolpes trasero
+    k.poly([(48,9,-2),(56,20,-2),(102,20,-2),(110,9,-2)])              # pontón
+    k.poly([(124,9,12),(132,22,18),(160,13,22),(164,9,16)])            # trompa
+    k.poly([(132,22,18),(132,22,W-18),(160,13,W-22),(160,13,22)], far=True)
+    k.poly([(52,9,W/2),(46,40,W/2),(60,38,W/2)])                       # butaca
+    k.poly([(108,11,W/2),(94,34,W/2)])                                 # columna
+    cx,cy=P(92,36,W/2); k.ell(cx,cy,9,5)                               # volante
+    k.poly([(52,36,W/2-6),(70,46,W/2-6),(66,22,W/2-6),(52,22,W/2-6)],True)   # torso
+    k.poly([(68,42,W/2-6),(88,38,W/2-6)])                              # brazo
+    k.poly([(64,24,W/2-6),(84,22,W/2-6),(102,13,W/2-6)])               # pierna
+    hx,hy=P(62,58,W/2-6); k.add(f"M{f(hx-11)} {f(hy)} a11 11 0 1 0 22 0 a11 11 0 1 0 -22 0")
+    k.add(f"M{f(hx-2)} {f(hy-3)} L{f(hx+11)} {f(hy-3)} M{f(hx-2)} {f(hy-3)} L{f(hx-2)} {f(hy+4)} L{f(hx+10)} {f(hy+4)}")   # visera
     return k.svg()
 
 def cubierta():
@@ -88,9 +87,10 @@ def copa():
 
 def volante():
     k=Fig(); 
-    for d,far in [(0,False),(6,True)]:
-        k.ell(0,d,34,20,far); k.ell(0,d,26,14.5,far)
-    k.add("M-34 0 L-34 6 M34 0 L34 6")
+    dx,dy=P(0,0,10)
+    for (ox,oy),far in [((0,0),False),((dx,dy),True)]:
+        k.ell(ox,oy,32,24,far); k.ell(ox,oy,25,18,far)
+    k.add(f"M-32 0 L{f(-32+dx)} {f(dy)} M32 0 L{f(32+dx)} {f(dy)}")
     k.ell(0,2,7,4); k.add("M-26 -1 L-7 1 M26 -1 L7 1 M0 6 L0 14")
     return k.svg()
 
@@ -113,8 +113,9 @@ def bandera():
 
 def crono():
     k=Fig()
-    for d,far in [(0,False),(7,True)]: k.ell(0,d,26,26,far)
-    k.add("M-26 0 L-26 7 M26 0 L26 7"); k.ell(0,0,21,21)
+    dx,dy=P(0,0,12)
+    for (ox,oy),far in [((0,0),False),((dx,dy),True)]: k.ell(ox,oy,26,26,far)
+    k.add(f"M-18 18 L{f(-18+dx)} {f(18+dy)} M18 -18 L{f(18+dx)} {f(-18+dy)}"); k.ell(0,0,21,21)
     k.add("M-5 -30 L5 -30 L5 -26 L-5 -26 Z M0 -26 L0 -22 M17 -20 L22 -25")
     k.add("M0 0 L0 -15 M0 0 L10 6"); 
     for a in range(12):
@@ -124,7 +125,7 @@ def crono():
 def casco():
     k=Fig()
     casco_d="M-30 14 C-34 -26 -6 -36 10 -34 C32 -32 40 -14 38 6 L36 18 C36 22 32 24 28 24 L-22 24 C-28 24 -30 20 -30 14 Z"
-    ox,oy=CZ*-22, SZ*22   # cara de atrás del casco, corrida en profundidad
+    ox,oy=P(0,0,22)       # cara de atrás del casco, corrida en profundidad
     import re
     def mover(d):
         toks=re.split(r"(-?\d+\.?\d*)",d); res=[]; i=0
@@ -142,9 +143,9 @@ def casco():
     return k.svg()
 
 piezas = [
-  (kart(), 30, 250, 1.4, 0), (casco(), 450, 170, 1.15, -6), (bandera(), 600, 100, 1.1, 0),
+  (kart(), 70, 250, 1.4, 0), (casco(), 450, 170, 1.15, -6), (bandera(), 600, 100, 1.1, 0),
   (volante(), 120, 430, 1.3, -8), (cubierta(), 370, 440, 1.0, 0), (crono(), 660, 430, 1.1, 10),
-  (cono(), 90, 720, 1.05, 0), (kart(), 290, 690, 1.0, 0), (copa(), 640, 760, 1.05, 0),
+  (cono(), 90, 720, 1.05, 0), (kart(), 320, 690, 1.0, 0), (copa(), 640, 760, 1.05, 0),
 ]
 g="".join(f'<g transform="translate({x} {y}) rotate({r}) scale({s})">{svg}</g>' for svg,x,y,s,r in piezas)
 out=f'''<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
