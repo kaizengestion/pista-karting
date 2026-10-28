@@ -1,20 +1,20 @@
-/* Datos de ejemplo (todos con ejemplo: true). Generados para una "hoy" = 2026-10-17.
+/* Datos de ejemplo (todos con ejemplo: true). Generados para una "hoy" = 2026-10-17. Categorías y lugares del RGK Santafesino.
    Se usan en modo demostración y como semilla de la base (seed/seed.json).
    Los resultados de fechas pasadas son planillas congeladas: sus inscId ('r-f1-..') no tienen documento de inscripción. */
 window.DEMO_DATA = {
   torneos: [
     {
       id: "t-2026-f1",
-      nombre: "Campeonato Kart Club 2026 — Fecha 1",
+      nombre: "RGK Santafesino 2026 — Fecha 1",
       fecha: "2026-08-16",
-      lugar: "Kartódromo de Zárate",
+      lugar: "Kartódromo de Cañada de Gómez",
       estado: "finalizado",
-      categorias: [{"nombre":"Iniciantes","cupo":12},{"nombre":"Intermedios","cupo":10},{"nombre":"Avanzados","cupo":8}],
+      categorias: [{"nombre":"110 Escuela","cupo":12},{"nombre":"150 Varillero","cupo":10},{"nombre":"125 Internacional","cupo":8}],
       notas: "",
       creado: "2026-07-20T14:05:00.000Z",
       finalizado: "2026-08-16T21:42:00.000Z",
       resultados: {
-        Iniciantes: [
+        "110 Escuela": [
           {"inscId":"r-f1-13","nombre":"Gustavo","apellido":"Paz","dni":"31602829","nroKarting":"2","nroMotor":"IAME Puma #19539","tiempo":52595,"ok":true,"posicion":1},
           {"inscId":"r-f1-09","nombre":"Joaquín","apellido":"Aguirre","dni":"50016302","nroKarting":"58","nroMotor":"IAME Puma #91648","tiempo":52847,"ok":true,"posicion":2},
           {"inscId":"r-f1-06","nombre":"Lautaro","apellido":"Benítez","dni":"52301946","nroKarting":"15","nroMotor":"IAME Puma #59784","tiempo":53460,"ok":true,"posicion":3},
@@ -25,7 +25,7 @@ window.DEMO_DATA = {
           {"inscId":"r-f1-03","nombre":"Thiago","apellido":"Giménez","dni":"51386584","nroKarting":"59","nroMotor":"Rotax Mini Max #3D8173","tiempo":54418,"ok":true,"posicion":8},
           {"inscId":"r-f1-04","nombre":"Martina","apellido":"Acosta","dni":"51898050","nroKarting":"66","nroMotor":"Rotax Mini Max #3F8697","tiempo":null,"ok":false,"posicion":null}
         ],
-        Intermedios: [
+        "150 Varillero": [
           {"inscId":"r-f1-14","nombre":"Tomás","apellido":"Molina","dni":"50629637","nroKarting":"26","nroMotor":"Rotax #6G2628","tiempo":49441,"ok":true,"posicion":1},
           {"inscId":"r-f1-15","nombre":"Agustín","apellido":"Castro","dni":"26346716","nroKarting":"74","nroMotor":"IAME X30 #76596","tiempo":49659,"ok":true,"posicion":2},
           {"inscId":"r-f1-18","nombre":"Nicolás","apellido":"Ojeda","dni":"41431634","nroKarting":"86","nroMotor":"IAME X30 #49982","tiempo":49965,"ok":true,"posicion":3},
@@ -34,7 +34,7 @@ window.DEMO_DATA = {
           {"inscId":"r-f1-16","nombre":"Camila","apellido":"Rojas","dni":"49889715","nroKarting":"23","nroMotor":"Rotax #5A7765","tiempo":51268,"ok":true,"posicion":6},
           {"inscId":"r-f1-23","nombre":"Gonzalo","apellido":"Ríos","dni":"24337403","nroKarting":"92","nroMotor":"Rotax #5C6654","tiempo":null,"ok":false,"posicion":null}
         ],
-        Avanzados: [
+        "125 Internacional": [
           {"inscId":"r-f1-30","nombre":"Hernán","apellido":"Maidana","dni":"31222951","nroKarting":"55","nroMotor":"Rotax #7B7879","tiempo":46498,"ok":true,"posicion":1},
           {"inscId":"r-f1-28","nombre":"Pablo","apellido":"Correa","dni":"43180877","nroKarting":"63","nroMotor":"Rotax #1B3640","tiempo":46602,"ok":true,"posicion":2},
           {"inscId":"r-f1-32","nombre":"Rodrigo","apellido":"Bustos","dni":"32907799","nroKarting":"16","nroMotor":"Rotax #9C5769","tiempo":46884,"ok":true,"posicion":3},
@@ -49,16 +49,16 @@ window.DEMO_DATA = {
     },
     {
       id: "t-2026-f2",
-      nombre: "Campeonato Kart Club 2026 — Fecha 2",
+      nombre: "RGK Santafesino 2026 — Fecha 2",
       fecha: "2026-09-13",
-      lugar: "Kartódromo de Baradero",
+      lugar: "Kartódromo de Rafaela",
       estado: "finalizado",
-      categorias: [{"nombre":"Iniciantes","cupo":12},{"nombre":"Intermedios","cupo":10},{"nombre":"Avanzados","cupo":8}],
+      categorias: [{"nombre":"110 Escuela","cupo":12},{"nombre":"150 Varillero","cupo":10},{"nombre":"125 Internacional","cupo":8}],
       notas: "Pista húmeda en la primera tanda. Clasificación con mejor vuelta de la segunda tanda.",
       creado: "2026-08-18T13:30:00.000Z",
       finalizado: "2026-09-13T21:10:00.000Z",
       resultados: {
-        Iniciantes: [
+        "110 Escuela": [
           {"inscId":"r-f2-13","nombre":"Gustavo","apellido":"Paz","dni":"31602829","nroKarting":"2","nroMotor":"IAME Puma #19539","tiempo":52825,"ok":true,"posicion":1},
           {"inscId":"r-f2-06","nombre":"Lautaro","apellido":"Benítez","dni":"52301946","nroKarting":"15","nroMotor":"IAME Puma #59784","tiempo":52866,"ok":true,"posicion":2},
           {"inscId":"r-f2-07","nombre":"Catalina","apellido":"Medina","dni":"50112382","nroKarting":"27","nroMotor":"Rotax Mini Max #3F1335","tiempo":52980,"ok":true,"posicion":3},
@@ -68,7 +68,7 @@ window.DEMO_DATA = {
           {"inscId":"r-f2-02","nombre":"Valentina","apellido":"Sosa","dni":"52790128","nroKarting":"99","nroMotor":"Rotax Mini Max #7C7705","tiempo":55247,"ok":true,"posicion":7},
           {"inscId":"r-f2-01","nombre":"Benjamín","apellido":"Ferreyra","dni":"51001346","nroKarting":"18","nroMotor":"Rotax Mini Max #6C5511","tiempo":null,"ok":false,"posicion":null}
         ],
-        Intermedios: [
+        "150 Varillero": [
           {"inscId":"r-f2-20","nombre":"Franco","apellido":"Godoy","dni":"38884151","nroKarting":"57","nroMotor":"Rotax #9G8068","tiempo":49541,"ok":true,"posicion":1},
           {"inscId":"r-f2-15","nombre":"Agustín","apellido":"Castro","dni":"26346716","nroKarting":"74","nroMotor":"IAME X30 #76596","tiempo":49893,"ok":true,"posicion":2},
           {"inscId":"r-f2-18","nombre":"Nicolás","apellido":"Ojeda","dni":"41431634","nroKarting":"86","nroMotor":"IAME X30 #49982","tiempo":50114,"ok":true,"posicion":3},
@@ -79,7 +79,7 @@ window.DEMO_DATA = {
           {"inscId":"r-f2-17","nombre":"Facundo","apellido":"Ruiz","dni":"41898799","nroKarting":"52","nroMotor":"IAME X30 #32806","tiempo":50789,"ok":true,"posicion":8},
           {"inscId":"r-f2-23","nombre":"Gonzalo","apellido":"Ríos","dni":"24337403","nroKarting":"92","nroMotor":"Rotax #5C6654","tiempo":51435,"ok":true,"posicion":9}
         ],
-        Avanzados: [
+        "125 Internacional": [
           {"inscId":"r-f2-30","nombre":"Hernán","apellido":"Maidana","dni":"31222951","nroKarting":"55","nroMotor":"Rotax #7B7879","tiempo":46310,"ok":true,"posicion":1},
           {"inscId":"r-f2-31","nombre":"Federico","apellido":"Vázquez","dni":"23721839","nroKarting":"29","nroMotor":"Rotax #5G8010","tiempo":46984,"ok":true,"posicion":2},
           {"inscId":"r-f2-27","nombre":"Leandro","apellido":"Suárez","dni":"42380231","nroKarting":"80","nroMotor":"IAME X30 #27975","tiempo":47630,"ok":true,"posicion":3},
@@ -92,16 +92,16 @@ window.DEMO_DATA = {
     },
     {
       id: "t-2026-f3",
-      nombre: "Campeonato Kart Club 2026 — Fecha 3",
+      nombre: "RGK Santafesino 2026 — Fecha 3",
       fecha: "2026-10-04",
-      lugar: "Kartódromo de Zárate",
+      lugar: "Kartódromo de Cañada de Gómez",
       estado: "finalizado",
-      categorias: [{"nombre":"Iniciantes","cupo":12},{"nombre":"Intermedios","cupo":10},{"nombre":"Avanzados","cupo":8}],
+      categorias: [{"nombre":"110 Escuela","cupo":12},{"nombre":"150 Varillero","cupo":10},{"nombre":"125 Internacional","cupo":8}],
       notas: "",
       creado: "2026-09-15T12:10:00.000Z",
       finalizado: "2026-10-04T20:55:00.000Z",
       resultados: {
-        Iniciantes: [
+        "110 Escuela": [
           {"inscId":"r-f3-07","nombre":"Catalina","apellido":"Medina","dni":"50112382","nroKarting":"27","nroMotor":"Rotax Mini Max #3F1335","tiempo":52653,"ok":true,"posicion":1},
           {"inscId":"r-f3-08","nombre":"Santino","apellido":"Herrera","dni":"52224695","nroKarting":"97","nroMotor":"IAME Puma #33126","tiempo":53899,"ok":true,"posicion":2},
           {"inscId":"r-f3-11","nombre":"Felipe","apellido":"Quiroga","dni":"51481714","nroKarting":"21","nroMotor":"Rotax Mini Max #1B1436","tiempo":54094,"ok":true,"posicion":3},
@@ -110,7 +110,7 @@ window.DEMO_DATA = {
           {"inscId":"r-f3-03","nombre":"Thiago","apellido":"Giménez","dni":"51386584","nroKarting":"59","nroMotor":"Rotax Mini Max #3D8173","tiempo":54522,"ok":true,"posicion":6},
           {"inscId":"r-f3-04","nombre":"Martina","apellido":"Acosta","dni":"51898050","nroKarting":"66","nroMotor":"Rotax Mini Max #3F8697","tiempo":null,"ok":false,"posicion":null}
         ],
-        Intermedios: [
+        "150 Varillero": [
           {"inscId":"r-f3-14","nombre":"Tomás","apellido":"Molina","dni":"50629637","nroKarting":"26","nroMotor":"Rotax #6G2628","tiempo":49470,"ok":true,"posicion":1},
           {"inscId":"r-f3-20","nombre":"Franco","apellido":"Godoy","dni":"38884151","nroKarting":"57","nroMotor":"Rotax #9G8068","tiempo":49883,"ok":true,"posicion":2},
           {"inscId":"r-f3-18","nombre":"Nicolás","apellido":"Ojeda","dni":"41431634","nroKarting":"86","nroMotor":"IAME X30 #49982","tiempo":50189,"ok":true,"posicion":3},
@@ -120,7 +120,7 @@ window.DEMO_DATA = {
           {"inscId":"r-f3-17","nombre":"Facundo","apellido":"Ruiz","dni":"41898799","nroKarting":"52","nroMotor":"IAME X30 #32806","tiempo":51070,"ok":true,"posicion":7},
           {"inscId":"r-f3-15","nombre":"Agustín","apellido":"Castro","dni":"26346716","nroKarting":"74","nroMotor":"IAME X30 #76596","tiempo":null,"ok":false,"posicion":null}
         ],
-        Avanzados: [
+        "125 Internacional": [
           {"inscId":"r-f3-31","nombre":"Federico","apellido":"Vázquez","dni":"23721839","nroKarting":"29","nroMotor":"Rotax #5G8010","tiempo":46490,"ok":true,"posicion":1},
           {"inscId":"r-f3-28","nombre":"Pablo","apellido":"Correa","dni":"43180877","nroKarting":"63","nroMotor":"Rotax #1B3640","tiempo":46551,"ok":true,"posicion":2},
           {"inscId":"r-f3-29","nombre":"Sebastián","apellido":"Luna","dni":"38562874","nroKarting":"20","nroMotor":"IAME X30 #28642","tiempo":47252,"ok":true,"posicion":3},
@@ -136,33 +136,34 @@ window.DEMO_DATA = {
     },
     {
       id: "t-2026-f4",
-      nombre: "Campeonato Kart Club 2026 — Fecha 4",
+      nombre: "RGK Santafesino 2026 — Fecha 4",
       fecha: "2026-10-18",
-      lugar: "Kartódromo de Zárate",
+      lugar: "Kartódromo de Cañada de Gómez",
       estado: "actual",
-      categorias: [{"nombre":"Iniciantes","cupo":12},{"nombre":"Intermedios","cupo":10},{"nombre":"Avanzados","cupo":8}],
-      notas: "Acreditación desde las 8:00. Briefing de pilotos 9:30. Largada Iniciantes 10:00.",
+      categorias: [{"nombre":"110 Escuela","cupo":12},{"nombre":"150 Varillero","cupo":10},{"nombre":"125 Internacional","cupo":8}],
+      notas: "Acreditación desde las 8:00. Briefing de pilotos 9:30. Largada 110 Escuela 10:00.",
       creado: "2026-10-05T13:00:00.000Z",
       ejemplo: true
     },
     {
       id: "t-2026-f5",
-      nombre: "Campeonato Kart Club 2026 — Fecha 5",
+      nombre: "RGK Santafesino 2026 — Fecha 5",
       fecha: "2026-11-15",
-      lugar: "Kartódromo de Baradero",
+      lugar: "Kartódromo de Rafaela",
       estado: "proximo",
-      categorias: [{"nombre":"Iniciantes","cupo":12},{"nombre":"Intermedios","cupo":10},{"nombre":"Avanzados","cupo":8}],
+      categorias: [{"nombre":"110 Escuela","cupo":12},{"nombre":"150 Varillero","cupo":10},{"nombre":"125 Internacional","cupo":8}],
       notas: "",
       creado: "2026-10-06T15:20:00.000Z",
       ejemplo: true
     },
     {
       id: "t-2026-f6",
-      nombre: "Campeonato Kart Club 2026 — Fecha 6 (Gran Final)",
-      fecha: "2026-12-13",
-      lugar: "Kartódromo de Zárate",
+      nombre: "RGK Santafesino 2026 — Copa de Verano",
+      fecha: "2026-11-29",
+      fechas: ["2026-11-29", "2026-12-06", "2026-12-13"],
+      lugar: "Kartódromo de Cañada de Gómez",
       estado: "proximo",
-      categorias: [{"nombre":"Iniciantes","cupo":14},{"nombre":"Intermedios","cupo":12},{"nombre":"Avanzados","cupo":10}],
+      categorias: [{"nombre":"110 Escuela","cupo":14},{"nombre":"150 Varillero","cupo":12},{"nombre":"125 Internacional","cupo":10}],
       notas: "Entrega de premios del campeonato al finalizar.",
       creado: "2026-10-06T15:25:00.000Z",
       ejemplo: true
@@ -172,7 +173,7 @@ window.DEMO_DATA = {
     {
       id: "i-001",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Nicolás",
       apellido: "Ojeda",
       dni: "41431634",
@@ -190,7 +191,7 @@ window.DEMO_DATA = {
     {
       id: "i-002",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Valentina",
       apellido: "Sosa",
       dni: "52790128",
@@ -208,7 +209,7 @@ window.DEMO_DATA = {
     {
       id: "i-003",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Martina",
       apellido: "Acosta",
       dni: "51898050",
@@ -226,7 +227,7 @@ window.DEMO_DATA = {
     {
       id: "i-004",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Gonzalo",
       apellido: "Ríos",
       dni: "24337403",
@@ -244,7 +245,7 @@ window.DEMO_DATA = {
     {
       id: "i-005",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Gustavo",
       apellido: "Paz",
       dni: "31602829",
@@ -262,7 +263,7 @@ window.DEMO_DATA = {
     {
       id: "i-006",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Franco",
       apellido: "Godoy",
       dni: "38884151",
@@ -280,7 +281,7 @@ window.DEMO_DATA = {
     {
       id: "i-007",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Lautaro",
       apellido: "Benítez",
       dni: "52301946",
@@ -298,7 +299,7 @@ window.DEMO_DATA = {
     {
       id: "i-008",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Matías",
       apellido: "Peralta",
       dni: "41806213",
@@ -316,7 +317,7 @@ window.DEMO_DATA = {
     {
       id: "i-009",
       torneoId: "t-2026-f4",
-      categoria: "Avanzados",
+      categoria: "125 Internacional",
       nombre: "Sebastián",
       apellido: "Luna",
       dni: "38562874",
@@ -334,7 +335,7 @@ window.DEMO_DATA = {
     {
       id: "i-010",
       torneoId: "t-2026-f4",
-      categoria: "Avanzados",
+      categoria: "125 Internacional",
       nombre: "Carla",
       apellido: "Villalba",
       dni: "35948153",
@@ -352,7 +353,7 @@ window.DEMO_DATA = {
     {
       id: "i-011",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Felipe",
       apellido: "Quiroga",
       dni: "51481714",
@@ -370,7 +371,7 @@ window.DEMO_DATA = {
     {
       id: "i-012",
       torneoId: "t-2026-f4",
-      categoria: "Avanzados",
+      categoria: "125 Internacional",
       nombre: "Rodrigo",
       apellido: "Bustos",
       dni: "32907799",
@@ -388,7 +389,7 @@ window.DEMO_DATA = {
     {
       id: "i-013",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Sofía",
       apellido: "Cabrera",
       dni: "51493724",
@@ -406,7 +407,7 @@ window.DEMO_DATA = {
     {
       id: "i-014",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Agustín",
       apellido: "Castro",
       dni: "26346716",
@@ -424,7 +425,7 @@ window.DEMO_DATA = {
     {
       id: "i-015",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Bautista",
       apellido: "Romero",
       dni: "52317474",
@@ -442,7 +443,7 @@ window.DEMO_DATA = {
     {
       id: "i-016",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Santino",
       apellido: "Herrera",
       dni: "52224695",
@@ -460,7 +461,7 @@ window.DEMO_DATA = {
     {
       id: "i-017",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Catalina",
       apellido: "Medina",
       dni: "50112382",
@@ -478,7 +479,7 @@ window.DEMO_DATA = {
     {
       id: "i-018",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Camila",
       apellido: "Rojas",
       dni: "49889715",
@@ -496,7 +497,7 @@ window.DEMO_DATA = {
     {
       id: "i-019",
       torneoId: "t-2026-f4",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Facundo",
       apellido: "Ruiz",
       dni: "41898799",
@@ -514,7 +515,7 @@ window.DEMO_DATA = {
     {
       id: "i-020",
       torneoId: "t-2026-f4",
-      categoria: "Avanzados",
+      categoria: "125 Internacional",
       nombre: "Ezequiel",
       apellido: "Moreno",
       dni: "39613689",
@@ -532,7 +533,7 @@ window.DEMO_DATA = {
     {
       id: "i-021",
       torneoId: "t-2026-f4",
-      categoria: "Avanzados",
+      categoria: "125 Internacional",
       nombre: "Pablo",
       apellido: "Correa",
       dni: "43180877",
@@ -550,7 +551,7 @@ window.DEMO_DATA = {
     {
       id: "i-022",
       torneoId: "t-2026-f4",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Thiago",
       apellido: "Giménez",
       dni: "51386584",
@@ -568,7 +569,7 @@ window.DEMO_DATA = {
     {
       id: "i-023",
       torneoId: "t-2026-f5",
-      categoria: "Iniciantes",
+      categoria: "110 Escuela",
       nombre: "Benjamín",
       apellido: "Ferreyra",
       dni: "51001346",
@@ -586,7 +587,7 @@ window.DEMO_DATA = {
     {
       id: "i-024",
       torneoId: "t-2026-f5",
-      categoria: "Avanzados",
+      categoria: "125 Internacional",
       nombre: "Martín",
       apellido: "Fernández",
       dni: "24683485",
@@ -604,7 +605,7 @@ window.DEMO_DATA = {
     {
       id: "i-025",
       torneoId: "t-2026-f5",
-      categoria: "Intermedios",
+      categoria: "150 Varillero",
       nombre: "Camila",
       apellido: "Rojas",
       dni: "49889715",

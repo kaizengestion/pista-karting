@@ -8,7 +8,7 @@
   const CSS = `
 .v-registro { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
 .v-registro [hidden] { display: none !important; }
-.v-registro .reg-head { display: flex; flex-direction: column; gap: 6px; border-bottom: 3px solid var(--ink); padding-bottom: 14px; }
+.v-registro .reg-head { display: flex; flex-direction: column; gap: 6px; border-bottom: 3px solid var(--accent); padding-bottom: 14px; }
 .v-registro .reg-head h1 { overflow-wrap: anywhere; }
 .v-registro .reg-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; color: var(--ink-2); font-weight: 500; }
 .v-registro .reg-meta > span { display: inline-flex; align-items: center; gap: 6px; }
@@ -39,12 +39,17 @@
 .v-registro .cat-opt { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 12px 14px; cursor: pointer;
   background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius); }
 .v-registro .cat-opt:hover { border-color: var(--ink-3); }
-.v-registro .cat-opt input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--ink); cursor: pointer; }
+.v-registro .cat-opt input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--accent); cursor: pointer; }
 .v-registro .cat-opt:focus-within { outline: 2px solid var(--track); outline-offset: 2px; }
-.v-registro .cat-opt.is-sel { border-color: var(--ink); box-shadow: inset 4px 0 0 var(--accent); background: var(--surface-2); }
+.v-registro .cat-opt.is-sel { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent); background: var(--surface-2); }
 .v-registro .cat-opt b { display: block; font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; line-height: 1.15; }
 .v-registro .cat-opt small { display: block; color: var(--ink-2); font-size: .8rem; }
 .v-registro .cat-list.invalid .cat-opt { border-color: var(--danger); }
+.v-registro .tipo-list { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.v-registro .tipo-list .cat-opt { min-height: 72px; }
+.v-registro .p-sub { font: 700 1rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.v-registro .p-sub::before { content: ""; width: 14px; height: 3px; background: var(--accent); border-radius: 2px; }
+.v-registro .p2-box { display: flex; flex-direction: column; gap: 14px; padding-top: 6px; }
 
 .v-registro .vh { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .v-registro .aut-box { border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 16px; background: var(--surface); display: flex; flex-direction: column; gap: 12px; }
@@ -133,6 +138,12 @@
     { key: 'nroMotor', label: 'Nº de motor', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', hint: 'Tal como figura en el motor.', msg: 'Completá el número de motor.' },
     { key: 'seguro', label: 'Seguro', autocomplete: 'off', autocapitalize: 'sentences', full: true, hint: 'Compañía y número de póliza.', msg: 'Completá los datos del seguro.' },
   ];
+  /* Segundo piloto, solo para la inscripción de invitados (comparten el resto de los datos) */
+  const CAMPOS_P2 = [
+    { key: 'nombre2', label: 'Nombre', autocomplete: 'off', autocapitalize: 'words', msg: 'Completá el nombre del piloto 2.' },
+    { key: 'apellido2', label: 'Apellido', autocomplete: 'off', autocapitalize: 'words', msg: 'Completá el apellido del piloto 2.' },
+    { key: 'dni2', label: 'DNI', autocomplete: 'off', inputmode: 'numeric', maxlength: 8, digits: true, hint: 'Solo números, sin puntos.', msg: 'Completá el DNI del piloto 2.' },
+  ];
   const TODOS = CAMPOS.concat(CAMPOS_KART);
   const ORDEN = ['nombre', 'apellido', 'dni', 'telefono', 'email', 'direccion', 'categoria', 'nroKarting', 'nroMotor', 'seguro'];
 
@@ -167,6 +178,7 @@
         autCambiando: false,
         categoria: '',
         catSig: '',
+        tipo: 'piloto',        // piloto | invitados (dos pilotos con el mismo kart)
       };
 
       const root = h('div', { class: 'v-registro' });
@@ -191,7 +203,7 @@
             t.estado === 'actual' ? h('span', { class: 'pill pill-live' }, 'En curso') : null),
           h('h1', null, t.nombre || 'Torneo'),
           h('div', { class: 'reg-meta' },
-            t.fecha ? h('span', null, icon(ICONS.calendario), capital(App.fmt.fechaLarga(t.fecha))) : null,
+            t.fecha ? h('span', null, icon(ICONS.calendario), capital(App.fmt.fechasTexto(t, true))) : null,
             t.lugar ? h('span', null, icon(ICONS.lugar), t.lugar) : null),
           t.notas ? h('p', { class: 'reg-notas' }, t.notas) : null
         );
@@ -296,7 +308,9 @@
         const box = h('div', { class: 'card reg-ok', role: 'status' },
           h('div', { class: 'reg-badge' }, icon(ICONS.check)),
           h('h2', { tabindex: '-1' }, o.edicion ? '¡Listo, guardamos tus cambios!' : '¡Listo, quedaste inscripto!'),
-          resumen(d, [['Competidor', [d.nombre, d.apellido].filter(Boolean).join(' ')]]),
+          resumen(d, d.piloto2
+            ? [['Invitados', [d.nombre, d.apellido].filter(Boolean).join(' ') + ' y ' + [d.piloto2.nombre, d.piloto2.apellido].filter(Boolean).join(' ')]]
+            : [['Competidor', [d.nombre, d.apellido].filter(Boolean).join(' ')]]),
           !d.autorizacion ? h('div', { class: 'aut-warn' }, icon(ICONS.alerta),
             h('span', null, 'No adjuntaste la autorización de los padres. Si el competidor es menor de 18, la va a tener que presentar antes de correr.')) : null,
           h('p', { class: 'muted small' }, 'El organizador revisa los datos y confirma la categoría.'),
@@ -312,7 +326,7 @@
 
       function nuevoForm() {
         st.dirty = false; st.editando = false; st.intentado = false; st.aut = null; st.autError = '';
-        st.autCambiando = false; st.categoria = ''; st.catSig = '';
+        st.autCambiando = false; st.categoria = ''; st.catSig = ''; st.tipo = 'piloto';
         show('form');
         window.scrollTo(0, 0);
         const f = body.querySelector('#reg-nombre'); f && f.focus();
@@ -373,7 +387,8 @@
         const r = refs[key];
         const v = r.input.value.trim();
         if (!v) return r.def.msg;
-        if (key === 'dni' && !/^\d{7,8}$/.test(v)) return 'El DNI tiene que tener 7 u 8 números, sin puntos ni espacios.';
+        if ((key === 'dni' || key === 'dni2') && !/^\d{7,8}$/.test(v)) return 'El DNI tiene que tener 7 u 8 números, sin puntos ni espacios.';
+        if (key === 'dni2' && refs.dni && v === refs.dni.input.value.trim()) return 'El DNI del piloto 2 no puede ser igual al del piloto 1.';
         if (key === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return 'Revisá el email: tiene que ser del estilo nombre@dominio.com.';
         if (key === 'telefono' && v.replace(/\D/g, '').length < 6) return 'Revisá el teléfono: parece incompleto.';
         return '';
@@ -504,6 +519,9 @@
         const d = { torneoId: st.torneo ? st.torneo.id : '', categoria: st.categoria || '' };
         TODOS.forEach(c => { d[c.key] = refs[c.key].input.value.trim(); });
         d.autorizacion = st.aut ? { assetId: st.aut.assetId, nombre: st.aut.nombre, tipo: st.aut.tipo, tamano: st.aut.tamano } : null;
+        if (esInvitados()) {
+          d.piloto2 = { nombre: refs.nombre2.input.value.trim(), apellido: refs.apellido2.input.value.trim(), dni: refs.dni2.input.value.trim() };
+        }
         return d;
       }
 
@@ -512,7 +530,8 @@
         if (st.enviando) return;
         st.intentado = true;
         let primero = null;
-        ORDEN.forEach(k => { const m = validarCampo(k); if (m && !primero) primero = k; });
+        const orden = esInvitados() ? ORDEN.slice(0, 6).concat(['nombre2', 'apellido2', 'dni2'], ORDEN.slice(6)) : ORDEN;
+        orden.forEach(k => { const m = validarCampo(k); if (m && !primero) primero = k; });
         if (primero) {
           const target = primero === 'categoria'
             ? (catList.querySelector('input:checked') || catList.querySelector('input'))
@@ -545,7 +564,8 @@
         }
       }
 
-      function labelSubmit() { return st.editando ? 'Guardar cambios' : 'Enviar inscripción'; }
+      function labelSubmit() { return st.editando ? 'Guardar cambios' : esInvitados() ? 'Inscribir a los dos invitados' : 'Enviar inscripción'; }
+      function esInvitados() { return st.tipo === 'invitados' && !st.editando; }
 
       function seccion(n, titulo, ...hijos) {
         return h('section', { class: 'reg-sec', 'aria-labelledby': 'reg-sec-' + n },
@@ -591,13 +611,44 @@
           'Las inscripciones se cerraron mientras completabas el formulario. Consultá con el organizador.');
         submitBtn = h('button', { type: 'submit', class: 'btn btn-primary btn-lg', id: 'reg-enviar' }, labelSubmit());
 
+        /* Tipo de inscripción: un piloto, o dos invitados que corren con el mismo kart */
+        if (prefill || st.editando) st.tipo = 'piloto';
+        const p1Sub = h('p', { class: 'p-sub' }, 'Piloto 1');
+        const p2Box = h('div', { class: 'p2-box' }, h('p', { class: 'p-sub' }, 'Piloto 2'),
+          h('div', { class: 'form-grid' }, CAMPOS_P2.map(campo)),
+          h('p', { class: 'hint' }, 'El teléfono, el email, la dirección, el kart y el seguro son los mismos para los dos.'));
+        const sec1Title = h('span');
+        const tipoList = h('div', { class: 'cat-list tipo-list' });
+        const tipoField = h('fieldset', { class: 'field', id: 'reg-tipo' }, h('legend', null, '¿Cómo te anotás?'), tipoList);
+        function pintarTipo() {
+          const inv = esInvitados();
+          p1Sub.hidden = !inv;
+          p2Box.hidden = !inv;
+          sec1Title.textContent = inv ? 'Datos de los pilotos' : 'Tus datos';
+          if (!st.enviando) submitBtn.textContent = labelSubmit();
+          tipoList.querySelectorAll('.cat-opt').forEach(o => o.classList.toggle('is-sel', o.querySelector('input').checked));
+          if (!inv) CAMPOS_P2.forEach(c => setErr(c.key, ''));
+        }
+        tipoList.append(...[
+          ['piloto', 'Piloto', 'Un piloto con su propio kart.'],
+          ['invitados', 'Invitados', 'Dos pilotos invitados que corren con el mismo kart.'],
+        ].map(([v, titulo, sub]) => {
+          const radio = h('input', { type: 'radio', name: 'tipo', id: 'reg-tipo-' + v, value: v, checked: st.tipo === v });
+          radio.addEventListener('change', () => { st.tipo = v; st.dirty = true; pintarTipo(); });
+          return h('label', { class: 'cat-opt', for: 'reg-tipo-' + v }, radio, h('span', null, h('b', null, titulo), h('small', null, sub)));
+        }));
+        tipoField.hidden = !!st.editando;
+
         const aviso = !App.isAdmin && st.mia && !st.editando && prefill
           ? h('p', { class: 'small muted' }, 'Precargamos tus datos de la inscripción anterior. Revisalos antes de enviar.')
           : null;
 
         formEl = h('form', { novalidate: true, autocomplete: 'on', onsubmit: enviar, 'aria-label': 'Formulario de inscripción' },
-          seccion(1, 'Tus datos',
-            h('div', { class: 'form-grid' }, CAMPOS.map(campo))),
+          tipoField,
+          seccion(1, sec1Title,
+            p1Sub,
+            h('div', { class: 'form-grid' }, CAMPOS.map(campo)),
+            p2Box),
           seccion(2, 'Tu kart',
             h('div', { class: 'form-grid' }, catFieldset, CAMPOS_KART.map(campo))),
           seccion(3, 'Autorización de los padres',
@@ -614,6 +665,7 @@
         actualizarCategorias(true);
         actualizarCierre();
         renderAut();
+        pintarTipo();
 
         return h('div', { class: 'stack-lg' },
           (App.isAdmin && !App.vistaCompetidor) ? compartir() : null,

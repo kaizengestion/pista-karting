@@ -9,9 +9,9 @@
 .v-proximos .pr-list { display: flex; flex-direction: column; gap: 16px; }
 .v-proximos .pr-card { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 18px; align-items: start; }
 .v-proximos .pr-date { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 6px; border-radius: var(--radius);
-  background: var(--ink); color: var(--bg); text-align: center; line-height: 1; gap: 4px; }
+  background: #000; border: 1px solid var(--accent); color: #fff; text-align: center; line-height: 1; gap: 4px; }
 .v-proximos .pr-day { font: 800 2.6rem/0.9 var(--font-display); font-variant-numeric: tabular-nums; }
-.v-proximos .pr-mon { font: 700 1rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+.v-proximos .pr-mon { font: 700 1rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--accent-text); }
 .v-proximos .pr-year { font: 600 .8rem/1 var(--font-display); letter-spacing: .08em; opacity: .75; font-variant-numeric: tabular-nums; }
 .v-proximos .pr-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .v-proximos .pr-body h2 { overflow-wrap: anywhere; }
@@ -34,6 +34,10 @@
 .v-proximos-modal .pr-cat-head { display: grid; grid-template-columns: minmax(0, 1fr) 96px auto; gap: 8px; font-size: .8rem; color: var(--ink-3); font-weight: 600; }
 .v-proximos-modal .pr-cat-head span:last-child { visibility: hidden; }
 .v-proximos-modal .pr-cat-row input[type="number"] { font-variant-numeric: tabular-nums; }
+.v-proximos-modal .pr-fecha-rows { display: flex; flex-direction: column; gap: 8px; }
+.v-proximos-modal .pr-fecha-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.v-proximos-modal .pr-fecha-row .pr-fecha-n { font: 700 .95rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+.v-proximos-modal .pr-fecha-row .btn[hidden] { display: inline-flex !important; visibility: hidden; }
 .v-proximos-modal .pr-err { color: var(--danger); font-size: .88rem; font-weight: 600; }
 .v-proximos-modal textarea { resize: vertical; min-height: 72px; }
 @media (max-width: 520px) {
@@ -45,7 +49,11 @@
 }
 `);
 
-  const DEFAULT_CATS = [{ nombre: 'Iniciantes', cupo: 12 }, { nombre: 'Intermedios', cupo: 12 }, { nombre: 'Avanzados', cupo: 10 }];
+  /* Categorías del RGK Santafesino: se cargan al crear un torneo nuevo */
+  const DEFAULT_CATS = [
+    '110 Escuela', '150 Varillero Juvenil', '150 Varillero', '150 Cadenero', '150 Multimarca', '150 Multi.Senior',
+    '125 Promocional', '125 Inter.Juvenil', '125 Internacional', '125 Inter. Promocional', '125 Inter.Senior', '125 Inter.Master',
+  ].map(nombre => ({ nombre, cupo: null }));
   const pl = (n, uno, varios) => n + ' ' + (n === 1 ? uno : varios);
 
   function callUnsub(u) {
@@ -128,7 +136,7 @@
           h('div', { class: 'pr-body' },
             h('div', { class: 'stack', style: { gap: '4px' } },
               h('h2', null, t.nombre || 'Torneo sin nombre'),
-              h('p', { class: 'pr-meta' }, App.fmt.fechaLarga(t.fecha) + (t.lugar ? ' · ' + t.lugar : ''))),
+              h('p', { class: 'pr-meta' }, App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : ''))),
             cats.length
               ? h('div', { class: 'pr-cats' }, cats.map(c => {
                 const n = porCat[c.nombre] || 0;
@@ -188,7 +196,35 @@
         const inscDe = (cat) => editing ? inscs.filter(i => i.torneoId === t.id && i.categoria === cat) : [];
 
         const fNombre = h('input', { type: 'text', id: 'pr-f-nombre', value: t ? t.nombre || '' : '', placeholder: 'Copa Primavera — Fecha 4', autocomplete: 'off' });
-        const fFecha = h('input', { type: 'date', id: 'pr-f-fecha', value: t ? t.fecha || '' : '' });
+        /* Fechas del torneo: de 1 a 3 */
+        const MAXF = S.MAX_FECHAS || 3;
+        const fechaRows = [];
+        const fechasEl = h('div', { class: 'pr-fecha-rows' });
+        const btnAddFecha = h('button', { type: 'button', class: 'btn btn-sm', onclick: () => addFecha('', true) }, '+ Agregar fecha');
+        function pintarFechas() {
+          fechaRows.forEach((r, k) => {
+            r.n.textContent = 'Fecha ' + (k + 1);
+            r.input.setAttribute('aria-label', 'Fecha ' + (k + 1));
+            r.input.id = k === 0 ? 'pr-f-fecha' : 'pr-f-fecha-' + (k + 1);
+            r.quitar.hidden = k === 0;
+          });
+          btnAddFecha.hidden = fechaRows.length >= MAXF;
+        }
+        function addFecha(valor, focus) {
+          if (fechaRows.length >= MAXF) return;
+          const r = { n: h('span', { class: 'pr-fecha-n' }), input: h('input', { type: 'date', value: valor || '' }) };
+          r.quitar = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => {
+            const k = fechaRows.indexOf(r);
+            if (k > 0) { fechaRows.splice(k, 1); r.el.remove(); pintarFechas(); }
+          } }, 'Quitar');
+          r.el = h('div', { class: 'pr-fecha-row' }, r.n, r.input, r.quitar);
+          fechaRows.push(r);
+          fechasEl.appendChild(r.el);
+          pintarFechas();
+          if (focus) r.input.focus();
+        }
+        const fechasIni = t ? App.fmt.fechasDe(t) : [];
+        (fechasIni.length ? fechasIni : ['']).forEach(f => addFecha(f));
         const fLugar = h('input', { type: 'text', id: 'pr-f-lugar', value: t ? t.lugar || '' : '', placeholder: 'Kartódromo Municipal', autocomplete: 'off' });
         const fNotas = h('textarea', { id: 'pr-f-notas', rows: '3', placeholder: 'Horario de acreditación, reglamento, etc.' });
         fNotas.value = t ? t.notas || '' : '';
@@ -224,14 +260,18 @@
         const form = h('form', { class: 'v-proximos-modal stack', novalidate: true, onsubmit: (e) => { e.preventDefault(); guardar(); } },
           h('div', { class: 'form-grid' },
             h('div', { class: 'field full' }, h('label', { for: 'pr-f-nombre' }, 'Nombre del torneo'), fNombre),
-            h('div', { class: 'field' }, h('label', { for: 'pr-f-fecha' }, 'Fecha'), fFecha),
-            h('div', { class: 'field' }, h('label', { for: 'pr-f-lugar' }, 'Lugar'), fLugar),
+            h('div', { class: 'field full' },
+              h('span', { class: 'label' }, 'Fechas del torneo'),
+              fechasEl,
+              h('div', null, btnAddFecha),
+              h('span', { class: 'hint' }, 'Un torneo puede tener hasta ' + MAXF + ' fechas. En cada fecha se cargan tiempos aparte.')),
+            h('div', { class: 'field full' }, h('label', { for: 'pr-f-lugar' }, 'Lugar'), fLugar),
             h('div', { class: 'field full' }, h('label', { for: 'pr-f-notas' }, 'Notas'), fNotas)),
           h('div', { class: 'field' },
             h('span', { class: 'label' }, 'Categorías y cupos'),
             h('div', { class: 'pr-cat-head', 'aria-hidden': 'true' }, h('span', null, 'Categoría'), h('span', null, 'Cupo'), h('span', null, 'Quitar')),
             rowsEl,
-            h('div', null, h('button', { type: 'button', class: 'btn btn-sm', onclick: () => addRow({ nombre: '', cupo: 12 }, true) }, '+ Agregar categoría')),
+            h('div', null, h('button', { type: 'button', class: 'btn btn-sm', onclick: () => addRow({ nombre: '', cupo: null }, true) }, '+ Agregar categoría')),
             h('span', { class: 'hint' }, 'Dejá el cupo vacío si la categoría no tiene límite.' + (editing ? ' Si cambiás el nombre de una categoría, sus competidores pasan a la nueva.' : ''))),
           errEl,
           h('button', { type: 'submit', hidden: true, tabindex: '-1' }, 'Guardar'));
@@ -257,9 +297,15 @@
           errEl.hidden = true;
           form.querySelectorAll('[aria-invalid]').forEach(x => x.removeAttribute('aria-invalid'));
           const nombre = fNombre.value.trim();
-          const fecha = fFecha.value;
           if (!nombre) return fail('Poné un nombre para el torneo.', fNombre);
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fail('Elegí la fecha del torneo.', fFecha);
+          const fechas = [];
+          for (const [k, r] of fechaRows.entries()) {
+            const v = r.input.value;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return fail(k === 0 ? 'Elegí la fecha del torneo.' : 'Elegí el día de la fecha ' + (k + 1) + ' o quitala.', r.input);
+            if (fechas.length && v <= fechas[fechas.length - 1]) return fail('La fecha ' + (k + 1) + ' tiene que ser posterior a la fecha ' + k + '.', r.input);
+            fechas.push(v);
+          }
+          const fecha = fechas[0];
           const categorias = [];
           const vistos = new Set();
           const renombres = [];
@@ -290,7 +336,7 @@
           }
 
           const data = Object.assign({}, t || {}, {
-            nombre, fecha, lugar: fLugar.value.trim(), notas: fNotas.value.trim(), categorias,
+            nombre, fecha, fechas, lugar: fLugar.value.trim(), notas: fNotas.value.trim(), categorias,
             estado: t && t.estado ? t.estado : 'proximo',
             creado: t && t.creado ? t.creado : new Date().toISOString(),
           });

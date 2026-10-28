@@ -112,6 +112,17 @@
       if (m[1] != null && sec > 59) return null;
       return min * 60000 + sec * 1000 + frac;
     },
+    /* Fechas de un torneo (1 a 3); los torneos viejos solo tienen `fecha` */
+    fechasDe(t) {
+      if (window.Store && window.Store.fechasDe) return window.Store.fechasDe(t);
+      return t && t.fecha ? [t.fecha] : [];
+    },
+    /* Una fecha: "sábado, 24 de octubre de 2026" (largo) o "24 oct 2026". Varias: "Fecha 1: 24 oct 2026 · Fecha 2: …" */
+    fechasTexto(t, largo) {
+      const fs = fmt.fechasDe(t);
+      if (fs.length <= 1) return largo ? fmt.fechaLarga(fs[0]) : fmt.fecha(fs[0]);
+      return fs.map((f, i) => 'Fecha ' + (i + 1) + ': ' + fmt.fecha(f)).join(' · ');
+    },
     nombre(i) { return [i.apellido, i.nombre].filter(Boolean).join(', '); },
     norm(s) { return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); },
   };

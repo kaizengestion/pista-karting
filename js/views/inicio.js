@@ -15,7 +15,7 @@
 .v-inicio .cat-num { margin-left: auto; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .v-inicio .cat-num span { color: var(--ink-3); font-weight: 600; font-size: .95rem; }
 .v-inicio .bar { height: 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
-.v-inicio .bar > i { display: block; height: 100%; background: var(--ink); border-radius: 99px; }
+.v-inicio .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
 .v-inicio .bar.full > i { background: var(--warn); }
 .v-inicio .bar.over > i { background: var(--danger); }
 
@@ -144,7 +144,7 @@
         if (!t) {
           return h('section', { class: 'card hero' },
             h('div', { class: 'eyebrow' }, 'Sin torneos cargados'),
-            h('h1', null, 'Pista Karting'),
+            h('h1', null, 'RGK Santafesino'),
             h('p', { class: 'muted' }, 'Creá el primer torneo para abrir la inscripción de competidores.'),
             h('div', null, h('a', { class: 'btn btn-primary', href: '#proximos-torneos' }, 'Crear torneo')));
         }
@@ -170,7 +170,7 @@
             actual ? h('span', { class: 'pill pill-live' }, 'En curso') : h('span', { class: 'pill' }, 'Inscripción abierta')),
           h('h1', null, t.nombre || 'Torneo sin nombre'),
           h('div', { class: 'hero-meta' },
-            h('span', null, App.fmt.fechaLarga(t.fecha)),
+            h('span', null, App.fmt.fechasTexto(t, true)),
             t.lugar ? h('span', null, t.lugar) : null,
             h('span', null, h('strong', { class: 'tnum' }, plural(delTorneo.length, 'anotado', 'anotados')), cupoTotal ? ' de ' + cupoTotal + ' lugares' : '')),
           cats.length ? h('div', { class: 'cats' }, cats) : h('p', { class: 'muted small' }, 'Este torneo todavía no tiene categorías.'));

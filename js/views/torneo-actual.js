@@ -35,12 +35,18 @@
 .v-torneo-actual .tbl input.t-input { width: 120px; min-width: 120px; font: 400 1rem/1.2 var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
 .v-torneo-actual .tbl input.t-input::placeholder { color: var(--ink-3); opacity: .7; }
 .v-torneo-actual tr.is-best td.pos { color: var(--ink); }
-.v-torneo-actual tr.is-best td.pos span { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; border-radius: 3px; background: var(--ink); color: var(--bg); padding: 0 6px; }
+.v-torneo-actual tr.is-best td.pos span { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; border-radius: 3px; background: var(--accent); color: var(--accent-ink); padding: 0 6px; }
 .v-torneo-actual tr.is-best input.t-input { font-weight: 500; border-color: var(--ok); }
 .v-torneo-actual tr.is-best input.t-input[aria-invalid="true"] { border-color: var(--danger); }
 .v-torneo-actual .ta-best[hidden] { display: none; }
 .v-torneo-actual tr.pending td { font-variant-numeric: tabular-nums; }
 .v-torneo-actual tr.ta-none td { color: var(--ink-3); text-align: center; padding: 18px 12px; }
+.v-torneo-actual .ta-fechas { display: flex; gap: 8px; flex-wrap: wrap; }
+.v-torneo-actual .ta-fechas button { font: 700 1rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; min-height: 44px;
+  border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.v-torneo-actual .ta-fechas button small { font: 500 .78rem/1 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink-3); }
+.v-torneo-actual .ta-fechas button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.v-torneo-actual .ta-fechas button[aria-pressed="true"] small { color: var(--accent-ink); opacity: .85; }
 .v-torneo-actual .ta-warn { display: flex; gap: 8px; flex-wrap: wrap; }
 .v-torneo-actual-confirm ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .v-torneo-actual-confirm .ta-c-warn { color: var(--warn); font-weight: 600; }
@@ -111,6 +117,7 @@
       let dirty = false;
       let ordenPos = false;
       let finalizando = false;
+      let nFecha = null;            // fecha que se está cronometrando (1 a 3)
       const rowRefs = new Map();    // inscId -> { tr, pos, input, chk, best }
       const catRefs = new Map();    // nombre -> { sub, conTiempo }
       const pendientes = new Set(); // promesas de guardado en curso
@@ -121,6 +128,7 @@
       const toggle = h('input', { type: 'checkbox', onchange: () => { ordenPos = toggle.checked; drawSections(); } });
       const navEl = h('div', { class: 'ta-nav' }, tabsEl, h('label', { class: 'ta-toggle' }, toggle, 'Ordenar por posición'));
       const sectionsEl = h('div', { class: 'ta-sections' });
+      const fechasEl = h('div', { class: 'ta-fechas', role: 'group', 'aria-label': 'Fecha que estás cronometrando' });
 
       sectionsEl.addEventListener('focusout', () => {
         setTimeout(() => {
@@ -173,10 +181,46 @@
         if (shownKey !== 'torneo:' + t.id) {
           shownKey = 'torneo:' + t.id;
           headKey = null; renderedSig = null;
-          root.replaceChildren(headEl, summaryEl, navEl, sectionsEl);
+          nFecha = fechaInicial(t);
+          root.replaceChildren(headEl, fechasEl, summaryEl, navEl, sectionsEl);
         }
         drawHead();
+        drawFechas();
         if (focusInTable()) patch(); else drawSections();
+      }
+
+      /* ---------- Fechas ---------- */
+      /* Arranca en la última fecha que ya llegó (o la primera si ninguna llegó todavía) */
+      function fechaInicial(t) {
+        const fs = App.fmt.fechasDe(t);
+        const d = new Date();
+        const hoy = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        let n = 1;
+        fs.forEach((f, k) => { if (f <= hoy) n = k + 1; });
+        return n;
+      }
+      function drawFechas() {
+        const fs = App.fmt.fechasDe(torneo);
+        if (nFecha == null || nFecha > Math.max(1, fs.length)) nFecha = 1;
+        fechasEl.hidden = fs.length < 2;
+        if (fs.length < 2) { fechasEl.replaceChildren(); return; }
+        fechasEl.replaceChildren(...fs.map((f, k) => h('button', {
+          type: 'button', 'aria-pressed': String(nFecha === k + 1),
+          onclick: () => {
+            const a = document.activeElement;
+            if (a && a.matches && a.matches('input.t-input') && sectionsEl.contains(a) && !commit(a)) return;
+            nFecha = k + 1;
+            drawFechas();
+            drawSections();
+          },
+        }, 'Fecha ' + (k + 1), h('small', null, App.fmt.fecha(f)))));
+      }
+      /* Tiempo y Ok de un competidor en la fecha elegida */
+      function tiempoDe(id) {
+        const tv = tiempos[id];
+        if (!tv) return { tiempo: null, ok: false };
+        const x = tv.fechas ? tv.fechas[nFecha || 1] : (nFecha > 1 ? null : tv);
+        return { tiempo: x && x.tiempo != null ? +x.tiempo : null, ok: !!(x && x.ok) };
       }
 
       function showEmpty() {
@@ -200,8 +244,8 @@
           const key = i.categoria || 'Sin categoría';
           let c = byName.get(key);
           if (!c) { c = { nombre: key, cupo: null, filas: [], extra: true }; byName.set(key, c); cats.push(c); }
-          const tv = tiempos[i.id] || {};
-          c.filas.push({ insc: i, inscId: i.id, tiempo: tv.tiempo == null ? null : +tv.tiempo, ok: !!tv.ok, posicion: null });
+          const tv = tiempoDe(i.id);
+          c.filas.push({ insc: i, inscId: i.id, tiempo: tv.tiempo, ok: tv.ok, posicion: null });
         }
         for (const c of cats) {
           const ranked = posiciones(c.filas.map(f => ({ id: f.inscId, inscId: f.inscId, tiempo: f.tiempo, ok: f.ok })));
@@ -220,10 +264,10 @@
       }
 
       function signature(cats) {
-        return JSON.stringify(cats.map(c => [c.nombre, c.cupo, c.filas.map(f => {
+        return JSON.stringify([nFecha, cats.map(c => [c.nombre, c.cupo, c.filas.map(f => {
           const i = f.insc;
-          return [f.inscId, i.nroKarting, i.apellido, i.nombre, i.dni, i.nroMotor];
-        })]));
+          return [f.inscId, i.nroKarting, i.apellido, i.nombre, i.dni, i.nroMotor, !!i.invitado];
+        })])]);
       }
 
       const totals = (cats) => {
@@ -248,7 +292,7 @@
       /* ---------- Dibujo ---------- */
       function drawHead() {
         const t = torneo;
-        const key = JSON.stringify([t.id, t.nombre, t.fecha, t.lugar]);
+        const key = JSON.stringify([t.id, t.nombre, App.fmt.fechasDe(t), t.lugar]);
         if (key === headKey) return;
         headKey = key;
         const btn = h('button', { type: 'button', class: 'btn btn-dark', onclick: () => finalizar(btn) }, 'Finalizar torneo');
@@ -257,7 +301,7 @@
             h('span', { class: 'eyebrow' }, 'Torneo actual'),
             h('h1', null, t.nombre || 'Torneo sin nombre'),
             h('div', { class: 'ta-meta' },
-              h('span', { class: 'ta-fecha' }, App.fmt.fechaLarga(t.fecha) + (t.lugar ? ' · ' + t.lugar : '')),
+              h('span', { class: 'ta-fecha' }, App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : '')),
               h('span', { class: 'pill pill-live' }, 'En curso'))),
           h('div', { class: 'actions' }, btn)));
       }
@@ -362,7 +406,7 @@
         const tr = h('tr', { class: isBest ? 'is-best' : null, dataset: { insc: f.inscId } },
           posTd,
           h('td', { class: 'kart' }, h('span', { class: 'kart-no' }, i.nroKarting || '—')),
-          h('td', null, h('div', { class: 'ta-comp' }, nombre), h('span', { class: 'ta-dni' }, i.dni ? 'DNI ' + i.dni : 'Sin DNI',
+          h('td', null, h('div', { class: 'ta-comp' }, nombre, i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null), h('span', { class: 'ta-dni' }, i.dni ? 'DNI ' + i.dni : 'Sin DNI',
             h('span', { class: 'ta-motor-inline' }, ' · Motor ' + (i.nroMotor || '—')))),
           h('td', { class: 'motor' }, i.nroMotor || '—'),
           h('td', null, h('div', { class: 't-cell' }, input, best)),
@@ -399,9 +443,12 @@
       function guardar(inscId, data) {
         const tid = torneo && torneo.id;
         if (!tid) return;
-        tiempos = Object.assign({}, tiempos, { [inscId]: data }); // optimista
+        const n = nFecha || 1;
+        const prev = tiempos[inscId] || { tiempo: null, ok: false };
+        const fechas = Object.assign({ 1: { tiempo: prev.tiempo, ok: !!prev.ok } }, prev.fechas || {}, { [n]: data });
+        tiempos = Object.assign({}, tiempos, { [inscId]: { tiempo: fechas[1].tiempo, ok: !!fechas[1].ok, fechas } }); // optimista
         const p = Promise.resolve()
-          .then(() => S.guardarTiempo(tid, inscId, data))
+          .then(() => S.guardarTiempo(tid, inscId, data, n))
           .catch((e) => { console.error(e); App.toast('No se pudo guardar: ' + (e && e.message || e), 'error'); });
         pendientes.add(p);
         p.finally(() => pendientes.delete(p));
@@ -422,17 +469,15 @@
         input.removeAttribute('aria-invalid');
         delete input.dataset.bad;
         input.value = App.fmt.tiempo(ms);
-        const cur = tiempos[id] || {};
-        const curT = cur.tiempo == null ? null : +cur.tiempo;
-        if (curT === ms) return true;
-        guardar(id, { tiempo: ms, ok: !!cur.ok });
+        const cur = tiempoDe(id);
+        if (cur.tiempo === ms) return true;
+        guardar(id, { tiempo: ms, ok: cur.ok });
         patch();
         return true;
       }
 
       function setOk(id, ok) {
-        const cur = tiempos[id] || {};
-        guardar(id, { tiempo: cur.tiempo == null ? null : +cur.tiempo, ok: !!ok });
+        guardar(id, { tiempo: tiempoDe(id).tiempo, ok: !!ok });
         patch();
       }
 
@@ -444,8 +489,7 @@
           const next = all[all.indexOf(input) + 1];
           if (next) { next.focus(); next.select(); }
         } else if (e.key === 'Escape') {
-          const cur = tiempos[input.dataset.insc] || {};
-          input.value = App.fmt.tiempo(cur.tiempo);
+          input.value = App.fmt.tiempo(tiempoDe(input.dataset.insc).tiempo);
           input.removeAttribute('aria-invalid');
           delete input.dataset.bad;
         }
@@ -459,13 +503,16 @@
         const t = torneo;
         const cats = model();
         const s = totals(cats);
+        const nf = App.fmt.fechasDe(t).length;
         const faltan = s.n - s.conT, sinOk = s.n - s.conOk;
         const avisos = [];
         if (!s.n) avisos.push('No hay competidores anotados en este torneo.');
         if (faltan > 0) avisos.push(faltan === 1 ? 'Falta 1 tiempo.' : 'Faltan ' + faltan + ' tiempos.');
         if (sinOk > 0) avisos.push(pl(sinOk, 'competidor', 'competidores') + ' sin Ok.');
         const body = h('div', { class: 'v-torneo-actual-confirm stack' },
-          h('p', null, 'Se guardará la planilla con ' + pl(s.n, 'competidor', 'competidores') + ' y ' + pl(s.conT, 'tiempo', 'tiempos') + '.'),
+          nf > 1
+            ? h('p', null, 'Se guardarán las planillas de las ' + nf + ' fechas. En la fecha ' + nFecha + ' hay ' + pl(s.n, 'competidor', 'competidores') + ' y ' + pl(s.conT, 'tiempo', 'tiempos') + '.')
+            : h('p', null, 'Se guardará la planilla con ' + pl(s.n, 'competidor', 'competidores') + ' y ' + pl(s.conT, 'tiempo', 'tiempos') + '.'),
           avisos.length ? h('ul', null, avisos.map(x => h('li', { class: 'ta-c-warn' }, x))) : h('p', { class: 'muted' }, 'Están todos los tiempos cargados y con Ok.'),
           h('p', { class: 'muted small' }, 'El torneo pasa a Torneos pasados con la planilla congelada.'));
         const ok = await App.confirm({ title: 'Finalizar torneo', body, okLabel: 'Finalizar y guardar', danger: true });

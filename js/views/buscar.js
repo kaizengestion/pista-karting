@@ -11,7 +11,7 @@
 .v-buscar .chip { font: 600 .9rem var(--font-body); display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; min-height: 36px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
 .v-buscar .chip:hover { border-color: var(--ink-3); color: var(--ink); }
-.v-buscar .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.v-buscar .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .v-buscar .chip .n { opacity: .7; font-variant-numeric: tabular-nums; }
 .v-buscar .group { display: flex; flex-direction: column; gap: 10px; }
 .v-buscar .group h2 { font-size: 1.15rem; }
@@ -163,21 +163,23 @@
           .sort((a, b) => ((RANGO[a.t && a.t.estado] ?? 3) - (RANGO[b.t && b.t.estado] ?? 3)) || a.n - b.n);
 
         // Torneos
-        const tor = torneos.filter(t => todos([t.nombre, t.lugar, t.fecha, App.fmt.fecha(t.fecha), App.fmt.fechaLarga(t.fecha), t.notas,
+        const tor = torneos.filter(t => todos([t.nombre, t.lugar, t.fecha, App.fmt.fechasTexto(t), App.fmt.fechaLarga(t.fecha), t.notas,
           (ESTADOS[t.estado] || [])[0], ...(t.categorias || []).map(c => c.nombre)], terms))
           .sort((a, b) => ((RANGO[a.estado] ?? 3) - (RANGO[b.estado] ?? 3)) || (a.estado === 'finalizado' ? String(b.fecha).localeCompare(String(a.fecha)) : String(a.fecha).localeCompare(String(b.fecha))));
 
         // Pilotos en resultados de torneos finalizados (al menos un término tiene que coincidir con el piloto)
         const res = [];
         torneos.filter(t => t.estado === 'finalizado' && t.resultados).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).forEach(t => {
-          Object.keys(t.resultados).forEach(cat => {
-            (t.resultados[cat] || []).forEach(r => {
+          // Torneos de varias fechas: una planilla por fecha
+          const planillas = t.resultadosFechas ? Object.keys(t.resultadosFechas).map(n => [+n, t.resultadosFechas[n]]) : [[null, t.resultados]];
+          planillas.forEach(([n, resultados]) => Object.keys(resultados || {}).forEach(cat => {
+            (resultados[cat] || []).forEach(r => {
               const piloto = [r.nombre, r.apellido, r.dni, r.nroKarting, r.nroMotor];
               if (!terms.some(w => piloto.some(v => coincide(v, w)))) return;
               if (!todos([...piloto, t.nombre, cat], terms)) return;
-              res.push({ r, t, cat });
+              res.push({ r, t, cat, n });
             });
-          });
+          }));
         });
         return { comp, tor, res };
       }
@@ -222,13 +224,13 @@
         return h('a', { class: 'res', href: rutaTorneo(t) },
           h('span', { class: 'main' },
             h('span', { class: 't' }, h('span', null, hl(t.nombre || 'Torneo sin nombre', terms)), pillEstado(t)),
-            h('span', { class: 'sub' }, hl(App.fmt.fecha(t.fecha), terms), t.lugar ? [' · ', hl(t.lugar, terms)] : null),
+            h('span', { class: 'sub' }, hl(App.fmt.fechasTexto(t), terms), t.lugar ? [' · ', hl(t.lugar, terms)] : null),
             notaHit ? h('span', { class: 'extra' }, h('b', null, 'Notas: '), hl(t.notas, terms)) : null,
             catHit.length ? h('span', { class: 'extra' }, h('b', null, 'Categorías: '), catHit.map((c, n) => [n ? ', ' : '', hl(c.nombre, terms)])) : null),
           chev());
       }
 
-      function filaResultado({ r, t, cat }, terms) {
+      function filaResultado({ r, t, cat, n }, terms) {
         const nombre = [r.apellido, r.nombre].filter(Boolean);
         const extra = [];
         if (r.dni && terms.some(w => coincide(r.dni, w))) extra.push(['DNI', r.dni]);
@@ -237,7 +239,7 @@
         return h('a', { class: 'res', href: '#torneos-pasados~' + encodeURIComponent(t.id) },
           h('span', { class: 'main' },
             h('span', { class: 't' }, nombre.length > 1 ? [hl(r.apellido, terms), ', ', hl(r.nombre, terms)] : hl(nombre[0] || 'Sin nombre', terms)),
-            h('span', { class: 'sub' }, hl(t.nombre, terms), ' · ', hl(cat, terms), ' · ', App.fmt.fecha(t.fecha)),
+            h('span', { class: 'sub' }, hl(t.nombre, terms), ' · ', hl(cat, terms), ' · ', n ? 'Fecha ' + n + ' (' + App.fmt.fecha(App.fmt.fechasDe(t)[n - 1]) + ')' : App.fmt.fecha(t.fecha)),
             extra.length ? h('span', { class: 'extra' }, extra.map(([k, v], n) => [n ? ' · ' : '', h('b', null, k + ': '), hl(v, terms)])) : null),
           h('span', { class: 'side' },
             r.posicion ? h('span', { class: 'pos' }, r.posicion + 'º') : h('span', { class: 'pill' }, 'Sin tiempo'),

@@ -21,7 +21,7 @@
 .v-pasados .pp-title { overflow-wrap: anywhere; }
 .v-pasados .pp-sub { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; color: var(--ink-2); }
 .v-pasados .pp-podios { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-.v-pasados .pp-cat { border-top: 3px solid var(--ink); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.v-pasados .pp-cat { border-top: 3px solid var(--accent); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .v-pasados .pp-win { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
 .v-pasados .pp-win .pp-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
 .v-pasados .pp-win .mono { font-size: .88rem; white-space: nowrap; }
@@ -47,6 +47,10 @@
 .v-pasados .pp-tbl tr.p1 td { background: var(--surface-2); }
 .v-pasados .pp-tbl tr.p1 td.comp, .v-pasados .pp-tbl tr.p1 td.tiempo { font-weight: 700; }
 .v-pasados .pp-tbl tr.sin-tiempo td.tiempo { color: var(--ink-3); font-family: var(--font-body); font-style: italic; }
+.v-pasados .pp-fechas { display: flex; gap: 8px; flex-wrap: wrap; }
+.v-pasados .pp-fechas button { font: 700 1rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; min-height: 44px;
+  border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.v-pasados .pp-fechas button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .v-pasados .pp-none { border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 16px; color: var(--ink-3); text-align: center; }
 @media (max-width: 520px) {
   .v-pasados a.pp-item { grid-template-columns: 1fr; gap: 12px; }
@@ -78,9 +82,16 @@
       d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  /* Categorías en el orden del torneo, más cualquier otra que aparezca en resultados. */
-  function categoriasDe(t) {
-    const res = t.resultados || {};
+  /* Fechas con planilla guardada: [1] para torneos de una sola fecha */
+  function fechasConPlanilla(t) {
+    const rf = t.resultadosFechas;
+    const ns = rf ? Object.keys(rf).map(Number).filter(n => n >= 1).sort((a, b) => a - b) : [];
+    return ns.length ? ns : [1];
+  }
+
+  /* Categorías en el orden del torneo, más cualquier otra que aparezca en resultados (de la fecha n). */
+  function categoriasDe(t, n) {
+    const res = (n && t.resultadosFechas && t.resultadosFechas[n]) || t.resultados || {};
     const nombres = (t.categorias || []).map(c => c.nombre);
     for (const k of Object.keys(res)) if (!nombres.includes(k)) nombres.push(k);
     return nombres.map(nombre => {
@@ -114,6 +125,7 @@
       el.appendChild(root);
 
       let torneos = null;
+      let fechaSel = null;
       const u = S.watchTorneos((list) => { torneos = list || []; draw(); });
       ctx.onCleanup(() => callUnsub(u));
 
@@ -140,7 +152,9 @@
 
       function item(t) {
         const f = partesFecha(t.fecha);
-        const cats = categoriasDe(t);
+        const ns = fechasConPlanilla(t);
+        const ultima = ns[ns.length - 1];
+        const cats = categoriasDe(t, ultima);
         const pilotos = cats.reduce((s, c) => s + c.filas.length, 0);
         return h('a', { class: 'card pp-item', href: '#torneos-pasados~' + encodeURIComponent(t.id) },
           h('div', { class: 'pp-date', 'aria-hidden': 'true' },
@@ -149,8 +163,9 @@
             h('div', { class: 'stack', style: { gap: '4px' } },
               h('h2', { class: 'pp-title' }, t.nombre || 'Torneo sin nombre'),
               h('div', { class: 'pp-sub' },
-                h('span', null, App.fmt.fecha(t.fecha) + (t.lugar ? ' · ' + t.lugar : '')),
-                h('span', { class: 'pill' }, pl(pilotos, 'piloto', 'pilotos')))),
+                h('span', null, App.fmt.fechasTexto(t) + (t.lugar ? ' · ' + t.lugar : '')),
+                h('span', { class: 'pill' }, pl(pilotos, 'piloto', 'pilotos')),
+                ns.length > 1 ? h('span', { class: 'pill' }, 'Podio de la fecha ' + ultima) : null)),
             cats.length ? h('div', { class: 'pp-podios' }, cats.map(c => {
               const conT = c.filas.filter(x => x.posicion != null);
               const p1 = conT[0];
@@ -174,7 +189,13 @@
             h('a', { class: 'btn', href: t && t.estado === 'actual' ? '#torneo-actual' : '#torneos-pasados' }, t && t.estado === 'actual' ? 'Ir al torneo actual' : 'Ver torneos pasados')));
           return;
         }
-        const cats = categoriasDe(t);
+        const ns = fechasConPlanilla(t);
+        if (fechaSel == null || !ns.includes(fechaSel)) fechaSel = ns[0];
+        const fs = App.fmt.fechasDe(t);
+        const selFechas = ns.length > 1 ? h('div', { class: 'pp-fechas', role: 'group', 'aria-label': 'Fecha' }, ns.map(n => h('button', {
+          type: 'button', 'aria-pressed': String(n === fechaSel), onclick: () => { fechaSel = n; draw(); },
+        }, 'Fecha ' + n + (fs[n - 1] ? ' · ' + App.fmt.fecha(fs[n - 1]) : '')))) : null;
+        const cats = categoriasDe(t, fechaSel);
         const pilotos = cats.reduce((s, c) => s + c.filas.length, 0);
         const conTiempo = cats.reduce((s, c) => s + c.filas.filter(f => f.tiempo != null).length, 0);
         const mejor = cats.reduce((m, c) => (c.best != null && (m == null || c.best < m.t)) ? { t: c.best, cat: c.nombre } : m, null);
@@ -184,7 +205,7 @@
             h('span', { class: 'eyebrow' }, 'Torneo finalizado'),
             h('h1', null, t.nombre || 'Torneo sin nombre'),
             h('div', { class: 'pp-meta' },
-              h('span', { class: 'pp-fecha' }, App.fmt.fechaLarga(t.fecha) + (t.lugar ? ' · ' + t.lugar : '')),
+              h('span', { class: 'pp-fecha' }, App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : '')),
               h('span', { class: 'pill pill-ok' }, 'Finalizado el ' + fechaHora(t.finalizado)))));
 
         const stats = h('div', { class: 'pp-stats' },
@@ -197,7 +218,7 @@
           h('div', { class: 'section-title' }, h('h2', null, c.nombre), h('span', { class: 'muted' }, pl(c.filas.length, 'competidor', 'competidores'))),
           c.filas.length ? tabla(c) : h('p', { class: 'pp-none' }, 'Sin competidores en esta categoría')));
 
-        root.replaceChildren(back, head, stats, ...(sections.length ? sections : [h('div', { class: 'empty' }, 'Este torneo no tiene planilla guardada.')]));
+        root.replaceChildren(back, head, selFechas, stats, ...(sections.length ? sections : [h('div', { class: 'empty' }, 'Este torneo no tiene planilla guardada.')]));
       }
 
       function tabla(c) {
@@ -218,7 +239,7 @@
               return h('tr', { class: cls || null },
                 h('td', { class: 'center pos' }, badge(p)),
                 h('td', null, h('span', { class: 'kart-no' }, f.nroKarting || '—')),
-                h('td', { class: 'comp' }, App.fmt.nombre(f) || 'Sin nombre'),
+                h('td', { class: 'comp' }, App.fmt.nombre(f) || 'Sin nombre', f.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
                 h('td', { class: 'dni' }, f.dni || '—'),
                 h('td', { class: 'motor' }, f.nroMotor || '—'),
                 h('td', { class: 'num tiempo' }, f.tiempo == null ? 'Sin tiempo' : App.fmt.tiempo(f.tiempo)),

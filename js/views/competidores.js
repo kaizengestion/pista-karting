@@ -20,6 +20,10 @@
 .v-competidores .tbl td.acts .btn + .btn { margin-left: 6px; }
 .v-competidores .pill-btn, .kart-form .pill-btn { font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
 .v-competidores .pill-btn:hover { border-color: currentColor; }
+.v-competidores .inv-cell { text-align: center; }
+.kart-form .inv-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); }
+.kart-form .inv-check input { margin-top: 2px; flex: none; }
+.kart-form .inv-check span { display: flex; flex-direction: column; gap: 2px; }
 .v-competidores .tabs button .n { color: var(--ink-3); font-weight: 600; }
 .v-competidores .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 640px) {
@@ -195,6 +199,11 @@
     }
     pintarAut();
 
+    // Invitado: lo decide el organizador (los invitados corren de a dos con el mismo kart)
+    const chkInv = h('input', { type: 'checkbox', id: 'kf-invitado', checked: !!(insc && insc.invitado) });
+    const invField = h('label', { class: 'inv-check', for: 'kf-invitado' }, chkInv,
+      h('span', null, h('strong', null, 'Competidor invitado'), h('span', { class: 'small muted' }, 'Corre con el kart de otro piloto invitado.')));
+
     const sinTorneos = !elegibles.length && !torneoIni;
     const form = h('form', { class: 'kart-form stack', novalidate: true, onsubmit: (e) => { e.preventDefault(); guardar(); } },
       h('div', { class: 'form-grid' }, campos),
@@ -203,6 +212,7 @@
         h('div', { class: 'field' }, h('label', { for: 'kf-torneo' }, 'Torneo *'), selT, errT,
           sinTorneos ? h('span', { class: 'hint' }, 'Primero creá un torneo en Próximos torneos.') : null),
         h('div', { class: 'field' }, h('label', { for: 'kf-cat' }, 'Categoría *'), selC)),
+      invField,
       h('div', { class: 'field' }, h('span', { class: 'label' }, 'Autorización de los padres'), autBox, fileIn));
     form.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'file') { e.preventDefault(); guardar(); }
@@ -225,7 +235,7 @@
       if (datos.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) marcar('email', 'Revisá el email');
       if (!selT.value) { errT.textContent = 'Elegí un torneo'; primero = primero || selT; }
       const dniLimpio = datos.dni.replace(/\D/g, '');
-      if (!primero && lista && dniLimpio) {
+      if (!primero && lista && dniLimpio && !chkInv.checked) {
         const dup = lista.find(i => i.torneoId === selT.value && String(i.dni || '').replace(/\D/g, '') === dniLimpio && (!insc || i.id !== insc.id));
         if (dup) marcar('dni', 'Ya hay un competidor con ese DNI en este torneo: ' + App.fmt.nombre(dup));
       }
@@ -233,6 +243,7 @@
       datos.torneoId = selT.value;
       datos.categoria = selC.value || '';
       datos.autorizacion = st.aut || null;
+      datos.invitado = chkInv.checked;
       guardando = true;
       const btn = modal && modal.el.querySelector('.modal-foot .btn-primary');
       if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
@@ -348,8 +359,10 @@
 
       function dibujarEncabezado(lista) {
         const sinAut = lista.filter(i => !(i.autorizacion && i.autorizacion.assetId)).length;
+        const nInv = lista.filter(i => i.invitado).length;
         counts.replaceChildren(
           h('strong', { class: 'tnum' }, plural(lista.length, 'anotado', 'anotados')),
+          nInv ? ' · ' + plural(nInv, 'invitado', 'invitados') : null,
           lista.length ? ' · ' : null,
           lista.length ? (sinAut ? h('span', { class: 'warn tnum' }, sinAut + ' sin autorización') : 'todos con autorización') : null);
       }
@@ -405,12 +418,34 @@
       }
       const editar = (i) => editarCompetidor(i, torneos, { inscripciones: inscs });
 
+      async function cambiarInvitado(i, btn) {
+        const nuevo = !i.invitado;
+        btn.disabled = true;
+        try {
+          await S.actualizarInscripcion(i.id, { invitado: nuevo });
+          i.invitado = nuevo;
+          App.toast(App.fmt.nombre(i) + (nuevo ? ' ahora es invitado' : ' ya no es invitado'), 'ok');
+        } catch (e) {
+          App.toast('No se pudo cambiar: ' + errMsg(e), 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
       function fila(i, conTorneo) {
         const t = torneoDe(i.torneoId);
         const aut = i.autorizacion && i.autorizacion.assetId;
         return h('tr', { dataset: { id: i.id } },
           h('td', null, i.nroKarting ? h('span', { class: 'kart-no' }, i.nroKarting) : h('span', { class: 'muted' }, '—')),
           h('td', { class: 'name' }, h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : ''),
+          h('td', { class: 'inv-cell' }, (() => {
+            const b = h('button', {
+              type: 'button', class: 'pill pill-btn' + (i.invitado ? ' pill-inv' : ''), 'aria-pressed': String(!!i.invitado),
+              title: i.invitado ? 'Tocá para marcarlo como piloto común' : 'Tocá para marcarlo como invitado',
+              onclick: () => cambiarInvitado(i, b),
+            }, i.invitado ? 'Invitado' : 'No');
+            return b;
+          })()),
           h('td', { class: 'tnum' }, i.dni || '—'),
           conTorneo ? h('td', { class: 'tor', title: t ? t.nombre : '' }, t ? t.nombre : '—') : null,
           h('td', null, selectorCategoria(i)),
@@ -429,7 +464,7 @@
       function coincide(i, terms) {
         if (!terms.length) return true;
         const t = torneoDe(i.torneoId);
-        const txt = App.fmt.norm([i.nombre, i.apellido, i.dni, String(i.dni || '').replace(/\D/g, ''), i.telefono, i.email, i.seguro, i.nroMotor, i.nroKarting, i.direccion, i.categoria, t && t.nombre].join(' '));
+        const txt = App.fmt.norm([i.nombre, i.apellido, i.dni, String(i.dni || '').replace(/\D/g, ''), i.telefono, i.email, i.seguro, i.nroMotor, i.nroKarting, i.direccion, i.categoria, t && t.nombre, i.invitado ? 'invitado' : ''].join(' '));
         return terms.every(w => txt.includes(w));
       }
 
@@ -466,7 +501,7 @@
         tablaBox.replaceChildren(h('div', { class: 'table-wrap' },
           h('table', { class: 'tbl' },
             h('thead', null, h('tr', null,
-              h('th', null, 'Kart'), h('th', null, 'Apellido y nombre'), h('th', null, 'DNI'),
+              h('th', null, 'Kart'), h('th', null, 'Apellido y nombre'), h('th', { class: 'center' }, 'Invitado'), h('th', null, 'DNI'),
               conTorneo ? h('th', null, 'Torneo') : null,
               h('th', null, 'Categoría'), h('th', null, 'Teléfono'), h('th', null, 'Email'), h('th', null, 'Seguro'),
               h('th', null, 'Nº motor'), h('th', null, 'Autorización'), h('th', null, h('span', { class: 'sr' }, 'Acciones')))),

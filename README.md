@@ -1,4 +1,4 @@
-# Pista Karting (versión de prueba)
+# RGK Santafesino (versión de prueba)
 
 Prototipo para administrar torneos de karting: inscripción de competidores, categorías, carga de tiempos y torneos pasados.
 

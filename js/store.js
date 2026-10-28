@@ -1,4 +1,4 @@
-/* Capa de datos de Pista Karting: window.Store (ver CONTRACT.md).
+/* Capa de datos de RGK Santafesino: window.Store (ver CONTRACT.md).
    Dos backends detrás de la misma API:
    - 'db'   → capacidades de runtime del Artifact: claude.use('db' | 'user' | 'assets').
    - 'demo' → base en memoria inicializada con window.DEMO_DATA y guardada en localStorage.
@@ -97,6 +97,20 @@
     return arr;
   }
 
+  /* Un torneo tiene de 1 a 3 fechas (`fechas`). Los torneos viejos solo tienen `fecha`. */
+  const MAX_FECHAS = 3;
+  function fechasDe(t) {
+    if (!t) return [];
+    const lista = Array.isArray(t.fechas) ? t.fechas.filter((f) => typeof f === 'string' && f) : [];
+    if (lista.length) return lista.slice(0, MAX_FECHAS);
+    return t.fecha ? [t.fecha] : [];
+  }
+  /* Tiempos: la fecha 1 vive en { tiempo, ok } (como siempre); las fechas 2 y 3 en f2 / f3. */
+  function tiempoDeFecha(doc, n) {
+    const x = !doc ? null : (n > 1 ? doc['f' + n] : doc);
+    return { tiempo: aTiempo(x && x.tiempo), ok: !!(x && x.ok) };
+  }
+
   function torneoActual(torneos) {
     return (torneos || []).find((t) => t && t.estado === 'actual') || null;
   }
@@ -106,20 +120,21 @@
     const proximos = (torneos || []).filter((t) => t && t.estado === 'proximo')
       .sort((a, b) => String(a.fecha || '').localeCompare(String(b.fecha || '')));
     const hoy = hoyISO();
-    return proximos.find((t) => String(t.fecha || '') >= hoy) || proximos[0] || null;
+    return proximos.find((t) => String(fechasDe(t).slice(-1)[0] || '') >= hoy) || proximos[0] || null;
   }
 
-  function armarResultados(torneo, inscs, tiempos) {
+  function armarResultados(torneo, inscs, tiempos, n) {
     const res = {};
     (torneo.categorias || []).forEach((c) => { if (c && c.nombre) res[c.nombre] = []; });
     inscs.forEach((i) => {
-      const t = tiempos[i.id] || {};
+      const t = tiempoDeFecha(tiempos[i.id], n || 1);
       const cat = i.categoria || 'Sin categoría';
       (res[cat] = res[cat] || []).push({
         inscId: i.id,
         nombre: i.nombre || '', apellido: i.apellido || '', dni: i.dni || '',
         nroKarting: i.nroKarting == null ? '' : String(i.nroKarting), nroMotor: i.nroMotor || '',
-        tiempo: aTiempo(t.tiempo), ok: !!t.ok,
+        invitado: !!i.invitado,
+        tiempo: t.tiempo, ok: t.ok,
       });
     });
     Object.keys(res).forEach((k) => { res[k] = posiciones(res[k]); });
@@ -537,7 +552,13 @@
         const cortes = [];
         const juntar = () => {
           if (!torneos) return;
-          emitir(ordenarTorneos(torneos.map((t) => (res[t.id] ? Object.assign({}, t, { resultados: res[t.id] }) : Object.assign({}, t)))));
+          emitir(ordenarTorneos(torneos.map((t) => {
+            const r = res[t.id];
+            if (!r) return Object.assign({}, t);
+            const extra = { resultados: r.resultados };
+            if (r.resultadosFechas) extra.resultadosFechas = r.resultadosFechas;
+            return Object.assign({}, t, extra);
+          })));
         };
         listo().then(() => {
           if (cortado) return;
@@ -545,7 +566,7 @@
           if (esCompetidor()) return;
           cortes.push(A.subscribe('resultados', (docs) => {
             res = {};
-            docs.forEach((d) => { if (d && d.resultados) res[d.id] = d.resultados; });
+            docs.forEach((d) => { if (d && d.resultados) res[d.id] = d; });
             juntar();
           }, fallar));
         }, fallar);
@@ -554,12 +575,19 @@
     },
     torneoActual,
     torneoInscripcion,
+    fechasDe,
+    MAX_FECHAS,
 
     async guardarTorneo(t) {
       await listo();
       const id = t && t.id ? String(t.id) : null;
       let datos = sinId(t || {});
       delete datos.resultados;
+      delete datos.resultadosFechas;
+      if (Array.isArray(datos.fechas)) {
+        datos.fechas = datos.fechas.filter((f) => typeof f === 'string' && f).slice(0, MAX_FECHAS);
+        if (datos.fechas.length) datos.fecha = datos.fechas[0];
+      }
       if (id) {
         exigirId(id, 'del torneo');
         // Reemplazo: lo que no venga en `t` (estado, resultados, creado, ejemplo…) se conserva.
@@ -596,6 +624,7 @@
       datos.estado = 'actual';
       delete datos.finalizado;
       delete datos.resultados;
+      delete datos.resultadosFechas;
       await A.set('torneos/' + id, datos);
       await A.del('resultados/' + id);
     },
@@ -611,7 +640,13 @@
       lista.forEach((x) => { tiempos[x.id] = x; });
       const datos = sinId(t);
       delete datos.resultados;
-      const planilla = { resultados: armarResultados(t, inscs, tiempos) };
+      delete datos.resultadosFechas;
+      const planilla = { resultados: armarResultados(t, inscs, tiempos, 1) };
+      const nFechas = fechasDe(t).length;
+      if (nFechas > 1) {
+        planilla.resultadosFechas = {};
+        for (let n = 1; n <= nFechas; n++) planilla.resultadosFechas[n] = armarResultados(t, inscs, tiempos, n);
+      }
       if (t.ejemplo) planilla.ejemplo = true;
       await A.set('resultados/' + id, planilla);
       datos.estado = 'finalizado';
@@ -624,9 +659,14 @@
       return watchColeccion('inscripciones', 'inscripciones', ordenarInscripciones, () => [], cb);
     },
 
+    /* Con `datos.piloto2` ({ nombre, apellido, dni }) se anotan dos invitados que comparten kart:
+       dos inscripciones con los mismos datos de contacto y de kart, unidas por `grupo`. */
     async inscribir(datos) {
       await listo();
       const d = sinId(datos || {});
+      const p2 = esObjeto(d.piloto2) ? d.piloto2 : null;
+      delete d.piloto2;
+      if (p2) d.invitado = true;
       const ahora = nowISO();
       d.creado = ahora;
       d.actualizado = ahora;
@@ -640,12 +680,23 @@
       } else {
         id = A.newId('inscripciones');
       }
-      try {
-        await A.set('inscripciones/' + id, d);
-      } catch (e) {
-        if (e && e.code === 'invalid_argument') throw error(MSG_SIN_PERMISO_INSC, 'invalid_argument');
-        if (e && e.code === 'quota_exceeded') throw error('No se pudo guardar la inscripción porque la base de datos está llena. Avisale al organizador.', 'quota_exceeded');
-        throw e;
+      if (p2) d.grupo = id;
+      const escribir = async (path, doc) => {
+        try {
+          await A.set(path, doc);
+        } catch (e) {
+          if (e && e.code === 'invalid_argument') throw error(MSG_SIN_PERMISO_INSC, 'invalid_argument');
+          if (e && e.code === 'quota_exceeded') throw error('No se pudo guardar la inscripción porque la base de datos está llena. Avisale al organizador.', 'quota_exceeded');
+          throw e;
+        }
+      };
+      await escribir('inscripciones/' + id, d);
+      if (p2) {
+        const id2 = esCompetidor() ? id + '-2' : A.newId('inscripciones');
+        const d2 = Object.assign({}, d, {
+          nombre: String(p2.nombre || ''), apellido: String(p2.apellido || ''), dni: String(p2.dni || ''),
+        });
+        await escribir('inscripciones/' + id2, d2);
       }
       return id;
     },
@@ -685,26 +736,35 @@
       }
       return watchColeccion('tiempos:' + torneoId, 'torneos/' + torneoId + '/tiempos', (docs) => {
         const o = {};
-        docs.forEach((x) => { o[x.id] = { tiempo: aTiempo(x.tiempo), ok: !!x.ok }; });
+        docs.forEach((x) => {
+          const fechas = {};
+          for (let n = 1; n <= MAX_FECHAS; n++) fechas[n] = tiempoDeFecha(x, n);
+          o[x.id] = { tiempo: fechas[1].tiempo, ok: fechas[1].ok, fechas };
+        });
         return o;
       }, () => ({}), cb);
     },
 
-    async guardarTiempo(torneoId, inscId, valor) {
+    /* n: número de fecha (1 a 3). Las otras fechas del mismo competidor se conservan. */
+    async guardarTiempo(torneoId, inscId, valor, n) {
       await listo();
       exigirId(torneoId, 'del torneo');
       exigirId(inscId, 'de la inscripción');
+      n = Math.min(MAX_FECHAS, Math.max(1, Math.floor(+n || 1)));
       const v = valor || {};
       const path = 'torneos/' + torneoId + '/tiempos/' + inscId;
-      const tieneT = 'tiempo' in v, tieneOk = 'ok' in v;
-      let datos = { tiempo: null, ok: false };
-      if (!(tieneT && tieneOk)) {
-        const previo = await A.get(path);
-        if (previo) datos = { tiempo: aTiempo(previo.tiempo), ok: !!previo.ok };
+      const previo = await A.get(path);
+      const doc = { tiempo: null, ok: false };
+      for (let k = 1; k <= MAX_FECHAS; k++) {
+        const x = tiempoDeFecha(previo, k);
+        if (k === 1) Object.assign(doc, x);
+        else if (previo && previo['f' + k]) doc['f' + k] = x;
       }
-      if (tieneT) datos.tiempo = aTiempo(v.tiempo);
-      if (tieneOk) datos.ok = !!v.ok;
-      await A.set(path, datos);
+      const datos = tiempoDeFecha(previo, n);
+      if ('tiempo' in v) datos.tiempo = aTiempo(v.tiempo);
+      if ('ok' in v) datos.ok = !!v.ok;
+      if (n === 1) Object.assign(doc, datos); else doc['f' + n] = datos;
+      await A.set(path, doc);
     },
 
     /* ---------- Archivos */
