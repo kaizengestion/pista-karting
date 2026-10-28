@@ -16,8 +16,8 @@
    Identidad RGK Santafesino: negro y rojo, con un fondo de figuras de karting en contorno (img/fondo.svg). */
 :root {
   --bg: #0a0a0b;
-  --surface: #151517;
-  --surface-2: #1e1e21;
+  --surface: #18181b;
+  --surface-2: #222226;
   --ink: #f3f3f2;
   --ink-2: #b9b9bd;
   --ink-3: #85858c;
@@ -47,9 +47,9 @@
 * { box-sizing: border-box; }
 html, body { min-height: 100%; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
-/* Fondo: mosaico de figuras de karting y un brillo rojo arriba. Fijo detrás del contenido. */
+/* Fondo de atrás: figuras de karting rojas en 3D sobre oscuro, con viñeta. Fijo detrás del contenido. */
 body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(ellipse 90% 45% at 50% -5%, rgba(215,20,28,.22), transparent 70%), url("img/fondo.svg") 0 0 / 720px 720px repeat, var(--bg); }
+  background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 40%, rgba(0,0,0,.65) 100%), url("img/fondo.svg") 0 0 / 720px 720px repeat, #0c0b0d; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bar); }
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: .01em; }
 h1 { font-size: 2.1rem; font-weight: 800; text-transform: uppercase; }
@@ -83,7 +83,14 @@ a { color: var(--track); }
 
 /* Contenido */
 .wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-main.wrap { padding-block: 24px 64px; }
+/* Primer fondo: panel oscuro sombreado donde van todos los casilleros; deja ver apenas las figuras de atrás */
+main.wrap { width: calc(100% - 32px); margin: 24px auto 56px; padding: 28px 24px 56px; border-radius: 16px;
+  background: linear-gradient(160deg, rgba(26,26,30,.93) 0%, rgba(10,10,12,.95) 45%, rgba(0,0,0,.97) 100%);
+  border: 1px solid rgba(255,255,255,.07); box-shadow: 0 24px 70px rgba(0,0,0,.8), 0 0 0 1px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+@media (max-width: 640px) {
+  main.wrap { width: calc(100% - 20px); margin: 14px auto 40px; padding: 20px 14px 44px; border-radius: 12px; }
+}
 .stack { display: flex; flex-direction: column; gap: 16px; }
 .stack-lg { display: flex; flex-direction: column; gap: 28px; }
 .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }

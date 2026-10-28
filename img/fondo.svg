@@ -1,6 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="720" height="720" viewBox="0 0 720 720">
-  <!-- Fondo de la página: figuras de karting dibujadas solo con el contorno. Se repite como mosaico. -->
+  <!-- Fondo de la página: figuras de karting en rojo con relieve 3D (luz, brillo y extrusión). Se repite como mosaico. -->
   <defs>
+    <filter id="relieve" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <!-- Volumen: luz desde arriba a la izquierda sobre el trazo -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.6" result="alto"/>
+      <feSpecularLighting in="alto" surfaceScale="5" specularConstant="1.1" specularExponent="16" lighting-color="#ffd2d4" result="brillo">
+        <feDistantLight azimuth="225" elevation="40"/>
+      </feSpecularLighting>
+      <feComposite in="brillo" in2="SourceAlpha" operator="in" result="brilloIn"/>
+      <feDiffuseLighting in="alto" surfaceScale="5" diffuseConstant="1" lighting-color="#ffffff" result="luz">
+        <feDistantLight azimuth="225" elevation="50"/>
+      </feDiffuseLighting>
+      <feComposite in="SourceGraphic" in2="luz" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="sombreado"/>
+      <feComposite in="sombreado" in2="brilloIn" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="frente"/>
+      <!-- Extrusión: la cara de atrás, corrida hacia abajo a la derecha -->
+      <feOffset in="SourceAlpha" dx="2" dy="2" result="o1"/>
+      <feOffset in="SourceAlpha" dx="4" dy="4" result="o2"/>
+      <feOffset in="SourceAlpha" dx="6" dy="6" result="o3"/>
+      <feMerge result="prof"><feMergeNode in="o3"/><feMergeNode in="o2"/><feMergeNode in="o1"/></feMerge>
+      <feFlood flood-color="#4d0207"/>
+      <feComposite in2="prof" operator="in" result="lado"/>
+      <!-- Sombra sobre el fondo -->
+      <feOffset in="SourceAlpha" dx="9" dy="11" result="so"/>
+      <feGaussianBlur in="so" stdDeviation="5" result="sb"/>
+      <feFlood flood-color="#000000" flood-opacity=".75"/>
+      <feComposite in2="sb" operator="in" result="sombra"/>
+      <feMerge><feMergeNode in="sombra"/><feMergeNode in="lado"/><feMergeNode in="frente"/></feMerge>
+    </filter>
     <g id="kart">
       <circle cx="34" cy="58" r="15"/><circle cx="34" cy="58" r="6"/>
       <circle cx="128" cy="60" r="12"/><circle cx="128" cy="60" r="5"/>
@@ -20,8 +46,8 @@
       <path d="M10 43 H40"/>
     </g>
     <g id="volante">
-      <circle cx="30" cy="30" r="26"/><circle cx="30" cy="30" r="20"/><circle cx="30" cy="30" r="6"/>
-      <path d="M10 26 H24 M36 26 H50 M30 36 V50"/>
+      <circle cx="30" cy="30" r="26"/><circle cx="30" cy="30" r="19"/><circle cx="30" cy="30" r="6"/>
+      <path d="M11 26 H24 M36 26 H49 M30 36 V49"/>
     </g>
     <g id="bandera">
       <path d="M4 2 V80"/>
@@ -49,23 +75,19 @@
       <path d="M15 30 H33 M19 18 H29"/>
     </g>
   </defs>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-    <g stroke="#ffffff" stroke-opacity=".075">
-      <use xlink:href="#kart" href="#kart" transform="translate(40 70) scale(1.5)"/>
-      <path d="M4 150 H30 M0 166 H22 M10 182 H34"/>
-      <use xlink:href="#casco" href="#casco" transform="translate(400 270) scale(1.4)"/>
-      <use xlink:href="#crono" href="#crono" transform="translate(590 380) scale(1.2)"/>
-      <use xlink:href="#cubierta" href="#cubierta" transform="translate(270 480) scale(1.2)"/>
-      <use xlink:href="#cono" href="#cono" transform="translate(70 590) scale(1.1)"/>
-      <use xlink:href="#bandera" href="#bandera" transform="translate(200 300) rotate(-10) scale(1.1)"/>
-    </g>
-    <g stroke="#e3121b" stroke-opacity=".22">
-      <use xlink:href="#bandera" href="#bandera" transform="translate(540 40) rotate(12) scale(1.3)"/>
-      <use xlink:href="#volante" href="#volante" transform="translate(70 330) scale(1.3)"/>
-      <use xlink:href="#copa" href="#copa" transform="translate(480 560) scale(1.4)"/>
-      <use xlink:href="#kart" href="#kart" transform="translate(560 250) scale(-1 1)"/>
-      <path d="M572 290 H600 M580 304 H612"/>
-      <use xlink:href="#casco" href="#casco" transform="translate(330 70) rotate(-8)"/>
-    </g>
+  <g fill="none" stroke="#e3101a" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#relieve)">
+    <use xlink:href="#kart" href="#kart" transform="translate(40 70) scale(1.5)"/>
+    <path d="M6 150 H30 M2 166 H22 M12 182 H36"/>
+    <use xlink:href="#casco" href="#casco" transform="translate(400 270) scale(1.4)"/>
+    <use xlink:href="#crono" href="#crono" transform="translate(590 380) scale(1.2)"/>
+    <use xlink:href="#cubierta" href="#cubierta" transform="translate(270 480) scale(1.2)"/>
+    <use xlink:href="#cono" href="#cono" transform="translate(70 590) scale(1.1)"/>
+    <use xlink:href="#bandera" href="#bandera" transform="translate(200 300) rotate(-10) scale(1.1)"/>
+    <use xlink:href="#bandera" href="#bandera" transform="translate(540 40) rotate(12) scale(1.3)"/>
+    <use xlink:href="#volante" href="#volante" transform="translate(70 330) scale(1.3)"/>
+    <use xlink:href="#copa" href="#copa" transform="translate(480 560) scale(1.4)"/>
+    <use xlink:href="#kart" href="#kart" transform="translate(470 176) scale(.95)"/>
+    <path d="M438 214 H462 M444 228 H466"/>
+    <use xlink:href="#casco" href="#casco" transform="translate(330 70) rotate(-8)"/>
   </g>
 </svg>
