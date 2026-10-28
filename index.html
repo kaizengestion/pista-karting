@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: barra superior tipo "pit board" + columna central de 1120px; tablas como planillas de cronometraje.
-   Identidad RGK Santafesino: negro y rojo, con un fondo de figuras de karting en contorno (img/fondo-3d.svg). */
+   Identidad RGK Santafesino: negro y rojo, con un fondo de figuras de karting en contorno (img/fondo-wire.svg, generado con tools/generar-fondo.py). */
 :root {
   --bg: #0a0a0b;
   --surface: #18181b;
@@ -49,7 +49,7 @@ html, body { min-height: 100%; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
 /* Fondo de atrás: figuras de karting rojas en 3D sobre oscuro, con viñeta. Fijo detrás del contenido. */
 body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 40%, rgba(0,0,0,.65) 100%), url("img/fondo-3d.svg?v=3") 0 0 / 860px 860px repeat, #0c0b0d; }
+  background: radial-gradient(ellipse 120% 90% at 50% 40%, transparent 40%, rgba(0,0,0,.65) 100%), url("img/fondo-wire.svg") 0 0 / 800px 800px repeat, #0c0b0d; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bar); }
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: .01em; }
 h1 { font-size: 2.1rem; font-weight: 800; text-transform: uppercase; }
