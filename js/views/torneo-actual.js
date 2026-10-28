@@ -41,12 +41,19 @@
 .v-torneo-actual .ta-best[hidden] { display: none; }
 .v-torneo-actual tr.pending td { font-variant-numeric: tabular-nums; }
 .v-torneo-actual tr.ta-none td { color: var(--ink-3); text-align: center; padding: 18px 12px; }
-.v-torneo-actual .ta-fechas { display: flex; gap: 8px; flex-wrap: wrap; }
-.v-torneo-actual .ta-fechas button { font: 700 1rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; min-height: 44px;
-  border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-.v-torneo-actual .ta-fechas button small { font: 500 .78rem/1 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink-3); }
-.v-torneo-actual .ta-fechas button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.v-torneo-actual .ta-fechas button[aria-pressed="true"] small { color: var(--accent-ink); opacity: .85; }
+.v-torneo-actual .ta-fechas { display: flex; flex-direction: column; gap: 16px; }
+.v-torneo-actual .ta-fblk { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 16px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 96px; }
+.v-torneo-actual .ta-fblk.activa { border: 2px solid var(--accent); box-shadow: 0 0 0 4px rgba(215,20,28,.12); }
+.v-torneo-actual .ta-fblk-head { display: flex; gap: 8px 14px; align-items: center; flex-wrap: wrap; }
+.v-torneo-actual .ta-fblk-n { font: 800 1.5rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .02em; }
+.v-torneo-actual .ta-fblk-dia { color: var(--ink-2); }
+.v-torneo-actual .ta-fblk-dia::first-letter { text-transform: uppercase; }
+.v-torneo-actual .ta-fblk-podios { display: grid; gap: 12px 20px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.v-torneo-actual .ta-fblk-cat { border-top: 3px solid var(--accent); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.v-torneo-actual .ta-fblk-p { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.v-torneo-actual .ta-fblk-pos { font: 700 .8rem/1 var(--font-display); color: var(--accent-text); width: 22px; flex: none; }
+.v-torneo-actual .ta-fblk-nom { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) { .v-torneo-actual .ta-fblk { padding: 12px; } .v-torneo-actual .ta-fblk-n { font-size: 1.3rem; } }
 .v-torneo-actual .ta-warn { display: flex; gap: 8px; flex-wrap: wrap; }
 .v-torneo-actual-confirm ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .v-torneo-actual-confirm .ta-c-warn { color: var(--warn); font-weight: 600; }
@@ -128,7 +135,8 @@
       const toggle = h('input', { type: 'checkbox', onchange: () => { ordenPos = toggle.checked; drawSections(); } });
       const navEl = h('div', { class: 'ta-nav' }, tabsEl, h('label', { class: 'ta-toggle' }, toggle, 'Ordenar por posición'));
       const sectionsEl = h('div', { class: 'ta-sections' });
-      const fechasEl = h('div', { class: 'ta-fechas', role: 'group', 'aria-label': 'Fecha que estás cronometrando' });
+      const fechasEl = h('div', { class: 'ta-fechas' });
+      let fechasSig = null;
 
       sectionsEl.addEventListener('focusout', () => {
         setTimeout(() => {
@@ -182,7 +190,8 @@
           shownKey = 'torneo:' + t.id;
           headKey = null; renderedSig = null;
           nFecha = fechaInicial(t);
-          root.replaceChildren(headEl, fechasEl, summaryEl, navEl, sectionsEl);
+          fechasSig = null;
+          root.replaceChildren(headEl, fechasEl);
         }
         drawHead();
         drawFechas();
@@ -199,27 +208,74 @@
         fs.forEach((f, k) => { if (f <= hoy) n = k + 1; });
         return n;
       }
+      /* Cada fecha es un bloque. El de la fecha que se está cronometrando tiene la planilla completa;
+         los otros muestran el podio de cada categoría y un botón para abrirlos. */
+      function hoyISO() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function resumenFecha(n) {
+        const cats = (torneo.categorias || []).map(c => c.nombre);
+        const filas = {};
+        let conT = 0, total = 0;
+        for (const i of inscs) {
+          if (i.torneoId !== torneo.id) continue;
+          const k = i.categoria || 'Sin categoría';
+          if (!cats.includes(k)) cats.push(k);
+          const tv = tiempoDe(i.id, n);
+          total++;
+          if (tv.tiempo != null) { conT++; (filas[k] = filas[k] || []).push({ i, t: tv.tiempo }); }
+        }
+        return { conT, total, cats: cats.map(nombre => ({ nombre, podio: (filas[nombre] || []).sort((a, b) => a.t - b.t).slice(0, 3) })) };
+      }
+      function abrirFecha(n) {
+        const a = document.activeElement;
+        if (a && a.matches && a.matches('input.t-input') && sectionsEl.contains(a) && !commit(a)) return;
+        nFecha = n;
+        drawFechas();
+        drawSections();
+        const blk = fechasEl.querySelector('.ta-fblk.activa');
+        blk && blk.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       function drawFechas() {
         const fs = App.fmt.fechasDe(torneo);
-        if (nFecha == null || nFecha > Math.max(1, fs.length)) nFecha = 1;
-        fechasEl.hidden = fs.length < 2;
-        if (fs.length < 2) { fechasEl.replaceChildren(); return; }
-        fechasEl.replaceChildren(...fs.map((f, k) => h('button', {
-          type: 'button', 'aria-pressed': String(nFecha === k + 1),
-          onclick: () => {
-            const a = document.activeElement;
-            if (a && a.matches && a.matches('input.t-input') && sectionsEl.contains(a) && !commit(a)) return;
-            nFecha = k + 1;
-            drawFechas();
-            drawSections();
-          },
-        }, 'Fecha ' + (k + 1), h('small', null, App.fmt.fecha(f)))));
+        const lista = fs.length ? fs : [''];
+        if (nFecha == null || nFecha > lista.length) nFecha = 1;
+        const hoy = hoyISO();
+        const res = lista.map((f, k) => (k + 1 === nFecha ? null : resumenFecha(k + 1)));
+        const sig = JSON.stringify([lista, nFecha, res.map(r => r && [r.conT, r.cats.map(c => c.podio.map(p => [p.i.id, p.t]))])]);
+        if (sig === fechasSig) return;
+        fechasSig = sig;
+        fechasEl.replaceChildren(...lista.map((f, k) => {
+          const n = k + 1, activa = n === nFecha, r = res[k];
+          const estado = activa ? h('span', { class: 'pill pill-live' }, 'Cargando tiempos')
+            : f && f > hoy ? h('span', { class: 'pill' }, 'Próxima')
+            : r.conT ? h('span', { class: 'pill pill-ok' }, 'Corrida · ' + r.conT + ' / ' + r.total + ' tiempos')
+            : h('span', { class: 'pill pill-warn' }, 'Sin tiempos');
+          const cab = h('div', { class: 'ta-fblk-head' },
+            h('span', { class: 'ta-fblk-n' }, 'Fecha ' + n),
+            f ? h('span', { class: 'ta-fblk-dia' }, App.fmt.fechaLarga(f)) : null,
+            estado,
+            h('span', { class: 'spacer' }),
+            activa ? null : h('button', { type: 'button', class: 'btn btn-sm ' + (f && f > hoy ? '' : 'btn-dark'), onclick: () => abrirFecha(n) },
+              r.conT ? 'Ver y editar tiempos' : 'Cargar tiempos'));
+          if (activa) return h('section', { class: 'ta-fblk activa', 'aria-label': 'Fecha ' + n }, cab, summaryEl, navEl, sectionsEl);
+          const cuerpo = r.conT
+            ? h('div', { class: 'ta-fblk-podios' }, r.cats.map(c => h('div', { class: 'ta-fblk-cat' },
+                h('span', { class: 'eyebrow' }, c.nombre),
+                c.podio.length ? c.podio.map((p, j) => h('div', { class: 'ta-fblk-p' },
+                  h('span', { class: 'ta-fblk-pos' }, 'P' + (j + 1)), h('span', { class: 'ta-fblk-nom' }, App.fmt.nombre(p.i)), h('span', { class: 'mono small' }, App.fmt.tiempo(p.t))))
+                  : h('span', { class: 'muted small' }, 'Sin tiempos'))))
+            : h('p', { class: 'muted small' }, f && f > hoy ? 'Todavía no se corrió. Las categorías y los inscriptos son los del torneo.' : 'No hay tiempos cargados en esta fecha.');
+          return h('section', { class: 'ta-fblk', 'aria-label': 'Fecha ' + n }, cab, cuerpo);
+        }));
       }
       /* Tiempo y Ok de un competidor en la fecha elegida */
-      function tiempoDe(id) {
+      function tiempoDe(id, n) {
+        n = n || nFecha || 1;
         const tv = tiempos[id];
         if (!tv) return { tiempo: null, ok: false };
-        const x = tv.fechas ? tv.fechas[nFecha || 1] : (nFecha > 1 ? null : tv);
+        const x = tv.fechas ? tv.fechas[n] : (n > 1 ? null : tv);
         return { tiempo: x && x.tiempo != null ? +x.tiempo : null, ok: !!(x && x.ok) };
       }
 

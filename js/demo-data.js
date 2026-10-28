@@ -1,5 +1,5 @@
 /* Datos de ejemplo (todos con ejemplo: true). Generados para una "hoy" = 2026-10-28. Categorías y lugares del RGK Santafesino.
-   Cada torneo tiene de 1 a 3 fechas (`fechas`); los finalizados guardan una planilla por fecha en `resultadosFechas`
+   Cada torneo tiene de 1 a 10 fechas (`fechas`); los finalizados guardan una planilla por fecha en `resultadosFechas`
    (`resultados` = fecha 1, para compatibilidad). En el torneo en curso, los tiempos de la fecha 2 y 3 van en f2 / f3.
    Se usan en modo demostración y como semilla de la base (seed/seed.json). */
 window.DEMO_DATA = {
@@ -2156,7 +2156,8 @@ window.DEMO_DATA = {
    "fechas": [
     "2026-11-29",
     "2026-12-06",
-    "2026-12-13"
+    "2026-12-13",
+    "2026-12-20"
    ],
    "lugar": "Kartódromo de Cañada de Gómez",
    "estado": "proximo",

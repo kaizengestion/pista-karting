@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const DEMO_KEY = 'pista-karting-demo-v2'; // v2: datos de ejemplo con torneos de varias fechas
+  const DEMO_KEY = 'pista-karting-demo-v3'; // v3: datos de ejemplo con torneos de 1 a 4 fechas
   const INIT_TIMEOUT_MS = 4000;
   const MB = 1024 * 1024;
   const MAX_IMG_SIN_REDUCIR = 2.5 * MB;
@@ -97,8 +97,8 @@
     return arr;
   }
 
-  /* Un torneo tiene de 1 a 3 fechas (`fechas`). Los torneos viejos solo tienen `fecha`. */
-  const MAX_FECHAS = 3;
+  /* Un torneo tiene de 1 a 10 fechas (`fechas`). Los torneos viejos solo tienen `fecha`. */
+  const MAX_FECHAS = 10;
   function fechasDe(t) {
     if (!t) return [];
     const lista = Array.isArray(t.fechas) ? t.fechas.filter((f) => typeof f === 'string' && f) : [];

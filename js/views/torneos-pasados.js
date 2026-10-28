@@ -47,16 +47,27 @@
 .v-pasados .pp-tbl tr.p1 td { background: var(--surface-2); }
 .v-pasados .pp-tbl tr.p1 td.comp, .v-pasados .pp-tbl tr.p1 td.tiempo { font-weight: 700; }
 .v-pasados .pp-tbl tr.sin-tiempo td.tiempo { color: var(--ink-3); font-family: var(--font-body); font-style: italic; }
-.v-pasados .pp-fechas { display: flex; gap: 8px; flex-wrap: wrap; }
-.v-pasados .pp-fechas button { font: 700 1rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; min-height: 44px;
-  border-radius: var(--radius); border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
-.v-pasados .pp-fechas button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .v-pasados .pp-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .v-pasados .pp-chip { display: inline-flex; flex-direction: column; gap: 1px; padding: 6px 10px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface-2);
   color: var(--ink); text-decoration: none; font: 700 .85rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; }
 .v-pasados .pp-chip small { font: 500 .75rem/1.1 var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink-3); }
 .v-pasados .pp-chip:hover { border-color: var(--accent); }
 .v-pasados .pp-item-wrap { position: relative; }
+.v-pasados .pp-fblks { display: flex; flex-direction: column; gap: 14px; }
+.v-pasados .pp-fblk { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); scroll-margin-top: 96px; }
+.v-pasados .pp-fblk[open] { border-color: var(--accent); }
+.v-pasados .pp-fblk > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.v-pasados .pp-fblk > summary::-webkit-details-marker { display: none; }
+.v-pasados .pp-fblk-top { display: flex; gap: 8px 14px; align-items: center; flex-wrap: wrap; }
+.v-pasados .pp-fblk-n { font: 800 1.5rem/1 var(--font-display); text-transform: uppercase; }
+.v-pasados .pp-fblk-dia { color: var(--ink-2); }
+.v-pasados .pp-fblk-dia::first-letter { text-transform: uppercase; }
+.v-pasados .pp-fblk-chev { color: var(--ink-3); transition: transform .15s; font-size: 1.1rem; }
+.v-pasados .pp-fblk[open] .pp-fblk-chev { transform: rotate(180deg); }
+.v-pasados .pp-fblk-gan { display: flex; gap: 4px 16px; flex-wrap: wrap; font-size: .88rem; color: var(--ink-2); }
+.v-pasados .pp-fw b { font: 700 .78rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; color: var(--accent-text); }
+.v-pasados .pp-fblk-body { padding: 4px 16px 18px; display: flex; flex-direction: column; gap: 22px; }
+@media (max-width: 640px) { .v-pasados .pp-fblk-body { padding: 4px 10px 14px; } .v-pasados .pp-fblk > summary { padding: 12px; } }
 .v-pasados .pp-none { border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 16px; color: var(--ink-3); text-align: center; }
 @media (max-width: 520px) {
   .v-pasados .pp-item { grid-template-columns: 1fr; gap: 12px; }
@@ -132,6 +143,7 @@
 
       let torneos = null;
       let fechaSel = null;
+      let abiertas = null, irA = false;
       const u = S.watchTorneos((list) => { torneos = list || []; draw(); });
       ctx.onCleanup(() => callUnsub(u));
 
@@ -169,7 +181,7 @@
         if (ns.length < 2) return card;
         card.querySelector('.pp-body').appendChild(h('div', { class: 'pp-chips' }, ns.map(n =>
           h('a', { class: 'pp-chip', href: '#torneos-pasados~' + encodeURIComponent(t.id) + '@' + n, onclick: (e) => e.stopPropagation() },
-            'Resultados fecha ' + n, fs[n - 1] ? h('small', null, App.fmt.fecha(fs[n - 1])) : null))));
+            'Fecha ' + n, fs[n - 1] ? h('small', null, App.fmt.fecha(fs[n - 1])) : null))));
         return card;
       }
 
@@ -214,36 +226,50 @@
             h('a', { class: 'btn', href: t && t.estado === 'actual' ? '#torneo-actual' : '#torneos-pasados' }, t && t.estado === 'actual' ? 'Ir al torneo actual' : 'Ver torneos pasados')));
           return;
         }
+        /* Un bloque por fecha; adentro, las categorías con su planilla. Se abre la fecha pedida (o la 1). */
         const ns = fechasConPlanilla(t);
-        if (fechaSel == null || !ns.includes(fechaSel)) fechaSel = ns[0];
+        if (!abiertas) abiertas = new Set([fechaSel != null && ns.includes(fechaSel) ? fechaSel : ns[0]]);
         const fs = App.fmt.fechasDe(t);
-        const selFechas = ns.length > 1 ? h('div', { class: 'pp-fechas', role: 'group', 'aria-label': 'Fecha' }, ns.map(n => h('button', {
-          type: 'button', 'aria-pressed': String(n === fechaSel), onclick: () => { fechaSel = n; draw(); },
-        }, 'Fecha ' + n + (fs[n - 1] ? ' · ' + App.fmt.fecha(fs[n - 1]) : '')))) : null;
-        const cats = categoriasDe(t, fechaSel);
-        const pilotos = cats.reduce((s, c) => s + c.filas.length, 0);
-        const conTiempo = cats.reduce((s, c) => s + c.filas.filter(f => f.tiempo != null).length, 0);
-        const mejor = cats.reduce((m, c) => (c.best != null && (m == null || c.best < m.t)) ? { t: c.best, cat: c.nombre } : m, null);
+        const todas = ns.map(n => categoriasDe(t, n));
+        const pilotos = new Set();
+        todas.forEach(cs => cs.forEach(c => c.filas.forEach(f => pilotos.add(f.dni || f.inscId))));
 
         const head = h('div', { class: 'page-head' },
           h('div', { class: 'pp-head-main' },
             h('span', { class: 'eyebrow' }, 'Torneo finalizado'),
             h('h1', null, t.nombre || 'Torneo sin nombre'),
             h('div', { class: 'pp-meta' },
-              h('span', { class: 'pp-fecha' }, App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : '')),
+              h('span', { class: 'pp-fecha' }, t.lugar || ''),
               h('span', { class: 'pill pill-ok' }, 'Finalizado el ' + fechaHora(t.finalizado)))));
 
         const stats = h('div', { class: 'pp-stats' },
-          h('div', { class: 'pp-stat' }, h('b', null, String(pilotos)), h('span', null, 'Pilotos')),
-          h('div', { class: 'pp-stat' }, h('b', null, String(conTiempo)), h('span', null, 'Con tiempo registrado')),
-          h('div', { class: 'pp-stat' }, h('b', null, String(cats.length)), h('span', null, 'Categorías')),
-          mejor ? h('div', { class: 'pp-stat' }, h('b', { class: 'mono' }, App.fmt.tiempo(mejor.t)), h('span', null, 'Mejor tiempo · ' + mejor.cat)) : null);
+          h('div', { class: 'pp-stat' }, h('b', null, String(ns.length)), h('span', null, ns.length === 1 ? 'Fecha' : 'Fechas')),
+          h('div', { class: 'pp-stat' }, h('b', null, String(pilotos.size)), h('span', null, 'Pilotos')),
+          h('div', { class: 'pp-stat' }, h('b', null, String((t.categorias || []).length || (todas[0] || []).length)), h('span', null, 'Categorías')));
 
-        const sections = cats.map(c => h('section', { class: 'pp-section', 'aria-label': c.nombre },
-          h('div', { class: 'section-title' }, h('h2', null, c.nombre), h('span', { class: 'muted' }, pl(c.filas.length, 'competidor', 'competidores'))),
-          c.filas.length ? tabla(c) : h('p', { class: 'pp-none' }, 'Sin competidores en esta categoría')));
+        const bloques = ns.map((n, k) => {
+          const cats = todas[k];
+          const conTiempo = cats.reduce((s2, c) => s2 + c.filas.filter(f => f.tiempo != null).length, 0);
+          const ganadores = cats.map(c => { const p1 = c.filas.find(f => f.posicion === 1); return p1 ? h('span', { class: 'pp-fw' }, h('b', null, c.nombre), ' ', App.fmt.nombre(p1)) : null; });
+          const det = h('details', { class: 'pp-fblk', open: abiertas.has(n) },
+            h('summary', null,
+              h('span', { class: 'pp-fblk-top' },
+                h('span', { class: 'pp-fblk-n' }, 'Fecha ' + n),
+                fs[n - 1] ? h('span', { class: 'pp-fblk-dia' }, App.fmt.fechaLarga(fs[n - 1])) : null,
+                h('span', { class: 'pill' }, pl(conTiempo, 'tiempo', 'tiempos')),
+                h('span', { class: 'spacer' }),
+                h('span', { class: 'pp-fblk-chev', 'aria-hidden': 'true' }, '▾')),
+              h('span', { class: 'pp-fblk-gan' }, ganadores)),
+            h('div', { class: 'pp-fblk-body' }, cats.length ? cats.map(c => h('section', { class: 'pp-section', 'aria-label': c.nombre + ' · fecha ' + n },
+              h('div', { class: 'section-title' }, h('h2', null, c.nombre), h('span', { class: 'muted' }, pl(c.filas.length, 'competidor', 'competidores'))),
+              c.filas.length ? tabla(c) : h('p', { class: 'pp-none' }, 'Sin competidores en esta categoría')))
+              : h('div', { class: 'empty' }, 'Esta fecha no tiene planilla guardada.')));
+          det.addEventListener('toggle', () => { if (det.open) abiertas.add(n); else abiertas.delete(n); });
+          return det;
+        });
 
-        root.replaceChildren(back, head, selFechas, stats, ...(sections.length ? sections : [h('div', { class: 'empty' }, 'Este torneo no tiene planilla guardada.')]));
+        root.replaceChildren(back, head, stats, h('div', { class: 'pp-fblks' }, bloques));
+        if (fechaSel != null && !irA) { irA = true; const d = bloques[ns.indexOf(fechaSel)]; d && setTimeout(() => d.scrollIntoView({ block: 'start' }), 50); }
       }
 
       function tabla(c) {

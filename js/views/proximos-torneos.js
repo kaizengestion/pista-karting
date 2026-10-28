@@ -17,6 +17,11 @@
 .v-proximos .pr-body h2 { overflow-wrap: anywhere; }
 .v-proximos .pr-meta { color: var(--ink-2); }
 .v-proximos .pr-meta::first-letter { text-transform: uppercase; }
+.v-proximos .pr-fechas { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.v-proximos .pr-fecha { border-left: 3px solid var(--accent); background: var(--surface-2); border-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.v-proximos .pr-fecha b { font: 700 .95rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; }
+.v-proximos .pr-fecha span { font-size: .85rem; color: var(--ink-2); }
+.v-proximos .pr-fecha span::first-letter { text-transform: uppercase; }
 .v-proximos .pr-cats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 .v-proximos .pr-cat { border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; background: var(--surface-2); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .v-proximos .pr-cat-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
@@ -136,7 +141,10 @@
           h('div', { class: 'pr-body' },
             h('div', { class: 'stack', style: { gap: '4px' } },
               h('h2', null, t.nombre || 'Torneo sin nombre'),
-              h('p', { class: 'pr-meta' }, App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : ''))),
+              h('p', { class: 'pr-meta' }, App.fmt.fechasDe(t).length > 1 ? (t.lugar || '') : App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : ''))),
+            /* Fechas del torneo: cada una corre con las mismas categorías */
+            App.fmt.fechasDe(t).length > 1 ? h('div', { class: 'pr-fechas' }, App.fmt.fechasDe(t).map((f, k) => h('div', { class: 'pr-fecha' },
+              h('b', null, 'Fecha ' + (k + 1)), h('span', null, App.fmt.fechaLarga(f))))) : null,
             cats.length
               ? h('div', { class: 'pr-cats' }, cats.map(c => {
                 const n = porCat[c.nombre] || 0;
