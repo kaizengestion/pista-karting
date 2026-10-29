@@ -280,7 +280,6 @@
               h('th', { scope: 'col' }, 'Kart'),
               h('th', { scope: 'col' }, 'Competidor'),
               h('th', { scope: 'col' }, 'DNI'),
-              h('th', { scope: 'col' }, 'Motor'),
               h('th', { class: 'num', scope: 'col' }, 'Tiempo'),
               h('th', { class: 'num', scope: 'col' }, 'Dif.'),
               h('th', { class: 'center', scope: 'col' }, 'Ok'))),
@@ -292,7 +291,6 @@
                 h('td', null, h('span', { class: 'kart-no' }, f.nroKarting || '—')),
                 h('td', { class: 'comp' }, App.fmt.nombre(f) || 'Sin nombre', f.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
                 h('td', { class: 'dni' }, f.dni || '—'),
-                h('td', { class: 'motor' }, f.nroMotor || '—'),
                 h('td', { class: 'num tiempo' }, f.tiempo == null ? 'Sin tiempo' : App.fmt.tiempo(f.tiempo)),
                 h('td', { class: 'num dif' }, dif(f.tiempo, c.best, p)),
                 h('td', { class: 'center' }, f.ok ? h('span', { class: 'pill pill-ok' }, 'Ok') : h('span', { class: 'pill' }, '—')));

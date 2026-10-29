@@ -149,21 +149,12 @@
             h('div', null, h('a', { class: 'btn btn-primary', href: '#proximos-torneos' }, 'Crear torneo')));
         }
         const delTorneo = inscs.filter(i => i.torneoId === t.id);
-        const cupoTotal = (t.categorias || []).reduce((a, c) => a + (+c.cupo || 0), 0);
-        const cats = (t.categorias || []).map(c => {
-          const n = delTorneo.filter(i => i.categoria === c.nombre).length;
-          const cupo = +c.cupo || 0;
-          const pct = cupo ? Math.min(100, Math.round(n / cupo * 100)) : (n ? 100 : 0);
-          const estado = cupo && n > cupo ? 'over' : (cupo && n === cupo ? 'full' : '');
-          return h('div', { class: 'cat' },
-            h('div', { class: 'cat-line' },
-              h('span', { class: 'cat-name' }, c.nombre),
-              estado === 'full' ? h('span', { class: 'pill pill-warn' }, 'Completo') : null,
-              estado === 'over' ? h('span', { class: 'pill pill-danger' }, 'Excedido') : null,
-              h('span', { class: 'cat-num' }, String(n), h('span', null, '/' + (cupo || '—')))),
-            h('div', { class: 'bar ' + estado, role: 'img', 'aria-label': c.nombre + ': ' + n + ' de ' + (cupo || 'sin') + ' lugares' },
-              h('i', { style: { width: pct + '%' } })));
-        });
+        /* Anotados por categoría (un piloto puede estar en más de una). La barra se mide contra la categoría más llena. */
+        const conteo = (t.categorias || []).map(c => ({ nombre: c.nombre, n: delTorneo.filter(i => window.Store.categoriasDe(i).includes(c.nombre)).length }));
+        const max = Math.max(1, ...conteo.map(c => c.n));
+        const cats = conteo.filter(c => c.n).map(c => h('div', { class: 'cat' },
+          h('div', { class: 'cat-line' }, h('span', { class: 'cat-name' }, c.nombre), h('span', { class: 'cat-num' }, String(c.n))),
+          h('div', { class: 'bar', role: 'img', 'aria-label': c.nombre + ': ' + c.n + ' anotados' }, h('i', { style: { width: Math.round(c.n / max * 100) + '%' } }))));
         return h('section', { class: 'card hero', 'aria-label': actual ? 'Torneo en curso' : 'Próximo torneo' },
           h('div', { class: 'hero-top' },
             h('span', { class: 'eyebrow' }, actual ? 'Torneo en curso' : 'Próximo torneo · sin torneo en curso'),
@@ -173,8 +164,8 @@
           h('div', { class: 'hero-meta' },
             h('span', null, App.fmt.fechasTexto(t, true)),
             t.lugar ? h('span', null, t.lugar) : null,
-            h('span', null, h('strong', { class: 'tnum' }, plural(delTorneo.length, 'anotado', 'anotados')), cupoTotal ? ' de ' + cupoTotal + ' lugares' : '')),
-          cats.length ? h('div', { class: 'cats' }, cats) : h('p', { class: 'muted small' }, 'Este torneo todavía no tiene categorías.'));
+            h('span', null, h('strong', { class: 'tnum' }, plural(delTorneo.length, 'piloto anotado', 'pilotos anotados')))),
+          cats.length ? h('div', { class: 'cats' }, cats) : h('p', { class: 'muted small' }, 'Todavía no hay anotados.'));
       }
 
       /* "Fecha 2 de 3" en un torneo de varias fechas: la última que ya llegó (o la 1 si ninguna) */

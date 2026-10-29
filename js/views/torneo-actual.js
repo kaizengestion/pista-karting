@@ -74,8 +74,7 @@
 `);
 
   const pl = (n, uno, varios) => n + ' ' + (n === 1 ? uno : varios);
-  const numOrNull = (v) => (v === '' || v == null || isNaN(+v)) ? null : Math.max(0, Math.floor(+v));
-
+  
   function cmpKart(a, b) {
     const ka = String(a.insc.nroKarting || '').trim(), kb = String(b.insc.nroKarting || '').trim();
     if (ka && !kb) return -1;
@@ -220,11 +219,12 @@
         let conT = 0, total = 0;
         for (const i of inscs) {
           if (i.torneoId !== torneo.id) continue;
-          const k = i.categoria || 'Sin categoría';
-          if (!cats.includes(k)) cats.push(k);
-          const tv = tiempoDe(i.id, n);
-          total++;
-          if (tv.tiempo != null) { conT++; (filas[k] = filas[k] || []).push({ i, t: tv.tiempo }); }
+          for (const k of catsDe(i)) {
+            if (!cats.includes(k)) cats.push(k);
+            const tv = tiempoDe(clave(i, k), n);
+            total++;
+            if (tv.tiempo != null) { conT++; (filas[k] = filas[k] || []).push({ i, t: tv.tiempo }); }
+          }
         }
         return { conT, total, cats: cats.map(nombre => ({ nombre, podio: (filas[nombre] || []).sort((a, b) => a.t - b.t).slice(0, 3) })) };
       }
@@ -270,10 +270,19 @@
           return h('section', { class: 'ta-fblk', 'aria-label': 'Fecha ' + n }, cab, cuerpo);
         }));
       }
-      /* Tiempo y Ok de un competidor en la fecha elegida */
+      /* Cada fila de la planilla es un competidor en una categoría: su clave de tiempos es '<inscId>__<categoría>' */
+      const filasPorClave = new Map();   // clave -> { insc, cat }
+      const catsDe = (i) => { const cs = S.categoriasDe(i); return cs.length ? cs : ['Sin categoría']; };
+      function clave(i, cat) { const k = S.claveTiempo(i.id, cat); filasPorClave.set(k, { insc: i, cat }); return k; }
+      function docTiempo(k) {
+        if (tiempos[k]) return tiempos[k];
+        const f = filasPorClave.get(k);   // tiempos viejos, guardados con el id de la inscripción
+        return f && catsDe(f.insc)[0] === f.cat ? tiempos[f.insc.id] : null;
+      }
+      /* Tiempo y Ok de una fila en la fecha elegida */
       function tiempoDe(id, n) {
         n = n || nFecha || 1;
-        const tv = tiempos[id];
+        const tv = docTiempo(id);
         if (!tv) return { tiempo: null, ok: false };
         const x = tv.fechas ? tv.fechas[n] : (n > 1 ? null : tv);
         return { tiempo: x && x.tiempo != null ? +x.tiempo : null, ok: !!(x && x.ok) };
@@ -293,16 +302,21 @@
       /* ---------- Modelo ---------- */
       function model() {
         const t = torneo;
-        const cats = (t.categorias || []).map(c => ({ nombre: c.nombre, cupo: numOrNull(c.cupo), filas: [] }));
-        const byName = new Map(cats.map(c => [c.nombre, c]));
+        const todas = (t.categorias || []).map(c => ({ nombre: c.nombre, filas: [] }));
+        const byName = new Map(todas.map(c => [c.nombre, c]));
         for (const i of inscs) {
           if (i.torneoId !== t.id) continue;
-          const key = i.categoria || 'Sin categoría';
-          let c = byName.get(key);
-          if (!c) { c = { nombre: key, cupo: null, filas: [], extra: true }; byName.set(key, c); cats.push(c); }
-          const tv = tiempoDe(i.id);
-          c.filas.push({ insc: i, inscId: i.id, tiempo: tv.tiempo, ok: tv.ok, posicion: null });
+          for (const key of catsDe(i)) {
+            let c = byName.get(key);
+            if (!c) { c = { nombre: key, filas: [], extra: true }; byName.set(key, c); todas.push(c); }
+            const k = clave(i, key);
+            const tv = tiempoDe(k);
+            c.filas.push({ insc: i, inscId: k, tiempo: tv.tiempo, ok: tv.ok, posicion: null });
+          }
         }
+        // Solo las categorías con anotados: con 12 categorías, las vacías no aportan
+        const cats = todas.filter(c => c.filas.length);
+        cats.vacias = todas.filter(c => !c.filas.length).map(c => c.nombre);
         for (const c of cats) {
           const ranked = posiciones(c.filas.map(f => ({ id: f.inscId, inscId: f.inscId, tiempo: f.tiempo, ok: f.ok })));
           const pos = new Map(ranked.map(r => [r.inscId != null ? r.inscId : r.id, r.posicion == null ? null : r.posicion]));
@@ -320,30 +334,23 @@
       }
 
       function signature(cats) {
-        return JSON.stringify([nFecha, cats.map(c => [c.nombre, c.cupo, c.filas.map(f => {
+        return JSON.stringify([nFecha, cats.map(c => [c.nombre, c.filas.map(f => {
           const i = f.insc;
-          return [f.inscId, i.nroKarting, i.apellido, i.nombre, i.dni, i.nroMotor, !!i.invitado];
+          return [f.inscId, i.nroKarting, i.apellido, i.nombre, i.dni, !!i.invitado];
         })])]);
       }
 
       const totals = (cats) => {
-        let n = 0, cupo = 0, hayCupo = false, libres = 0, conT = 0, conOk = 0;
+        let n = 0, conT = 0, conOk = 0;
+        const pilotos = new Set();
         for (const c of cats) {
           n += c.filas.length; conT += c.conTiempo; conOk += c.conOk;
-          if (c.cupo != null) { hayCupo = true; cupo += c.cupo; libres += Math.max(0, c.cupo - c.filas.length); }
+          c.filas.forEach(f => pilotos.add(f.insc.id));
         }
-        return { n, cupo, hayCupo, libres, conT, conOk };
+        return { n, pilotos: pilotos.size, conT, conOk };
       };
 
-      function subText(c) {
-        const n = c.filas.length;
-        if (c.cupo == null) return pl(n, 'anotado', 'anotados') + ' · sin cupo definido';
-        if (n <= c.cupo) {
-          const l = c.cupo - n;
-          return n + ' de ' + c.cupo + ' · ' + (l === 0 ? 'cupo completo' : pl(l, 'lugar disponible', 'lugares disponibles'));
-        }
-        return n + ' de ' + c.cupo + ' · ' + (n - c.cupo) + ' sobre el cupo';
-      }
+      function subText(c) { return pl(c.filas.length, 'anotado', 'anotados'); }
 
       /* ---------- Dibujo ---------- */
       function drawHead() {
@@ -365,10 +372,8 @@
       function drawSummary(cats) {
         const s = totals(cats);
         summaryEl.replaceChildren(
-          h('div', { class: 'ta-stat hl' },
-            h('b', null, String(s.n), s.hayCupo ? h('small', null, ' / ' + s.cupo) : null),
-            h('span', null, s.hayCupo ? 'Anotados / cupo total' : 'Anotados')),
-          h('div', { class: 'ta-stat' }, h('b', null, s.hayCupo ? String(s.libres) : '—'), h('span', null, 'Lugares disponibles')),
+          h('div', { class: 'ta-stat hl' }, h('b', null, String(s.pilotos)), h('span', null, 'Pilotos anotados')),
+          h('div', { class: 'ta-stat' }, h('b', null, String(cats.length)), h('span', null, 'Categorías con anotados')),
           h('div', { class: 'ta-stat' }, h('b', null, String(s.conT), h('small', null, ' / ' + s.n)), h('span', null, 'Tiempos cargados' + deFecha())),
           h('div', { class: 'ta-stat' }, h('b', null, String(s.conOk), h('small', null, ' / ' + s.n)), h('span', null, 'Con Ok' + deFecha())));
       }
@@ -403,12 +408,13 @@
 
         if (!cats.length) {
           sectionsEl.replaceChildren(h('div', { class: 'empty' },
-            h('strong', null, 'Este torneo no tiene categorías'),
-            h('span', null, 'Agregá categorías desde Próximos torneos antes de iniciarlo.')));
+            h('strong', null, 'Todavía no hay competidores anotados'),
+            h('span', null, 'Compartí el link de inscripción o agregalos desde Competidores.')));
           return;
         }
         for (const c of cats) sections.push(drawCat(c));
-        sectionsEl.replaceChildren(...sections);
+        sectionsEl.replaceChildren(...sections,
+          cats.vacias && cats.vacias.length ? h('p', { class: 'muted small' }, 'Sin anotados: ' + cats.vacias.join(', ') + '.') : null);
       }
 
       function drawCat(c) {
@@ -420,26 +426,18 @@
         catRefs.set(c.nombre, { sub, conTiempo });
 
         const rows = filas.map(f => drawRow(f, c));
-        const n = c.filas.length;
-        if (c.cupo != null) {
-          for (let k = n + 1; k <= c.cupo; k++) {
-            rows.push(h('tr', { class: 'pending' }, h('td', { colspan: '6' }, 'Lugar ' + k + ' — disponible')));
-          }
-        }
-        if (!rows.length) rows.push(h('tr', { class: 'ta-none' }, h('td', { colspan: '6' }, 'Todavía no hay competidores en esta categoría.')));
+        if (!rows.length) rows.push(h('tr', { class: 'ta-none' }, h('td', { colspan: '5' }, 'Todavía no hay competidores en esta categoría.')));
 
         return h('section', { class: 'ta-section', 'aria-label': c.nombre },
           h('div', { class: 'section-title' }, h('h2', null, c.nombre), sub, conTiempo,
             deFecha() ? h('span', { class: 'pill pill-live' }, 'Fecha ' + nFecha) : null,
-            c.extra ? h('span', { class: 'pill pill-warn' }, 'Categoría fuera del torneo') : null,
-            c.cupo != null && n > c.cupo ? h('span', { class: 'pill pill-danger' }, 'Cupo excedido') : null),
+            c.extra ? h('span', { class: 'pill pill-warn' }, 'Categoría fuera del torneo') : null),
           h('div', { class: 'table-wrap' },
             h('table', { class: 'tbl ta-tbl' },
               h('thead', null, h('tr', null,
                 h('th', { class: 'center', scope: 'col' }, 'Pos'),
                 h('th', { scope: 'col' }, 'Kart'),
                 h('th', { scope: 'col' }, 'Competidor'),
-                h('th', { class: 'motor', scope: 'col' }, 'Motor'),
                 h('th', { scope: 'col' }, 'Tiempo'),
                 h('th', { class: 'center', scope: 'col' }, 'Ok'))),
               h('tbody', null, rows))));
@@ -466,9 +464,8 @@
         const tr = h('tr', { class: isBest ? 'is-best' : null, dataset: { insc: f.inscId } },
           posTd,
           h('td', { class: 'kart' }, h('span', { class: 'kart-no' }, i.nroKarting || '—')),
-          h('td', null, h('div', { class: 'ta-comp' }, nombre, i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null), h('span', { class: 'ta-dni' }, i.dni ? 'DNI ' + i.dni : 'Sin DNI',
-            h('span', { class: 'ta-motor-inline' }, ' · Motor ' + (i.nroMotor || '—')))),
-          h('td', { class: 'motor' }, i.nroMotor || '—'),
+          h('td', null, h('div', { class: 'ta-comp' }, nombre, i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
+            h('span', { class: 'ta-dni' }, (i.dni ? 'DNI ' + i.dni : 'Sin DNI') + (catsDe(i).length > 1 ? ' · también corre en ' + catsDe(i).filter(x => x !== c.nombre).join(', ') : ''))),
           h('td', null, h('div', { class: 't-cell' }, input, best)),
           h('td', { class: 'center ok' }, chk));
         rowRefs.set(f.inscId, { tr, pos, posTd, input, chk, best });
@@ -504,11 +501,14 @@
         const tid = torneo && torneo.id;
         if (!tid) return;
         const n = nFecha || 1;
-        const prev = tiempos[inscId] || { tiempo: null, ok: false };
+        const prev = docTiempo(inscId) || { tiempo: null, ok: false };
         const fechas = Object.assign({ 1: { tiempo: prev.tiempo, ok: !!prev.ok } }, prev.fechas || {}, { [n]: data });
+        if (!prev.fechas) for (let k = 2; k <= 10; k++) if (prev['f' + k]) fechas[k] = prev['f' + k];
         tiempos = Object.assign({}, tiempos, { [inscId]: { tiempo: fechas[1].tiempo, ok: !!fechas[1].ok, fechas } }); // optimista
+        const f = filasPorClave.get(inscId);
+        const legado = f && catsDe(f.insc)[0] === f.cat ? f.insc.id : null;   // tiempos viejos de esta fila
         const p = Promise.resolve()
-          .then(() => S.guardarTiempo(tid, inscId, data, n))
+          .then(() => S.guardarTiempo(tid, inscId, data, n, legado))
           .catch((e) => { console.error(e); App.toast('No se pudo guardar: ' + (e && e.message || e), 'error'); });
         pendientes.add(p);
         p.finally(() => pendientes.delete(p));

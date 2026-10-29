@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const DEMO_KEY = 'pista-karting-demo-v3'; // v3: datos de ejemplo con torneos de 1 a 4 fechas
+  const DEMO_KEY = 'pista-karting-demo-v4'; // v4: formulario nuevo del cliente (categorías múltiples, licencias, emergencia)
   const INIT_TIMEOUT_MS = 4000;
   const MB = 1024 * 1024;
   const MAX_IMG_SIN_REDUCIR = 2.5 * MB;
@@ -111,6 +111,25 @@
     return { tiempo: aTiempo(x && x.tiempo), ok: !!(x && x.ok) };
   }
 
+  /* Un competidor puede correr en una o más categorías (`categorias`). Las inscripciones viejas solo tienen `categoria`. */
+  function categoriasDe(i) {
+    if (!i) return [];
+    const lista = Array.isArray(i.categorias) ? i.categorias.filter((c) => typeof c === 'string' && c) : [];
+    if (lista.length) return lista;
+    return i.categoria ? [i.categoria] : [];
+  }
+  function slug(t) {
+    return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'cat';
+  }
+  /* Documento de tiempos de un competidor en una categoría: '<inscId>__<categoría>'.
+     Los tiempos viejos (una sola categoría) se guardaron como '<inscId>' y se siguen leyendo. */
+  function claveTiempo(inscId, cat) { return inscId + '__' + slug(cat); }
+  function tiempoDoc(tiempos, insc, cat) {
+    const t = tiempos[claveTiempo(insc.id, cat)];
+    if (t) return t;
+    return cat === categoriasDe(insc)[0] ? tiempos[insc.id] : undefined;
+  }
+
   function torneoActual(torneos) {
     return (torneos || []).find((t) => t && t.estado === 'actual') || null;
   }
@@ -127,14 +146,16 @@
     const res = {};
     (torneo.categorias || []).forEach((c) => { if (c && c.nombre) res[c.nombre] = []; });
     inscs.forEach((i) => {
-      const t = tiempoDeFecha(tiempos[i.id], n || 1);
-      const cat = i.categoria || 'Sin categoría';
-      (res[cat] = res[cat] || []).push({
-        inscId: i.id,
-        nombre: i.nombre || '', apellido: i.apellido || '', dni: i.dni || '',
-        nroKarting: i.nroKarting == null ? '' : String(i.nroKarting), nroMotor: i.nroMotor || '',
-        invitado: !!i.invitado,
-        tiempo: t.tiempo, ok: t.ok,
+      const cats = categoriasDe(i);
+      (cats.length ? cats : ['Sin categoría']).forEach((cat) => {
+        const t = tiempoDeFecha(tiempoDoc(tiempos, i, cat), n || 1);
+        (res[cat] = res[cat] || []).push({
+          inscId: i.id,
+          nombre: i.nombre || '', apellido: i.apellido || '', dni: i.dni || '',
+          nroKarting: i.nroKarting == null ? '' : String(i.nroKarting),
+          invitado: !!i.invitado,
+          tiempo: t.tiempo, ok: t.ok,
+        });
       });
     });
     Object.keys(res).forEach((k) => { res[k] = posiciones(res[k]); });
@@ -454,7 +475,7 @@
     '<g fill="#d9d5cc"><rect x="80" y="120" width="440" height="14" rx="7"/><rect x="80" y="160" width="380" height="14" rx="7"/>' +
     '<rect x="80" y="200" width="410" height="14" rx="7"/><rect x="80" y="560" width="440" height="14" rx="7"/>' +
     '<rect x="80" y="600" width="300" height="14" rx="7"/></g>' +
-    '<text x="300" y="390" font-family="Helvetica, Arial, sans-serif" font-size="40" font-weight="700" text-anchor="middle" fill="#2b2a27">Autorización</text>' +
+    '<text x="300" y="390" font-family="Helvetica, Arial, sans-serif" font-size="40" font-weight="700" text-anchor="middle" fill="#2b2a27">Licencia</text>' +
     '<text x="300" y="440" font-family="Helvetica, Arial, sans-serif" font-size="30" text-anchor="middle" fill="#6b675f">(ejemplo)</text>' +
     '<path d="M330 700 c30 -40 50 -40 60 -10 s30 20 60 -20 s30 -10 40 10" fill="none" stroke="#2b2a27" stroke-width="3"/>' +
     '<rect x="320" y="715" width="200" height="2" fill="#6b675f"/>' +
@@ -577,6 +598,9 @@
     torneoInscripcion,
     fechasDe,
     MAX_FECHAS,
+    categoriasDe,
+    claveTiempo,
+    tiempoDoc,
 
     async guardarTorneo(t) {
       await listo();
@@ -659,7 +683,7 @@
       return watchColeccion('inscripciones', 'inscripciones', ordenarInscripciones, () => [], cb);
     },
 
-    /* Con `datos.piloto2` ({ nombre, apellido, dni }) se anotan dos invitados que comparten kart:
+    /* Con `datos.piloto2` ({ nombre, apellido, dni, fechaNacimiento }) se anotan dos invitados que comparten kart:
        dos inscripciones con los mismos datos de contacto y de kart, unidas por `grupo`. */
     async inscribir(datos) {
       await listo();
@@ -695,6 +719,9 @@
         const id2 = esCompetidor() ? id + '-2' : A.newId('inscripciones');
         const d2 = Object.assign({}, d, {
           nombre: String(p2.nombre || ''), apellido: String(p2.apellido || ''), dni: String(p2.dni || ''),
+          fechaNacimiento: String(p2.fechaNacimiento || ''),
+          // Las licencias son de cada piloto: el segundo las carga después (o el organizador)
+          licenciaDeportiva: null, licenciaMedica: null,
         });
         await escribir('inscripciones/' + id2, d2);
       }
@@ -724,7 +751,10 @@
       await listo();
       exigirId(id, 'de la inscripción');
       const previa = await A.get('inscripciones/' + id);
-      if (previa && idValido(previa.torneoId)) await A.del('torneos/' + previa.torneoId + '/tiempos/' + id);
+      if (previa && idValido(previa.torneoId)) {
+        const tiempos = await A.list('torneos/' + previa.torneoId + '/tiempos');
+        await enLotes(tiempos.filter((t) => t.id === id || t.id.indexOf(id + '__') === 0), (t) => A.del('torneos/' + previa.torneoId + '/tiempos/' + t.id));
+      }
       await A.del('inscripciones/' + id);
     },
 
@@ -745,15 +775,17 @@
       }, () => ({}), cb);
     },
 
-    /* n: número de fecha (1 a 3). Las otras fechas del mismo competidor se conservan. */
-    async guardarTiempo(torneoId, inscId, valor, n) {
+    /* inscId: clave de la fila ('<inscId>__<categoría>'). n: número de fecha. Las otras fechas se conservan.
+       legado: id del documento viejo (sin categoría) del que se toman los tiempos la primera vez. */
+    async guardarTiempo(torneoId, inscId, valor, n, legado) {
       await listo();
       exigirId(torneoId, 'del torneo');
       exigirId(inscId, 'de la inscripción');
       n = Math.min(MAX_FECHAS, Math.max(1, Math.floor(+n || 1)));
       const v = valor || {};
       const path = 'torneos/' + torneoId + '/tiempos/' + inscId;
-      const previo = await A.get(path);
+      let previo = await A.get(path);
+      if (!previo && legado && idValido(legado)) previo = await A.get('torneos/' + torneoId + '/tiempos/' + legado);
       const doc = { tiempo: null, ok: false };
       for (let k = 1; k <= MAX_FECHAS; k++) {
         const x = tiempoDeFecha(previo, k);

@@ -1,4 +1,5 @@
-/* Datos de ejemplo (todos con ejemplo: true). Generados para una "hoy" = 2026-10-28. Categorías y lugares del RGK Santafesino.
+/* Datos de ejemplo (todos con ejemplo: true). Generados para una "hoy" = 2026-10-28. Categorías y lugares del RGK Santafesino. Inscripciones con el formulario del cliente
+   (categorías múltiples, licencias opcionales, emergencia; sin cupos). Tiempos por categoría: '<inscId>__<categoría>'.
    Cada torneo tiene de 1 a 10 fechas (`fechas`); los finalizados guardan una planilla por fecha en `resultadosFechas`
    (`resultados` = fecha 1, para compatibilidad). En el torneo en curso, los tiempos de la fecha 2 y 3 van en f2 / f3.
    Se usan en modo demostración y como semilla de la base (seed/seed.json). */
@@ -13,15 +14,15 @@ window.DEMO_DATA = {
    "categorias": [
     {
      "nombre": "110 Escuela",
-     "cupo": 12
+     "cupo": null
     },
     {
      "nombre": "150 Varillero",
-     "cupo": 10
+     "cupo": null
     },
     {
      "nombre": "125 Internacional",
-     "cupo": 8
+     "cupo": null
     }
    ],
    "notas": "Torneo de una sola fecha.",
@@ -248,15 +249,15 @@ window.DEMO_DATA = {
    "categorias": [
     {
      "nombre": "110 Escuela",
-     "cupo": 12
+     "cupo": null
     },
     {
      "nombre": "150 Varillero",
-     "cupo": 10
+     "cupo": null
     },
     {
      "nombre": "125 Internacional",
-     "cupo": 8
+     "cupo": null
     }
    ],
    "notas": "",
@@ -997,15 +998,15 @@ window.DEMO_DATA = {
    "categorias": [
     {
      "nombre": "110 Escuela",
-     "cupo": 12
+     "cupo": null
     },
     {
      "nombre": "150 Varillero",
-     "cupo": 10
+     "cupo": null
     },
     {
      "nombre": "125 Internacional",
-     "cupo": 8
+     "cupo": null
     }
    ],
    "notas": "Fecha 2 con pista húmeda en la primera tanda.",
@@ -2094,64 +2095,137 @@ window.DEMO_DATA = {
   },
   {
    "id": "t-2026-f4",
-   "nombre": "RGK Santafesino 2026 — Torneo Clausura",
-   "fecha": "2026-10-18",
-   "lugar": "Kartódromo de Cañada de Gómez",
+   "nombre": "RGK Santafesino — Fecha 7",
+   "fecha": "2026-10-24",
+   "lugar": "Autoclub Cañada de Gómez",
    "estado": "actual",
    "categorias": [
     {
      "nombre": "110 Escuela",
-     "cupo": 12
+     "cupo": null
+    },
+    {
+     "nombre": "150 Varillero Juvenil",
+     "cupo": null
     },
     {
      "nombre": "150 Varillero",
-     "cupo": 10
+     "cupo": null
+    },
+    {
+     "nombre": "150 Cadenero",
+     "cupo": null
+    },
+    {
+     "nombre": "150 Multimarca",
+     "cupo": null
+    },
+    {
+     "nombre": "150 Multi.Senior",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Promocional",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Juvenil",
+     "cupo": null
     },
     {
      "nombre": "125 Internacional",
-     "cupo": 8
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter. Promocional",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Senior",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Master",
+     "cupo": null
     }
    ],
-   "notas": "Acreditación desde las 8:00. Briefing de pilotos 9:30. Largada 110 Escuela 10:00.",
+   "notas": "Apertura del predio 10am\nApertura de inscripción 11am\nComienzo de pruebas libres y cronometradas 13hs",
    "creado": "2026-10-05T13:00:00.000Z",
    "ejemplo": true,
    "fechas": [
-    "2026-10-18",
-    "2026-10-25",
-    "2026-11-08"
-   ]
+    "2026-10-24",
+    "2026-10-25"
+   ],
+   "sentido": "horario"
   },
   {
    "id": "t-2026-f5",
-   "nombre": "RGK Santafesino 2026 — Gran Premio Ciudad",
-   "fecha": "2026-11-15",
-   "lugar": "Kartódromo de Rafaela",
+   "nombre": "RGK Santafesino — Fecha 8",
+   "fecha": "2026-11-21",
+   "lugar": "Autoclub Cañada de Gómez",
    "estado": "proximo",
    "categorias": [
     {
      "nombre": "110 Escuela",
-     "cupo": 12
+     "cupo": null
+    },
+    {
+     "nombre": "150 Varillero Juvenil",
+     "cupo": null
     },
     {
      "nombre": "150 Varillero",
-     "cupo": 10
+     "cupo": null
+    },
+    {
+     "nombre": "150 Cadenero",
+     "cupo": null
+    },
+    {
+     "nombre": "150 Multimarca",
+     "cupo": null
+    },
+    {
+     "nombre": "150 Multi.Senior",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Promocional",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Juvenil",
+     "cupo": null
     },
     {
      "nombre": "125 Internacional",
-     "cupo": 8
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter. Promocional",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Senior",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Master",
+     "cupo": null
     }
    ],
    "notas": "",
    "creado": "2026-10-06T15:20:00.000Z",
    "ejemplo": true,
    "fechas": [
-    "2026-11-15",
+    "2026-11-21",
     "2026-11-22"
-   ]
+   ],
+   "sentido": "antihorario"
   },
   {
    "id": "t-2026-f6",
-   "nombre": "RGK Santafesino 2026 — Copa de Fin de Año",
+   "nombre": "RGK Santafesino — Copa de Fin de Año",
    "fecha": "2026-11-29",
    "fechas": [
     "2026-11-29",
@@ -2159,20 +2233,56 @@ window.DEMO_DATA = {
     "2026-12-13",
     "2026-12-20"
    ],
-   "lugar": "Kartódromo de Cañada de Gómez",
+   "lugar": "Autoclub Cañada de Gómez",
    "estado": "proximo",
    "categorias": [
     {
      "nombre": "110 Escuela",
-     "cupo": 14
+     "cupo": null
+    },
+    {
+     "nombre": "150 Varillero Juvenil",
+     "cupo": null
     },
     {
      "nombre": "150 Varillero",
-     "cupo": 12
+     "cupo": null
+    },
+    {
+     "nombre": "150 Cadenero",
+     "cupo": null
+    },
+    {
+     "nombre": "150 Multimarca",
+     "cupo": null
+    },
+    {
+     "nombre": "150 Multi.Senior",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Promocional",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Juvenil",
+     "cupo": null
     },
     {
      "nombre": "125 Internacional",
-     "cupo": 10
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter. Promocional",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Senior",
+     "cupo": null
+    },
+    {
+     "nombre": "125 Inter.Master",
+     "cupo": null
     }
    ],
    "notas": "Entrega de premios del campeonato al finalizar.",
@@ -2188,21 +2298,29 @@ window.DEMO_DATA = {
    "nombre": "Nicolás",
    "apellido": "Ojeda",
    "dni": "41431634",
-   "direccion": "Colón 4454, Lanús",
-   "telefono": "+54 9 11 3896-4735",
+   "direccion": "Colón 4454",
+   "telefono": "+54 9 3471 80-3310",
    "email": "nicolas.ojeda@ejemplo.com",
-   "seguro": "San Cristóbal",
-   "nroMotor": "IAME X30 #49982",
    "nroKarting": "86",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-05T22:23:07.000Z",
    "actualizado": "2026-10-05T22:23:07.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Varillero"
+   ],
+   "fechaNacimiento": "1993-04-16",
+   "provincia": "Santa Fe",
+   "localidad": "Santa Fe",
+   "grupoSanguineo": "A+",
+   "obraSocial": "",
+   "emergenciaNombre": "Gabriel Ojeda",
+   "emergenciaTelefono": "+54 9 3471 44-4735",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-05T22:23:07.000Z"
+   }
   },
   {
    "id": "i-002",
@@ -2211,21 +2329,39 @@ window.DEMO_DATA = {
    "nombre": "Valentina",
    "apellido": "Sosa",
    "dni": "52790128",
-   "direccion": "Tucumán 4227, Castelar",
-   "telefono": "+54 9 11 4718-7119",
+   "direccion": "Tucumán 4227",
+   "telefono": "+54 9 3471 63-0438",
    "email": "valentina.sosa@ejemplo.com",
-   "seguro": "San Cristóbal",
-   "nroMotor": "Rotax Mini Max #7C7705",
    "nroKarting": "99",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-05T12:59:33.000Z",
    "actualizado": "2026-10-05T12:59:33.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2016-03-28",
+   "provincia": "Santa Fe",
+   "localidad": "Cañada de Gómez",
+   "grupoSanguineo": "0+",
+   "obraSocial": "Galeno – Afiliado N.º 93161213",
+   "emergenciaNombre": "Andrea Sosa",
+   "emergenciaTelefono": "+54 9 3471 84-4733",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-05T12:59:33.000Z"
+   }
   },
   {
    "id": "i-003",
@@ -2234,39 +2370,65 @@ window.DEMO_DATA = {
    "nombre": "Martina",
    "apellido": "Acosta",
    "dni": "51898050",
-   "direccion": "Las Heras 3547, Hurlingham",
-   "telefono": "+54 9 11 3487-3006",
+   "direccion": "Las Heras 3547",
+   "telefono": "+54 9 3471 44-1347",
    "email": "martina.acosta@ejemplo.com",
-   "seguro": "Sancor Seguros",
-   "nroMotor": "Rotax Mini Max #3F8697",
    "nroKarting": "66",
-   "autorizacion": null,
    "creado": "2026-10-06T13:12:24.000Z",
    "actualizado": "2026-10-06T13:12:24.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2014-06-06",
+   "provincia": "Santa Fe",
+   "localidad": "Rafaela",
+   "grupoSanguineo": "AB+",
+   "obraSocial": "OSDE – Afiliado N.º 74483946",
+   "emergenciaNombre": "Marcelo Acosta",
+   "emergenciaTelefono": "+54 9 3471 91-7926",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-06T13:12:24.000Z"
+   }
   },
   {
    "id": "i-004",
    "torneoId": "t-2026-f4",
-   "categoria": "150 Varillero",
+   "categoria": "150 Multimarca",
    "nombre": "Gonzalo",
    "apellido": "Ríos",
    "dni": "24337403",
-   "direccion": "San Martín 1233, Campana",
-   "telefono": "+54 9 11 6676-6561",
+   "direccion": "San Martín 1233",
+   "telefono": "+54 9 3471 49-0164",
    "email": "gonzalo.rios@ejemplo.com",
-   "seguro": "Federación Patronal",
-   "nroMotor": "Rotax #5C6654",
    "nroKarting": "92",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-06T19:58:18.000Z",
    "actualizado": "2026-10-06T19:58:18.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Multimarca"
+   ],
+   "fechaNacimiento": "1985-09-02",
+   "provincia": "Santa Fe",
+   "localidad": "Casilda",
+   "grupoSanguineo": "B+",
+   "obraSocial": "IAPOS – Afiliado N.º 81116732",
+   "emergenciaNombre": "Roberto Ríos",
+   "emergenciaTelefono": "+54 9 3471 92-4668",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-06T19:58:18.000Z"
+   }
   },
   {
    "id": "i-005",
@@ -2275,39 +2437,66 @@ window.DEMO_DATA = {
    "nombre": "Gustavo",
    "apellido": "Paz",
    "dni": "31602829",
-   "direccion": "Laprida 3468, Morón",
-   "telefono": "+54 9 11 4056-2448",
+   "direccion": "Laprida 3468",
+   "telefono": "+54 9 3471 57-9001",
    "email": "gustavo.paz@ejemplo.com",
-   "seguro": "Federación Patronal",
-   "nroMotor": "IAME Puma #19539",
    "nroKarting": "2",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-07T09:35:53.000Z",
    "actualizado": "2026-10-07T09:35:53.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2016-06-17",
+   "provincia": "Santa Fe",
+   "localidad": "Firmat",
+   "grupoSanguineo": "AB+",
+   "obraSocial": "IAPOS – Afiliado N.º 74570286",
+   "emergenciaNombre": "Daniel Paz",
+   "emergenciaTelefono": "+54 9 3471 63-9678",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-07T09:35:53.000Z"
+   }
   },
   {
    "id": "i-006",
    "torneoId": "t-2026-f4",
-   "categoria": "150 Varillero",
+   "categoria": "150 Varillero Juvenil",
    "nombre": "Franco",
    "apellido": "Godoy",
    "dni": "38884151",
-   "direccion": "Las Heras 941, San Justo",
-   "telefono": "+54 9 11 4105-1800",
+   "direccion": "Las Heras 941",
+   "telefono": "+54 9 3471 44-7788",
    "email": "franco.godoy@ejemplo.com",
-   "seguro": "San Cristóbal",
-   "nroMotor": "Rotax #9G8068",
    "nroKarting": "57",
-   "autorizacion": null,
    "creado": "2026-10-07T16:17:37.000Z",
    "actualizado": "2026-10-07T16:17:37.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Varillero Juvenil",
+    "150 Multi.Senior"
+   ],
+   "fechaNacimiento": "1995-06-09",
+   "provincia": "Santa Fe",
+   "localidad": "Firmat",
+   "grupoSanguineo": "0-",
+   "obraSocial": "OSDE – Afiliado N.º 86515853",
+   "emergenciaNombre": "Laura Godoy",
+   "emergenciaTelefono": "+54 9 3471 77-0540",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-07T16:17:37.000Z"
+   }
   },
   {
    "id": "i-007",
@@ -2316,44 +2505,70 @@ window.DEMO_DATA = {
    "nombre": "Lautaro",
    "apellido": "Benítez",
    "dni": "52301946",
-   "direccion": "Alsina 1047, Quilmes",
-   "telefono": "+54 9 11 4065-5978",
+   "direccion": "Alsina 1047",
+   "telefono": "+54 9 3471 80-8129",
    "email": "lautaro.benitez@ejemplo.com",
-   "seguro": "Rivadavia Seguros",
-   "nroMotor": "IAME Puma #59784",
    "nroKarting": "15",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-08T09:01:45.000Z",
    "actualizado": "2026-10-08T09:01:45.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2016-06-12",
+   "provincia": "Santa Fe",
+   "localidad": "Correa",
+   "grupoSanguineo": "0+",
+   "obraSocial": "Galeno – Afiliado N.º 10032508",
+   "emergenciaNombre": "Claudia Benítez",
+   "emergenciaTelefono": "+54 9 3471 86-6164",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-08T09:01:45.000Z"
+   }
   },
   {
    "id": "i-008",
    "torneoId": "t-2026-f4",
-   "categoria": "150 Varillero",
+   "categoria": "150 Multimarca",
    "nombre": "Matías",
    "apellido": "Peralta",
    "dni": "41806213",
-   "direccion": "Av. Calchaquí 3054, Pilar",
-   "telefono": "+54 9 11 2625-4489",
+   "direccion": "Av. Calchaquí 3054",
+   "telefono": "+54 9 3471 57-5428",
    "email": "matias.peralta@ejemplo.com",
-   "seguro": "Sancor Seguros",
-   "nroMotor": "Rotax #7E6544",
    "nroKarting": "30",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-08T10:20:33.000Z",
    "actualizado": "2026-10-08T10:20:33.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Multimarca"
+   ],
+   "fechaNacimiento": "1998-05-15",
+   "provincia": "Santa Fe",
+   "localidad": "Rosario",
+   "grupoSanguineo": "AB+",
+   "obraSocial": "Galeno – Afiliado N.º 15297062",
+   "emergenciaNombre": "Andrea Peralta",
+   "emergenciaTelefono": "+54 9 3471 81-2268",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-08T10:20:33.000Z"
+   }
   },
   {
    "id": "i-009",
@@ -2362,39 +2577,71 @@ window.DEMO_DATA = {
    "nombre": "Sebastián",
    "apellido": "Luna",
    "dni": "38562874",
-   "direccion": "Moreno 1837, San Justo",
-   "telefono": "+54 9 11 2924-4387",
+   "direccion": "Moreno 1837",
+   "telefono": "+54 9 3471 67-3077",
    "email": "sebastian.luna@ejemplo.com",
-   "seguro": "Sancor Seguros",
-   "nroMotor": "IAME X30 #28642",
    "nroKarting": "20",
-   "autorizacion": null,
    "creado": "2026-10-09T11:46:30.000Z",
    "actualizado": "2026-10-09T11:46:30.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "125 Internacional"
+   ],
+   "fechaNacimiento": "2005-10-09",
+   "provincia": "Santa Fe",
+   "localidad": "Rosario",
+   "grupoSanguineo": "0-",
+   "obraSocial": "OSDE – Afiliado N.º 47901535",
+   "emergenciaNombre": "Jorge Luna",
+   "emergenciaTelefono": "+54 9 3471 99-4312",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-09T11:46:30.000Z"
+   }
   },
   {
    "id": "i-010",
    "torneoId": "t-2026-f4",
-   "categoria": "125 Internacional",
+   "categoria": "125 Promocional",
    "nombre": "Carla",
    "apellido": "Villalba",
    "dni": "35948153",
-   "direccion": "Brown 2735, Pilar",
-   "telefono": "+54 9 11 5218-7354",
+   "direccion": "Brown 2735",
+   "telefono": "+54 9 3471 69-7261",
    "email": "carla.villalba@ejemplo.com",
-   "seguro": "Sancor Seguros",
-   "nroMotor": "IAME X30 #81680",
    "nroKarting": "41",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-09T18:53:19.000Z",
    "actualizado": "2026-10-09T18:53:19.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "125 Promocional",
+    "125 Inter.Master"
+   ],
+   "fechaNacimiento": "1988-12-08",
+   "provincia": "Santa Fe",
+   "localidad": "Rosario",
+   "grupoSanguineo": "A+",
+   "obraSocial": "",
+   "emergenciaNombre": "Daniel Villalba",
+   "emergenciaTelefono": "+54 9 3471 96-6395",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-09T18:53:19.000Z"
+   }
   },
   {
    "id": "i-011",
@@ -2403,39 +2650,70 @@ window.DEMO_DATA = {
    "nombre": "Felipe",
    "apellido": "Quiroga",
    "dni": "51481714",
-   "direccion": "Güemes 2748, Banfield",
-   "telefono": "+54 9 11 4443-4241",
+   "direccion": "Güemes 2748",
+   "telefono": "+54 9 3471 93-3187",
    "email": "felipe.quiroga@ejemplo.com",
-   "seguro": "San Cristóbal",
-   "nroMotor": "Rotax Mini Max #1B1436",
    "nroKarting": "21",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-10T13:37:24.000Z",
    "actualizado": "2026-10-10T13:37:24.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2014-11-11",
+   "provincia": "Santa Fe",
+   "localidad": "Carcarañá",
+   "grupoSanguineo": "A+",
+   "obraSocial": "Sancor Salud – Afiliado N.º 90875585",
+   "emergenciaNombre": "Andrea Quiroga",
+   "emergenciaTelefono": "+54 9 3471 50-8221",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-10T13:37:24.000Z"
+   }
   },
   {
    "id": "i-012",
    "torneoId": "t-2026-f4",
-   "categoria": "125 Internacional",
+   "categoria": "125 Inter.Juvenil",
    "nombre": "Rodrigo",
    "apellido": "Bustos",
    "dni": "32907799",
-   "direccion": "Brown 1123, San Isidro",
-   "telefono": "+54 9 11 4009-4395",
+   "direccion": "Brown 1123",
+   "telefono": "+54 9 3471 88-9271",
    "email": "rodrigo.bustos@ejemplo.com",
-   "seguro": "San Cristóbal",
-   "nroMotor": "Rotax #9C5769",
    "nroKarting": "16",
-   "autorizacion": null,
    "creado": "2026-10-10T21:04:14.000Z",
    "actualizado": "2026-10-10T21:04:14.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "125 Inter.Juvenil"
+   ],
+   "fechaNacimiento": "2000-01-04",
+   "provincia": "Santa Fe",
+   "localidad": "Correa",
+   "grupoSanguineo": "0+",
+   "obraSocial": "Swiss Medical – Afiliado N.º 26706160",
+   "emergenciaNombre": "Laura Bustos",
+   "emergenciaTelefono": "+54 9 3471 78-5685",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-10T21:04:14.000Z"
+   }
   },
   {
    "id": "i-013",
@@ -2444,44 +2722,71 @@ window.DEMO_DATA = {
    "nombre": "Sofía",
    "apellido": "Cabrera",
    "dni": "51493724",
-   "direccion": "San Martín 3214, San Fernando",
-   "telefono": "+54 9 11 4176-7882",
+   "direccion": "San Martín 3214",
+   "telefono": "+54 9 3471 89-4011",
    "email": "sofia.cabrera@ejemplo.com",
-   "seguro": "La Segunda",
-   "nroMotor": "Rotax #6H2317",
    "nroKarting": "34",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-11T14:18:34.000Z",
    "actualizado": "2026-10-11T14:18:34.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Varillero"
+   ],
+   "fechaNacimiento": "1983-03-20",
+   "provincia": "Santa Fe",
+   "localidad": "Cañada de Gómez",
+   "grupoSanguineo": "A+",
+   "obraSocial": "Galeno – Afiliado N.º 19973193",
+   "emergenciaNombre": "Andrea Cabrera",
+   "emergenciaTelefono": "+54 9 3471 61-3111",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-11T14:18:34.000Z"
+   }
   },
   {
    "id": "i-014",
    "torneoId": "t-2026-f4",
-   "categoria": "150 Varillero",
+   "categoria": "150 Varillero Juvenil",
    "nombre": "Agustín",
    "apellido": "Castro",
    "dni": "26346716",
-   "direccion": "Las Heras 4080, Escobar",
-   "telefono": "+54 9 11 2169-8930",
+   "direccion": "Las Heras 4080",
+   "telefono": "+54 9 3471 75-0731",
    "email": "agustin.castro@ejemplo.com",
-   "seguro": "La Segunda",
-   "nroMotor": "IAME X30 #76596",
    "nroKarting": "74",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-11T22:39:01.000Z",
    "actualizado": "2026-10-11T22:39:01.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Varillero Juvenil",
+    "150 Multi.Senior"
+   ],
+   "fechaNacimiento": "1983-06-28",
+   "provincia": "Santa Fe",
+   "localidad": "Cañada de Gómez",
+   "grupoSanguineo": "B+",
+   "obraSocial": "Galeno – Afiliado N.º 79014288",
+   "emergenciaNombre": "Daniel Castro",
+   "emergenciaTelefono": "+54 9 3471 43-0814",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-11T22:39:01.000Z"
+   }
   },
   {
    "id": "i-015",
@@ -2490,16 +2795,29 @@ window.DEMO_DATA = {
    "nombre": "Bautista",
    "apellido": "Romero",
    "dni": "52317474",
-   "direccion": "Laprida 716, San Fernando",
-   "telefono": "+54 9 11 4942-0957",
+   "direccion": "Laprida 716",
+   "telefono": "+54 9 3471 49-4461",
    "email": "bautista.romero@ejemplo.com",
-   "seguro": "La Segunda",
-   "nroMotor": "IAME Puma #25849",
    "nroKarting": "4",
-   "autorizacion": null,
    "creado": "2026-10-12T18:35:40.000Z",
    "actualizado": "2026-10-12T18:35:40.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2015-06-24",
+   "provincia": "Santa Fe",
+   "localidad": "Armstrong",
+   "grupoSanguineo": "A-",
+   "obraSocial": "OSDE – Afiliado N.º 29706084",
+   "emergenciaNombre": "María Romero",
+   "emergenciaTelefono": "+54 9 3471 85-7565",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-12T18:35:40.000Z"
+   }
   },
   {
    "id": "i-016",
@@ -2508,21 +2826,34 @@ window.DEMO_DATA = {
    "nombre": "Santino",
    "apellido": "Herrera",
    "dni": "52224695",
-   "direccion": "Sarmiento 2645, Lomas de Zamora",
-   "telefono": "+54 9 11 3746-8338",
+   "direccion": "Sarmiento 2645",
+   "telefono": "+54 9 3471 66-6425",
    "email": "santino.herrera@ejemplo.com",
-   "seguro": "Federación Patronal",
-   "nroMotor": "IAME Puma #33126",
    "nroKarting": "97",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-12T16:48:21.000Z",
    "actualizado": "2026-10-12T16:48:21.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2015-01-12",
+   "provincia": "Santa Fe",
+   "localidad": "Las Rosas",
+   "grupoSanguineo": "0+",
+   "obraSocial": "Swiss Medical – Afiliado N.º 63871553",
+   "emergenciaNombre": "Daniel Herrera",
+   "emergenciaTelefono": "+54 9 3471 58-6864",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-12T16:48:21.000Z"
+   }
   },
   {
    "id": "i-017",
@@ -2531,62 +2862,122 @@ window.DEMO_DATA = {
    "nombre": "Catalina",
    "apellido": "Medina",
    "dni": "50112382",
-   "direccion": "Av. Calchaquí 1345, Hurlingham",
-   "telefono": "+54 9 11 5630-1637",
+   "direccion": "Av. Calchaquí 1345",
+   "telefono": "+54 9 3471 48-3931",
    "email": "catalina.medina@ejemplo.com",
-   "seguro": "Sancor Seguros",
-   "nroMotor": "Rotax Mini Max #3F1335",
    "nroKarting": "27",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-13T11:00:01.000Z",
    "actualizado": "2026-10-13T11:00:01.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2016-11-04",
+   "provincia": "Santa Fe",
+   "localidad": "Santa Fe",
+   "grupoSanguineo": "0+",
+   "obraSocial": "Galeno – Afiliado N.º 49361931",
+   "emergenciaNombre": "Laura Medina",
+   "emergenciaTelefono": "+54 9 3471 41-8989",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-13T11:00:01.000Z"
+   }
   },
   {
    "id": "i-018",
    "torneoId": "t-2026-f4",
-   "categoria": "150 Varillero",
+   "categoria": "150 Varillero Juvenil",
    "nombre": "Camila",
    "apellido": "Rojas",
    "dni": "49889715",
-   "direccion": "Sarmiento 4203, Lomas de Zamora",
-   "telefono": "+54 9 11 3515-0227",
+   "direccion": "Sarmiento 4203",
+   "telefono": "+54 9 3471 52-7535",
    "email": "camila.rojas@ejemplo.com",
-   "seguro": "Federación Patronal",
-   "nroMotor": "Rotax #5A7765",
    "nroKarting": "23",
-   "autorizacion": null,
    "creado": "2026-10-13T10:32:54.000Z",
    "actualizado": "2026-10-13T10:32:54.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Varillero Juvenil",
+    "150 Multi.Senior"
+   ],
+   "fechaNacimiento": "2008-12-09",
+   "provincia": "Santa Fe",
+   "localidad": "Cañada de Gómez",
+   "grupoSanguineo": "0+",
+   "obraSocial": "OSECAC – Afiliado N.º 98222552",
+   "emergenciaNombre": "Marcelo Rojas",
+   "emergenciaTelefono": "+54 9 3471 75-8191",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-13T10:32:54.000Z"
+   }
   },
   {
    "id": "i-019",
    "torneoId": "t-2026-f4",
-   "categoria": "150 Varillero",
+   "categoria": "150 Cadenero",
    "nombre": "Facundo",
    "apellido": "Ruiz",
    "dni": "41898799",
-   "direccion": "Italia 2615, San Justo",
-   "telefono": "+54 9 11 5902-7198",
+   "direccion": "Italia 2615",
+   "telefono": "+54 9 3471 45-2206",
    "email": "facundo.ruiz@ejemplo.com",
-   "seguro": "Rivadavia Seguros",
-   "nroMotor": "IAME X30 #32806",
    "nroKarting": "52",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-14T21:10:16.000Z",
    "actualizado": "2026-10-14T21:10:16.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Cadenero"
+   ],
+   "fechaNacimiento": "2002-10-22",
+   "provincia": "Santa Fe",
+   "localidad": "Venado Tuerto",
+   "grupoSanguineo": "0-",
+   "obraSocial": "OSDE – Afiliado N.º 20173556",
+   "emergenciaNombre": "Roberto Ruiz",
+   "emergenciaTelefono": "+54 9 3471 53-2257",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-14T21:10:16.000Z"
+   }
   },
   {
    "id": "i-020",
@@ -2595,23 +2986,31 @@ window.DEMO_DATA = {
    "nombre": "Ezequiel",
    "apellido": "Moreno",
    "dni": "39613689",
-   "direccion": "Belgrano 4222, Banfield",
-   "telefono": "+54 9 11 2579-2183",
+   "direccion": "Belgrano 4222",
+   "telefono": "+54 9 3471 91-6163",
    "email": "ezequiel.moreno@ejemplo.com",
-   "seguro": "Rivadavia Seguros",
-   "nroMotor": "Rotax #3D9647",
    "nroKarting": "96",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-14T14:36:33.000Z",
    "actualizado": "2026-10-14T14:36:33.000Z",
    "ejemplo": true,
    "invitado": true,
-   "grupo": "i-020"
+   "grupo": "i-020",
+   "categorias": [
+    "125 Internacional"
+   ],
+   "fechaNacimiento": "1991-07-24",
+   "provincia": "Santa Fe",
+   "localidad": "Carcarañá",
+   "grupoSanguineo": "A+",
+   "obraSocial": "Galeno – Afiliado N.º 56146311",
+   "emergenciaNombre": "Daniel Moreno",
+   "emergenciaTelefono": "+54 9 3471 86-5148",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-14T14:36:33.000Z"
+   }
   },
   {
    "id": "i-021",
@@ -2620,18 +3019,31 @@ window.DEMO_DATA = {
    "nombre": "Pablo",
    "apellido": "Correa",
    "dni": "43180877",
-   "direccion": "Italia 1438, Ramos Mejía",
-   "telefono": "+54 9 11 2579-2183",
+   "direccion": "Italia 1438",
+   "telefono": "+54 9 3471 95-0365",
    "email": "pablo.correa@ejemplo.com",
-   "seguro": "Rivadavia Seguros",
-   "nroMotor": "Rotax #3D9647",
    "nroKarting": "96",
-   "autorizacion": null,
    "creado": "2026-10-15T12:49:48.000Z",
    "actualizado": "2026-10-15T12:49:48.000Z",
    "ejemplo": true,
    "invitado": true,
-   "grupo": "i-020"
+   "grupo": "i-020",
+   "categorias": [
+    "125 Internacional"
+   ],
+   "fechaNacimiento": "1992-09-25",
+   "provincia": "Santa Fe",
+   "localidad": "Casilda",
+   "grupoSanguineo": "A+",
+   "obraSocial": "",
+   "emergenciaNombre": "Gabriel Correa",
+   "emergenciaTelefono": "+54 9 3471 96-0985",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-15T12:49:48.000Z"
+   }
   },
   {
    "id": "i-022",
@@ -2640,21 +3052,29 @@ window.DEMO_DATA = {
    "nombre": "Thiago",
    "apellido": "Giménez",
    "dni": "51386584",
-   "direccion": "Pueyrredón 4206, Banfield",
-   "telefono": "+54 9 11 3755-5403",
+   "direccion": "Pueyrredón 4206",
+   "telefono": "+54 9 3471 76-2664",
    "email": "thiago.gimenez@ejemplo.com",
-   "seguro": "San Cristóbal",
-   "nroMotor": "Rotax Mini Max #3D8173",
    "nroKarting": "59",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-15T21:41:47.000Z",
    "actualizado": "2026-10-15T21:41:47.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2015-01-20",
+   "provincia": "Santa Fe",
+   "localidad": "Cañada de Gómez",
+   "grupoSanguineo": "0+",
+   "obraSocial": "",
+   "emergenciaNombre": "María Giménez",
+   "emergenciaTelefono": "+54 9 3471 90-9597",
+   "licenciaDeportiva": null,
+   "licenciaMedica": null,
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-15T21:41:47.000Z"
+   }
   },
   {
    "id": "i-023",
@@ -2663,21 +3083,39 @@ window.DEMO_DATA = {
    "nombre": "Benjamín",
    "apellido": "Ferreyra",
    "dni": "51001346",
-   "direccion": "Av. Mitre 2104, Quilmes",
-   "telefono": "+54 9 11 2153-4243",
+   "direccion": "Av. Mitre 2104",
+   "telefono": "+54 9 3471 43-0531",
    "email": "benjamin.ferreyra@ejemplo.com",
-   "seguro": "Rivadavia Seguros",
-   "nroMotor": "Rotax Mini Max #6C5511",
    "nroKarting": "18",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-12T16:08:03.000Z",
    "actualizado": "2026-10-12T16:08:03.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "110 Escuela"
+   ],
+   "fechaNacimiento": "2017-06-03",
+   "provincia": "Santa Fe",
+   "localidad": "Venado Tuerto",
+   "grupoSanguineo": "A+",
+   "obraSocial": "IAPOS – Afiliado N.º 80449281",
+   "emergenciaNombre": "Marcelo Ferreyra",
+   "emergenciaTelefono": "+54 9 3471 95-5242",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-12T16:08:03.000Z"
+   }
   },
   {
    "id": "i-024",
@@ -2686,16 +3124,39 @@ window.DEMO_DATA = {
    "nombre": "Martín",
    "apellido": "Fernández",
    "dni": "24683485",
-   "direccion": "Lavalle 4785, Castelar",
-   "telefono": "+54 9 11 2160-2484",
+   "direccion": "Lavalle 4785",
+   "telefono": "+54 9 3471 74-4364",
    "email": "martin.fernandez@ejemplo.com",
-   "seguro": "San Cristóbal",
-   "nroMotor": "IAME X30 #43894",
    "nroKarting": "98",
-   "autorizacion": null,
    "creado": "2026-10-14T10:38:39.000Z",
    "actualizado": "2026-10-14T10:38:39.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "125 Internacional"
+   ],
+   "fechaNacimiento": "1986-07-15",
+   "provincia": "Santa Fe",
+   "localidad": "Cañada de Gómez",
+   "grupoSanguineo": "A+",
+   "obraSocial": "Swiss Medical – Afiliado N.º 10898636",
+   "emergenciaNombre": "Jorge Fernández",
+   "emergenciaTelefono": "+54 9 3471 59-0100",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-14T10:38:39.000Z"
+   }
   },
   {
    "id": "i-025",
@@ -2704,21 +3165,39 @@ window.DEMO_DATA = {
    "nombre": "Camila",
    "apellido": "Rojas",
    "dni": "49889715",
-   "direccion": "Sarmiento 4203, Lomas de Zamora",
-   "telefono": "+54 9 11 3515-0227",
+   "direccion": "Sarmiento 4203",
+   "telefono": "+54 9 3471 94-5083",
    "email": "camila.rojas@ejemplo.com",
-   "seguro": "Federación Patronal",
-   "nroMotor": "Rotax #5A7765",
    "nroKarting": "23",
-   "autorizacion": {
-    "assetId": "ejemplo-autorizacion",
-    "nombre": "autorizacion_padres.jpg",
-    "tipo": "image/jpeg",
-    "tamano": 834221
-   },
    "creado": "2026-10-16T10:45:40.000Z",
    "actualizado": "2026-10-16T10:45:40.000Z",
-   "ejemplo": true
+   "ejemplo": true,
+   "categorias": [
+    "150 Varillero"
+   ],
+   "fechaNacimiento": "1994-12-15",
+   "provincia": "Santa Fe",
+   "localidad": "Carcarañá",
+   "grupoSanguineo": "A-",
+   "obraSocial": "",
+   "emergenciaNombre": "Daniel Rojas",
+   "emergenciaTelefono": "+54 9 3471 84-5332",
+   "licenciaDeportiva": {
+    "assetId": "ejemplo-licencia-deportiva",
+    "nombre": "licencia_deportiva.jpg",
+    "tipo": "image/jpeg",
+    "tamano": 412330
+   },
+   "licenciaMedica": {
+    "assetId": "ejemplo-licencia-medica",
+    "nombre": "licencia_medica.pdf",
+    "tipo": "application/pdf",
+    "tamano": 228114
+   },
+   "declaracion": {
+    "aceptada": true,
+    "fecha": "2026-10-16T10:45:40.000Z"
+   }
   }
  ],
  "tiempos": {
@@ -2896,6 +3375,38 @@ window.DEMO_DATA = {
     "ok": true,
     "f2": {
      "tiempo": 54683,
+     "ok": true
+    }
+   },
+   "i-006__150-multi-senior": {
+    "tiempo": 50280,
+    "ok": true,
+    "f2": {
+     "tiempo": 50044,
+     "ok": true
+    }
+   },
+   "i-010__125-inter-master": {
+    "tiempo": 49798,
+    "ok": true,
+    "f2": {
+     "tiempo": 49714,
+     "ok": false
+    }
+   },
+   "i-014__150-multi-senior": {
+    "tiempo": 50716,
+    "ok": true,
+    "f2": {
+     "tiempo": 50491,
+     "ok": true
+    }
+   },
+   "i-018__150-multi-senior": {
+    "tiempo": 51330,
+    "ok": true,
+    "f2": {
+     "tiempo": 51338,
      "ok": true
     }
    }

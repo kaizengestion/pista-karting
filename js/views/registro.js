@@ -125,27 +125,62 @@
     lugar: ['M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z', 'M12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z'],
   };
 
+  const CSS_EXTRA = `
+.v-registro select { min-height: 50px; font-size: 1rem; padding: 12px 14px; }
+.v-registro input[type="date"] { min-height: 50px; font-size: 1rem; padding: 10px 14px; }
+.v-registro .opc { color: var(--ink-3); font-weight: 400; }
+.v-registro .cat-multi { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.v-registro .cat-multi .cat-opt { min-height: 52px; padding: 10px 12px; }
+.v-registro .cat-multi .cat-opt b { font-size: 1rem; }
+.v-registro .cat-list.invalid { outline: 2px solid var(--danger); outline-offset: 4px; border-radius: var(--radius); }
+.v-registro .pill-sentido { background: var(--surface-2); color: var(--ink); border-color: var(--accent); }
+.v-registro .reg-cats { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.v-registro .lic-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.v-registro .lic { display: flex; flex-direction: column; gap: 8px; }
+.v-registro .lic-tit { font-weight: 600; font-size: .92rem; }
+.v-registro .reg-decl { border: 1.5px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface-2); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.v-registro .reg-decl.invalid { border-color: var(--danger); }
+.v-registro .reg-decl-tit { font: 700 .85rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--accent-text); }
+.v-registro .reg-decl-txt { line-height: 1.55; }
+.v-registro .reg-decl-chk { display: flex; gap: 12px; align-items: center; font-weight: 600; cursor: pointer; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.v-registro .reg-decl-chk input { width: 22px; height: 22px; flex: none; margin: 0; }
+`;
+
+  /* Campos del formulario. `opcional`: no frena la inscripción. `tipo`: text | email | tel | date | select */
+  const D = App.datos;
   const CAMPOS = [
     { key: 'nombre', label: 'Nombre', autocomplete: 'given-name', autocapitalize: 'words', msg: 'Completá tu nombre.' },
     { key: 'apellido', label: 'Apellido', autocomplete: 'family-name', autocapitalize: 'words', msg: 'Completá tu apellido.' },
     { key: 'dni', label: 'DNI', autocomplete: 'off', inputmode: 'numeric', maxlength: 8, digits: true, hint: 'Solo números, sin puntos.', msg: 'Completá tu DNI.' },
-    { key: 'telefono', label: 'Teléfono', type: 'tel', autocomplete: 'tel', hint: 'Con código de área, ej. 11 5555-1234.', msg: 'Completá un teléfono de contacto.' },
+    { key: 'fechaNacimiento', label: 'Fecha de nacimiento', type: 'date', autocomplete: 'bday', msg: 'Completá tu fecha de nacimiento.' },
+    { key: 'telefono', label: 'Teléfono', type: 'tel', autocomplete: 'tel', hint: 'Con código de área, ej. 3471 15-555123.', msg: 'Completá un teléfono de contacto.' },
     { key: 'email', label: 'Email', type: 'email', autocomplete: 'email', autocapitalize: 'off', spellcheck: 'false', msg: 'Completá tu email.' },
-    { key: 'direccion', label: 'Dirección', autocomplete: 'street-address', autocapitalize: 'sentences', full: true, hint: 'Calle, número y localidad.', msg: 'Completá tu dirección.' },
-  ];
-  const CAMPOS_KART = [
-    { key: 'nroKarting', label: 'Nº de karting', autocomplete: 'off', inputmode: 'numeric', maxlength: 4, digits: true, hint: 'El número de tu kart.', msg: 'Completá el número de tu kart.' },
-    { key: 'nroMotor', label: 'Nº de motor', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', hint: 'Tal como figura en el motor.', msg: 'Completá el número de motor.' },
-    { key: 'seguro', label: 'Seguro', autocomplete: 'off', autocapitalize: 'sentences', full: true, hint: 'Compañía y número de póliza.', msg: 'Completá los datos del seguro.' },
+    { key: 'direccion', label: 'Domicilio', autocomplete: 'street-address', autocapitalize: 'sentences', full: true, hint: 'Calle y número.', msg: 'Completá tu domicilio.' },
+    { key: 'provincia', label: 'Provincia', type: 'select', opciones: D.PROVINCIAS, porDefecto: 'Santa Fe', msg: 'Elegí tu provincia.' },
+    { key: 'localidad', label: 'Localidad', autocomplete: 'address-level2', autocapitalize: 'words', msg: 'Completá tu localidad.' },
+    { key: 'grupoSanguineo', label: 'Grupo sanguíneo', type: 'select', opciones: D.GRUPOS, vacio: 'Elegí uno', msg: 'Elegí tu grupo sanguíneo.' },
   ];
   /* Segundo piloto, solo para la inscripción de invitados (comparten el resto de los datos) */
   const CAMPOS_P2 = [
     { key: 'nombre2', label: 'Nombre', autocomplete: 'off', autocapitalize: 'words', msg: 'Completá el nombre del piloto 2.' },
     { key: 'apellido2', label: 'Apellido', autocomplete: 'off', autocapitalize: 'words', msg: 'Completá el apellido del piloto 2.' },
     { key: 'dni2', label: 'DNI', autocomplete: 'off', inputmode: 'numeric', maxlength: 8, digits: true, hint: 'Solo números, sin puntos.', msg: 'Completá el DNI del piloto 2.' },
+    { key: 'fechaNacimiento2', label: 'Fecha de nacimiento', type: 'date', msg: 'Completá la fecha de nacimiento del piloto 2.' },
   ];
-  const TODOS = CAMPOS.concat(CAMPOS_KART);
-  const ORDEN = ['nombre', 'apellido', 'dni', 'telefono', 'email', 'direccion', 'categoria', 'nroKarting', 'nroMotor', 'seguro'];
+  const CAMPOS_KART = [
+    { key: 'nroKarting', label: 'Número de kart', autocomplete: 'off', inputmode: 'numeric', maxlength: 4, digits: true, msg: 'Completá el número de tu kart.' },
+  ];
+  const CAMPOS_SALUD = [
+    { key: 'obraSocial', label: '¿Tenés obra social o prepaga?', opcional: true, full: true, autocapitalize: 'characters',
+      hint: 'Si tenés, indicá cuál y tu número de afiliado. Ej.: OSDE – Afiliado N.º 123456789.' },
+    { key: 'emergenciaNombre', label: 'Contacto de emergencia: nombre y apellido', full: true, autocapitalize: 'words', msg: 'Completá el nombre del contacto de emergencia.' },
+    { key: 'emergenciaTelefono', label: 'Contacto de emergencia: teléfono', type: 'tel', msg: 'Completá el teléfono del contacto de emergencia.' },
+  ];
+  const TODOS = CAMPOS.concat(CAMPOS_KART, CAMPOS_SALUD);
+  const LICENCIAS = [
+    { key: 'licenciaDeportiva', titulo: 'Licencia deportiva' },
+    { key: 'licenciaMedica', titulo: 'Licencia médica' },
+  ];
 
   function capital(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
   function bytes(n) {
@@ -156,11 +191,22 @@
   }
   function esImagen(a) { return !!a && /^image\//.test(a.tipo || ''); }
   function errMsg(e, def) { return (e && e.message) ? e.message : def; }
+  function archivoPlano(a) { return a && a.assetId ? { assetId: a.assetId, nombre: a.nombre, tipo: a.tipo, tamano: a.tamano } : null; }
+
+  /* Texto de la declaración final, armado con los datos del torneo */
+  function textoDeclaracion(t) {
+    if (!t) return '';
+    const fs = App.fmt.fechasDe(t);
+    const dias = D.dias(fs);
+    return 'Declaro que la información proporcionada es correcta y se encuentra actualizada, y confirmo mi participación en ' +
+      (t.nombre || 'el torneo') + (dias ? ', a realizarse ' + (fs.length > 1 ? 'los días ' : 'el día ') + dias : '') +
+      (t.lugar ? ' en el ' + t.lugar.replace(/^(el|en el)\s+/i, '') : '') + '.';
+  }
 
   App.view('registro', {
     title: 'Inscripción',
     async render(el, ctx) {
-      if (!cssDone) { App.css(CSS); cssDone = true; }
+      if (!cssDone) { App.css(CSS + CSS_EXTRA); cssDone = true; }
       const Store = ctx.store || window.Store;
 
       const st = {
@@ -172,11 +218,9 @@
         editando: false,       // modificando una inscripción existente (competidor)
         enviando: false,
         intentado: false,      // ya intentó enviar: validar en vivo
-        aut: null,             // { assetId, nombre, tipo, tamano }
-        subiendo: null,        // nombre del archivo en curso
-        autError: '',
-        autCambiando: false,
-        categoria: '',
+        archivos: {},          // licenciaDeportiva / licenciaMedica -> { assetId, nombre, tipo, tamano }
+        subiendo: {},          // clave -> nombre del archivo que se está subiendo
+        categorias: [],        // una o más
         catSig: '',
         tipo: 'piloto',        // piloto | invitados (dos pilotos con el mismo kart)
       };
@@ -197,16 +241,17 @@
           return;
         }
         head.hidden = false;
+        const fs = App.fmt.fechasDe(t);
         head.replaceChildren(
           h('div', { class: 'row', style: { gap: '8px' } },
-            h('span', { class: 'eyebrow' }, 'Inscripción'),
+            h('span', { class: 'eyebrow' }, 'Inscripciones abiertas'),
             t.estado === 'actual' ? h('span', { class: 'pill pill-live' }, 'En curso') : null),
           h('h1', null, t.nombre || 'Torneo'),
           h('div', { class: 'reg-meta' },
-            t.fecha ? h('span', null, icon(ICONS.calendario), capital(App.fmt.fechasTexto(t, true))) : null,
-            t.lugar ? h('span', null, icon(ICONS.lugar), t.lugar) : null),
-          t.notas ? h('p', { class: 'reg-notas' }, t.notas) : null
-        );
+            fs.length ? h('span', null, icon(ICONS.calendario), capital(D.dias(fs)) + ' de ' + fs[0].slice(0, 4)) : null,
+            t.lugar ? h('span', null, icon(ICONS.lugar), t.lugar) : null,
+            t.sentido ? h('span', { class: 'pill pill-sentido' }, (t.sentido === 'antihorario' ? '↪ ' : '↩ ') + 'Sentido ' + t.sentido) : null),
+          t.notas ? h('p', { class: 'reg-notas' }, t.notas) : null);
       }
 
       /* ---------- Decidir qué pantalla mostrar ---------- */
@@ -216,23 +261,19 @@
         if (!App.isAdmin && st.mia && st.mia.torneoId === st.torneo.id) return 'inscripto';
         return 'form';
       }
+      const subiendoAlgo = () => Object.values(st.subiendo).some(Boolean);
 
       function sync() {
         if (!ctx.isCurrent()) return;
         st.torneo = st.torneos ? Store.torneoInscripcion(st.torneos) : null;
         const want = deseada();
         if (st.screen === 'ok') { renderHead(); return; }
-        if (st.screen === 'form' && (st.dirty || st.editando || st.enviando || st.subiendo) && want !== 'loading') {
-          // El usuario ya empezó: no tocar los inputs, solo encabezado, categorías y aviso de cierre.
+        if (st.screen === 'form' && (want === 'form' || ((st.dirty || st.editando || st.enviando || subiendoAlgo()) && want !== 'loading'))) {
+          // El usuario ya empezó: no tocar los inputs, solo encabezado, categorías, declaración y aviso de cierre.
           renderHead();
           actualizarCategorias();
           actualizarCierre();
-          return;
-        }
-        if (st.screen === 'form' && want === 'form') {
-          renderHead();
-          actualizarCategorias();
-          actualizarCierre();
+          if (declTexto) declTexto.textContent = textoDeclaracion(st.torneo);
           return;
         }
         show(want);
@@ -261,59 +302,67 @@
             (App.isAdmin && !App.vistaCompetidor) ? h('button', { type: 'button', class: 'btn btn-primary', onclick: () => App.go('proximos-torneos') }, 'Ir a próximos torneos') : null));
       }
 
-      /* ---------- Ya inscripto (competidor) ---------- */
-      function resumen(d, extra) {
-        const t = st.torneo;
-        const filas = [];
-        const add = (k, v) => { if (v != null && v !== '') filas.push(h('dt', null, k), h('dd', null, v)); };
-        (extra || []).forEach(([k, v]) => add(k, v));
-        add('Torneo', t ? t.nombre : null);
-        add('Categoría', d.categoria ? h('strong', null, d.categoria) : null);
-        add('Kart nº', d.nroKarting ? h('span', { class: 'kart-no' }, d.nroKarting) : null);
-        return h('dl', { class: 'reg-dl' }, filas);
+      /* ---------- Resúmenes ---------- */
+      function listaCats(d) {
+        const cs = Store.categoriasDe(d);
+        return cs.length ? h('span', { class: 'reg-cats' }, cs.map(c => h('span', { class: 'pill' }, c))) : '—';
+      }
+      function linkArchivo(a) {
+        return a && a.assetId
+          ? h('a', { href: Store.urlArchivo(a.assetId), target: '_blank', rel: 'noopener' }, a.nombre || 'Ver archivo')
+          : h('span', { class: 'pill' }, 'Sin subir');
+      }
+      function ficha(d) {
+        const e = D.edad(d.fechaNacimiento);
+        const fila = (k, v) => [h('dt', null, k), h('dd', null, v == null || v === '' ? '—' : v)];
+        return h('dl', { class: 'reg-dl' },
+          fila('Competidor', [d.nombre, d.apellido].filter(Boolean).join(' ')),
+          fila('DNI', d.dni),
+          fila('Nacimiento', d.fechaNacimiento ? App.fmt.fecha(d.fechaNacimiento) + (e != null ? ' (' + e + ' años)' : '') : ''),
+          fila('Teléfono', d.telefono),
+          fila('Email', d.email),
+          fila('Domicilio', [d.direccion, d.localidad, d.provincia].filter(Boolean).join(', ')),
+          fila('Grupo sanguíneo', d.grupoSanguineo),
+          fila('Categorías', listaCats(d)),
+          fila('Kart nº', d.nroKarting ? h('span', { class: 'kart-no' }, d.nroKarting) : ''),
+          fila('Obra social', d.obraSocial || 'No tiene'),
+          fila('Emergencia', [d.emergenciaNombre, d.emergenciaTelefono].filter(Boolean).join(' · ')),
+          fila('Licencia deportiva', linkArchivo(d.licenciaDeportiva)),
+          fila('Licencia médica', linkArchivo(d.licenciaMedica)));
       }
 
+      /* ---------- Ya inscripto (competidor) ---------- */
       function vistaInscripto() {
         const d = st.mia;
         const t = st.torneo;
-        const aut = d.autorizacion;
         return h('div', { class: 'card reg-ok' },
           h('div', { class: 'reg-badge' }, icon(ICONS.check)),
           h('h2', { tabindex: '-1' }, 'Ya estás inscripto en ' + (t ? t.nombre : 'el torneo')),
-          h('p', { class: 'muted' }, 'Categoría ', h('strong', null, d.categoria || '—'),
-            '. Si algo cambió, podés corregir tus datos.'),
-          h('dl', { class: 'reg-dl' },
-            h('dt', null, 'Competidor'), h('dd', null, [d.nombre, d.apellido].filter(Boolean).join(' ')),
-            h('dt', null, 'DNI'), h('dd', { class: 'tnum' }, d.dni || '—'),
-            h('dt', null, 'Teléfono'), h('dd', null, d.telefono || '—'),
-            h('dt', null, 'Email'), h('dd', null, d.email || '—'),
-            h('dt', null, 'Dirección'), h('dd', null, d.direccion || '—'),
-            h('dt', null, 'Seguro'), h('dd', null, d.seguro || '—'),
-            h('dt', null, 'Nº de motor'), h('dd', { class: 'tnum' }, d.nroMotor || '—'),
-            h('dt', null, 'Kart nº'), h('dd', null, d.nroKarting ? h('span', { class: 'kart-no' }, d.nroKarting) : '—'),
-            h('dt', null, 'Autorización'), h('dd', null, aut && aut.assetId
-              ? h('a', { href: Store.urlArchivo(aut.assetId), target: '_blank', rel: 'noopener' }, aut.nombre || 'Ver archivo')
-              : h('span', { class: 'pill pill-warn' }, 'Sin adjuntar'))),
+          h('p', { class: 'muted' }, 'Si algo cambió, podés corregir tus datos o subir las licencias que te falten.'),
+          ficha(d),
           h('div', { class: 'reg-actions' },
             h('button', { type: 'button', class: 'btn btn-primary btn-lg', onclick: () => {
               st.editando = true;
               show('form', { prefill: st.mia });
-            } }, 'Modificar mis datos')),
-          h('p', { class: 'reg-foot' }, 'El organizador revisa tus datos y te confirma la categoría.'));
+            } }, 'Modificar mis datos')));
       }
 
       /* ---------- Confirmación ---------- */
       function vistaOk(o) {
         const d = o.datos;
+        const faltan = LICENCIAS.filter(l => !d[l.key]).map(l => l.titulo.toLowerCase());
         const box = h('div', { class: 'card reg-ok', role: 'status' },
           h('div', { class: 'reg-badge' }, icon(ICONS.check)),
-          h('h2', { tabindex: '-1' }, o.edicion ? '¡Listo, guardamos tus cambios!' : '¡Listo, quedaste inscripto!'),
-          resumen(d, d.piloto2
-            ? [['Invitados', [d.nombre, d.apellido].filter(Boolean).join(' ') + ' y ' + [d.piloto2.nombre, d.piloto2.apellido].filter(Boolean).join(' ')]]
-            : [['Competidor', [d.nombre, d.apellido].filter(Boolean).join(' ')]]),
-          !d.autorizacion ? h('div', { class: 'aut-warn' }, icon(ICONS.alerta),
-            h('span', null, 'No adjuntaste la autorización de los padres. Si el competidor es menor de 18, la va a tener que presentar antes de correr.')) : null,
-          h('p', { class: 'muted small' }, 'El organizador revisa los datos y confirma la categoría.'),
+          h('h2', { tabindex: '-1' }, o.edicion ? '¡Listo, guardamos tus cambios!' : d.piloto2 ? '¡Listo, quedaron inscriptos los dos!' : '¡Listo, quedaste inscripto!'),
+          h('p', { class: 'muted' }, 'Nos vemos en pista. 🏁'),
+          h('dl', { class: 'reg-dl' },
+            h('dt', null, d.piloto2 ? 'Invitados' : 'Competidor'),
+            h('dd', null, [d.nombre, d.apellido].filter(Boolean).join(' ') + (d.piloto2 ? ' y ' + [d.piloto2.nombre, d.piloto2.apellido].filter(Boolean).join(' ') : '')),
+            h('dt', null, 'Torneo'), h('dd', null, st.torneo ? st.torneo.nombre : '—'),
+            h('dt', null, 'Categorías'), h('dd', null, listaCats(d)),
+            h('dt', null, 'Kart nº'), h('dd', null, d.nroKarting ? h('span', { class: 'kart-no' }, d.nroKarting) : '—')),
+          faltan.length ? h('div', { class: 'aut-warn' }, icon(ICONS.alerta),
+            h('span', null, 'No subiste la ' + faltan.join(' ni la ') + '. Podés subirla más tarde o presentarla en la acreditación.')) : null,
           App.isAdmin
             ? h('div', { class: 'reg-actions' },
                 h('button', { type: 'button', class: 'btn btn-primary btn-lg', onclick: () => nuevoForm() }, App.vistaCompetidor ? 'Inscribir a otro piloto' : 'Inscribir a otro competidor'),
@@ -325,39 +374,50 @@
       }
 
       function nuevoForm() {
-        st.dirty = false; st.editando = false; st.intentado = false; st.aut = null; st.autError = '';
-        st.autCambiando = false; st.categoria = ''; st.catSig = ''; st.tipo = 'piloto';
+        st.dirty = false; st.editando = false; st.intentado = false; st.archivos = {}; st.subiendo = {};
+        st.categorias = []; st.catSig = ''; st.tipo = 'piloto';
         show('form');
         window.scrollTo(0, 0);
         const f = body.querySelector('#reg-nombre'); f && f.focus();
       }
 
       /* ---------- Formulario ---------- */
-      const refs = {};   // key -> { input, err, wrap }
-      let catList, catErr, catFieldset, autBox, autErrEl, closedEl, submitBtn, formEl;
+      const refs = {};   // key -> { input, err, wrap, def }
+      let catList, catErr, catFieldset, closedEl, submitBtn, formEl, declTexto, declChk, declErr;
+      const licBoxes = {};
 
       function campo(c) {
         const id = 'reg-' + c.key;
         const hintId = c.hint ? id + '-hint' : null;
         const errId = id + '-error';
-        const input = h('input', {
-          id, name: c.key, type: c.type || 'text', autocomplete: c.autocomplete, inputmode: c.inputmode,
-          maxlength: c.maxlength, autocapitalize: c.autocapitalize, spellcheck: c.spellcheck,
-          pattern: c.digits ? '[0-9]*' : null, enterkeyhint: 'next',
-          'aria-describedby': [hintId, errId].filter(Boolean).join(' '), 'aria-required': 'true',
-        });
-        input.addEventListener('input', () => {
-          if (c.digits) {
-            const limpio = input.value.replace(/\D/g, '');
-            if (limpio !== input.value) input.value = limpio;
-          }
-          st.dirty = true;
-          if (st.intentado) validarCampo(c.key);
-        });
-        input.addEventListener('blur', () => { if (st.intentado || input.getAttribute('aria-invalid') === 'true') validarCampo(c.key); });
+        const comunes = { id, name: c.key, 'aria-describedby': [hintId, errId].filter(Boolean).join(' '), 'aria-required': c.opcional ? null : 'true' };
+        let input;
+        if (c.type === 'select') {
+          input = h('select', comunes,
+            c.vacio ? h('option', { value: '' }, c.vacio) : null,
+            c.opciones.map(o => h('option', { value: o }, o)));
+          input.value = c.porDefecto || '';
+          input.addEventListener('change', () => { st.dirty = true; if (st.intentado) validarCampo(c.key); });
+        } else {
+          input = h('input', Object.assign(comunes, {
+            type: c.type || 'text', autocomplete: c.autocomplete || 'off', inputmode: c.inputmode,
+            maxlength: c.maxlength, autocapitalize: c.autocapitalize, spellcheck: c.spellcheck,
+            pattern: c.digits ? '[0-9]*' : null, enterkeyhint: 'next',
+            max: c.type === 'date' ? new Date().toISOString().slice(0, 10) : null,
+          }));
+          input.addEventListener('input', () => {
+            if (c.digits) {
+              const limpio = input.value.replace(/\D/g, '');
+              if (limpio !== input.value) input.value = limpio;
+            }
+            st.dirty = true;
+            if (st.intentado) validarCampo(c.key);
+          });
+          input.addEventListener('blur', () => { if (st.intentado || input.getAttribute('aria-invalid') === 'true') validarCampo(c.key); });
+        }
         const err = h('p', { class: 'error', id: errId, hidden: true });
         const wrap = h('div', { class: 'field' + (c.full ? ' full' : '') },
-          h('label', { for: id }, c.label),
+          h('label', { for: id }, c.label, c.opcional ? h('span', { class: 'opc' }, ' (opcional)') : null),
           input,
           c.hint ? h('p', { class: 'hint', id: hintId }, c.hint) : null,
           err);
@@ -369,7 +429,11 @@
         if (key === 'categoria') {
           catErr.textContent = msg || ''; catErr.hidden = !msg;
           catList.classList.toggle('invalid', !!msg);
-          catList.querySelectorAll('input').forEach(r => { if (msg) r.setAttribute('aria-invalid', 'true'); else r.removeAttribute('aria-invalid'); });
+          return;
+        }
+        if (key === 'declaracion') {
+          declErr.textContent = msg || ''; declErr.hidden = !msg;
+          declChk.closest('.reg-decl').classList.toggle('invalid', !!msg);
           return;
         }
         const r = refs[key];
@@ -381,50 +445,48 @@
       function errorDe(key) {
         if (key === 'categoria') {
           const cats = (st.torneo && st.torneo.categorias) || [];
-          if (cats.length && !st.categoria) return 'Elegí una categoría.';
-          return '';
+          return cats.length && !st.categorias.length ? 'Marcá al menos una categoría.' : '';
         }
+        if (key === 'declaracion') return declChk.checked ? '' : 'Para inscribirte tenés que confirmar la declaración.';
         const r = refs[key];
         const v = r.input.value.trim();
-        if (!v) return r.def.msg;
+        if (!v) return r.def.opcional ? '' : r.def.msg;
         if ((key === 'dni' || key === 'dni2') && !/^\d{7,8}$/.test(v)) return 'El DNI tiene que tener 7 u 8 números, sin puntos ni espacios.';
         if (key === 'dni2' && refs.dni && v === refs.dni.input.value.trim()) return 'El DNI del piloto 2 no puede ser igual al del piloto 1.';
         if (key === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return 'Revisá el email: tiene que ser del estilo nombre@dominio.com.';
-        if (key === 'telefono' && v.replace(/\D/g, '').length < 6) return 'Revisá el teléfono: parece incompleto.';
+        if ((key === 'telefono' || key === 'emergenciaTelefono') && v.replace(/\D/g, '').length < 6) return 'Revisá el teléfono: parece incompleto.';
+        if (r.def.type === 'date') {
+          const e = D.edad(v);
+          if (e == null) return 'Revisá la fecha de nacimiento.';
+          if (e < 4 || e > 99) return 'Revisá la fecha de nacimiento: la edad no parece correcta.';
+        }
         return '';
       }
       function validarCampo(key) { const m = errorDe(key); setErr(key, m); return m; }
 
-      function categoriasSig(t) { return JSON.stringify(((t && t.categorias) || []).map(c => [c.nombre, c.cupo])); }
-
+      /* Categorías: se puede marcar una o más. Sin cupos. */
       function actualizarCategorias(force) {
         if (!catList) return;
         const t = st.torneo;
         const cats = (t && t.categorias) || [];
-        const sig = (t ? t.id : '') + categoriasSig(t);
+        const sig = (t ? t.id : '') + JSON.stringify(cats.map(c => c.nombre));
         if (!force && sig === st.catSig) return;
         st.catSig = sig;
-        if (st.categoria && !cats.some(c => c.nombre === st.categoria)) st.categoria = '';
-        if (!st.categoria && cats.length === 1) st.categoria = cats[0].nombre;
-        const tenFoco = catList.contains(document.activeElement);
+        st.categorias = st.categorias.filter(n => cats.some(c => c.nombre === n));
+        if (!st.categorias.length && cats.length === 1) st.categorias = [cats[0].nombre];
         catFieldset.hidden = !cats.length;
         catList.replaceChildren(...cats.map((c, i) => {
           const id = 'reg-categoria-' + i;
-          const sel = c.nombre === st.categoria;
-          const radio = h('input', { type: 'radio', name: 'categoria', id, value: c.nombre, checked: sel, 'aria-describedby': 'reg-categoria-error' });
-          radio.addEventListener('change', () => {
-            st.categoria = radio.value; st.dirty = true;
-            catList.querySelectorAll('.cat-opt').forEach(o => o.classList.toggle('is-sel', o.querySelector('input').checked));
+          const sel = st.categorias.includes(c.nombre);
+          const chk = h('input', { type: 'checkbox', name: 'categorias', id, value: c.nombre, checked: sel, 'aria-describedby': 'reg-categoria-error' });
+          chk.addEventListener('change', () => {
+            st.categorias = cats.map(x => x.nombre).filter(n => n === chk.value ? chk.checked : st.categorias.includes(n));
+            st.dirty = true;
+            chk.closest('.cat-opt').classList.toggle('is-sel', chk.checked);
             if (st.intentado) validarCampo('categoria');
           });
-          return h('label', { class: 'cat-opt' + (sel ? ' is-sel' : ''), for: id },
-            radio,
-            h('span', null, h('b', null, c.nombre), c.cupo ? h('small', null, 'Hasta ' + c.cupo + ' karts') : null));
+          return h('label', { class: 'cat-opt' + (sel ? ' is-sel' : ''), for: id }, chk, h('span', null, h('b', null, c.nombre)));
         }));
-        if (tenFoco) {
-          const r = catList.querySelector('input:checked') || catList.querySelector('input');
-          r && r.focus();
-        }
         if (st.intentado) validarCampo('categoria');
       }
 
@@ -433,94 +495,83 @@
         closedEl.hidden = !!st.torneo;
       }
 
-      /* Autorización de los padres */
-      const inCamara = h('input', { type: 'file', accept: 'image/*', capture: 'environment', class: 'vh', tabindex: '-1', 'aria-hidden': 'true', id: 'reg-aut-camara' });
-      const inArchivo = h('input', { type: 'file', accept: 'image/*,application/pdf', class: 'vh', tabindex: '-1', 'aria-hidden': 'true', id: 'reg-aut-archivo' });
-      [inCamara, inArchivo].forEach(inp => inp.addEventListener('change', () => {
-        const f = inp.files && inp.files[0];
-        inp.value = '';
-        if (f) subir(f);
-      }));
+      /* ---------- Licencias (opcionales): foto o PDF ---------- */
+      function cajaLicencia(l) {
+        const inCamara = h('input', { type: 'file', accept: 'image/*', capture: 'environment', class: 'vh', tabindex: '-1', 'aria-hidden': 'true' });
+        const inArchivo = h('input', { type: 'file', accept: 'image/*,application/pdf', class: 'vh', tabindex: '-1', 'aria-hidden': 'true' });
+        [inCamara, inArchivo].forEach(inp => inp.addEventListener('change', () => {
+          const f = inp.files && inp.files[0];
+          inp.value = '';
+          if (f) subir(l.key, f);
+        }));
+        const caja = h('div', { class: 'aut-box', role: 'group', 'aria-label': l.titulo });
+        licBoxes[l.key] = { caja, inCamara, inArchivo, error: '' };
+        return h('div', { class: 'lic' }, h('span', { class: 'lic-tit' }, l.titulo, h('span', { class: 'opc' }, ' (opcional)')), caja, inCamara, inArchivo);
+      }
 
-      async function subir(file) {
+      async function subir(key, file) {
+        const b = licBoxes[key];
         if (file.type && !/^image\//.test(file.type) && file.type !== 'application/pdf') {
-          st.autError = 'Ese tipo de archivo no sirve. Subí una foto o un PDF.';
-          App.toast(st.autError, 'error');
-          renderAut();
+          b.error = 'Ese tipo de archivo no sirve. Subí una foto o un PDF.';
+          App.toast(b.error, 'error');
+          pintarLicencia(key);
           return;
         }
-        st.subiendo = file.name || 'archivo'; st.autError = ''; st.dirty = true;
-        renderAut();
+        st.subiendo[key] = file.name || 'archivo'; b.error = ''; st.dirty = true;
+        pintarLicencia(key);
         try {
           const res = await Store.subirArchivo(file);
           if (!ctx.isCurrent()) return;
-          st.aut = {
-            assetId: res.assetId,
-            nombre: res.nombre || file.name || 'autorizacion',
-            tipo: res.tipo || file.type || '',
-            tamano: res.tamano != null ? res.tamano : file.size,
-          };
-          st.autCambiando = false;
-          App.toast('Autorización adjuntada.', 'ok');
+          st.archivos[key] = { assetId: res.assetId, nombre: res.nombre || file.name || 'licencia', tipo: res.tipo || file.type || '', tamano: res.tamano != null ? res.tamano : file.size };
+          App.toast('Archivo subido.', 'ok');
         } catch (e) {
           if (!ctx.isCurrent()) return;
-          st.autError = errMsg(e, 'No se pudo subir el archivo. Probá de nuevo.');
-          App.toast(st.autError, 'error');
+          b.error = errMsg(e, 'No se pudo subir el archivo. Probá de nuevo.');
+          App.toast(b.error, 'error');
         } finally {
-          st.subiendo = null;
-          if (ctx.isCurrent()) renderAut();
+          st.subiendo[key] = null;
+          if (ctx.isCurrent()) pintarLicencia(key);
         }
       }
 
-      function botonesEleccion() {
-        return h('div', { class: 'aut-choices' },
-          h('button', { type: 'button', class: 'btn', id: 'reg-aut-foto', onclick: () => inCamara.click() }, icon(ICONS.camara), 'Sacar foto'),
-          h('button', { type: 'button', class: 'btn', id: 'reg-aut-subir', onclick: () => inArchivo.click() }, icon(ICONS.archivo), 'Subir archivo'));
-      }
-
-      function renderAut() {
-        if (!autBox) return;
-        const hadFocus = autBox.contains(document.activeElement) ? document.activeElement.id : null;
-        const partes = [];
-        if (st.subiendo) {
-          partes.push(h('div', { class: 'aut-status', role: 'status' },
-            h('span', null, 'Subiendo «' + st.subiendo + '»…'),
-            h('div', { class: 'aut-bar', 'aria-hidden': 'true' })));
-        } else if (st.aut) {
-          const a = st.aut;
+      function pintarLicencia(key) {
+        const b = licBoxes[key];
+        if (!b) return;
+        const a = st.archivos[key];
+        const botones = h('div', { class: 'aut-choices' },
+          h('button', { type: 'button', class: 'btn', onclick: () => b.inCamara.click() }, icon(ICONS.camara), 'Sacar foto'),
+          h('button', { type: 'button', class: 'btn', onclick: () => b.inArchivo.click() }, icon(ICONS.archivo), 'Subir archivo'));
+        let partes;
+        if (st.subiendo[key]) {
+          partes = [h('div', { class: 'aut-status', role: 'status' }, h('span', null, 'Subiendo «' + st.subiendo[key] + '»…'), h('div', { class: 'aut-bar', 'aria-hidden': 'true' }))];
+        } else if (a) {
           let url = '';
           try { url = Store.urlArchivo(a.assetId); } catch (e) { url = ''; }
           const thumb = esImagen(a) && url
-            ? h('img', { class: 'aut-thumb', src: url, alt: 'Vista previa de la autorización' })
+            ? h('img', { class: 'aut-thumb', src: url, alt: 'Vista previa' })
             : h('div', { class: 'aut-pdf', 'aria-hidden': 'true' }, icon(ICONS.doc), /pdf/i.test(a.tipo || a.nombre || '') ? 'PDF' : 'ARCH');
-          partes.push(h('div', { class: 'aut-prev' },
+          partes = [h('div', { class: 'aut-prev' },
             url ? h('a', { href: url, target: '_blank', rel: 'noopener', 'aria-label': 'Abrir ' + a.nombre }, thumb) : thumb,
             h('div', { class: 'aut-info' },
               h('span', { class: 'aut-name' }, a.nombre),
               h('span', { class: 'small muted' }, (esImagen(a) ? 'Foto' : 'Documento') + (a.tamano ? ' · ' + bytes(a.tamano) : '')),
               h('div', { class: 'row' },
-                h('button', { type: 'button', class: 'btn btn-sm', id: 'reg-aut-cambiar', 'aria-expanded': st.autCambiando ? 'true' : 'false',
-                  onclick: () => { st.autCambiando = !st.autCambiando; renderAut(); if (st.autCambiando) { const b = autBox.querySelector('#reg-aut-foto'); b && b.focus(); } } },
-                  st.autCambiando ? 'Mantener esta' : 'Cambiar'),
-                h('button', { type: 'button', class: 'btn btn-sm btn-ghost', id: 'reg-aut-quitar',
-                  onclick: () => { st.aut = null; st.autCambiando = false; st.dirty = true; renderAut(); const b = autBox.querySelector('#reg-aut-foto'); b && b.focus(); } }, 'Quitar')))));
-          if (st.autCambiando) partes.push(botonesEleccion());
+                h('button', { type: 'button', class: 'btn btn-sm', onclick: () => b.inArchivo.click() }, 'Cambiar'),
+                h('button', { type: 'button', class: 'btn btn-sm btn-ghost', onclick: () => { st.archivos[key] = null; st.dirty = true; pintarLicencia(key); } }, 'Quitar'))))];
         } else {
-          partes.push(botonesEleccion());
-          partes.push(h('div', { class: 'aut-warn' }, icon(ICONS.alerta),
-            h('span', null, 'Todavía no adjuntaste la autorización. Si sos menor de 18, la vas a necesitar para correr.')));
+          partes = [botones];
         }
-        autErrEl.textContent = st.autError; autErrEl.hidden = !st.autError;
-        autBox.replaceChildren(...partes);
-        if (hadFocus) { const b = autBox.querySelector('#' + hadFocus) || autBox.querySelector('button'); b && b.focus(); }
+        if (b.error) partes.push(h('p', { class: 'error', role: 'alert' }, b.error));
+        b.caja.replaceChildren(...partes);
       }
 
       function datosForm() {
-        const d = { torneoId: st.torneo ? st.torneo.id : '', categoria: st.categoria || '' };
+        const d = { torneoId: st.torneo ? st.torneo.id : '', categorias: st.categorias.slice(), categoria: st.categorias[0] || '' };
         TODOS.forEach(c => { d[c.key] = refs[c.key].input.value.trim(); });
-        d.autorizacion = st.aut ? { assetId: st.aut.assetId, nombre: st.aut.nombre, tipo: st.aut.tipo, tamano: st.aut.tamano } : null;
+        LICENCIAS.forEach(l => { d[l.key] = archivoPlano(st.archivos[l.key]); });
+        d.declaracion = { aceptada: true, fecha: new Date().toISOString(), texto: textoDeclaracion(st.torneo) };
         if (esInvitados()) {
-          d.piloto2 = { nombre: refs.nombre2.input.value.trim(), apellido: refs.apellido2.input.value.trim(), dni: refs.dni2.input.value.trim() };
+          d.piloto2 = { nombre: refs.nombre2.input.value.trim(), apellido: refs.apellido2.input.value.trim(), dni: refs.dni2.input.value.trim(), fechaNacimiento: refs.fechaNacimiento2.input.value };
         }
         return d;
       }
@@ -530,17 +581,15 @@
         if (st.enviando) return;
         st.intentado = true;
         let primero = null;
-        const orden = esInvitados() ? ORDEN.slice(0, 6).concat(['nombre2', 'apellido2', 'dni2'], ORDEN.slice(6)) : ORDEN;
+        const orden = CAMPOS.map(c => c.key).concat(esInvitados() ? CAMPOS_P2.map(c => c.key) : [], ['categoria'], CAMPOS_KART.map(c => c.key), CAMPOS_SALUD.map(c => c.key), ['declaracion']);
         orden.forEach(k => { const m = validarCampo(k); if (m && !primero) primero = k; });
         if (primero) {
-          const target = primero === 'categoria'
-            ? (catList.querySelector('input:checked') || catList.querySelector('input'))
-            : refs[primero].input;
+          const target = primero === 'categoria' ? catList.querySelector('input') : primero === 'declaracion' ? declChk : refs[primero].input;
           if (target) { target.focus(); target.scrollIntoView && target.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
           App.toast('Revisá los campos marcados en rojo.', 'error');
           return;
         }
-        if (st.subiendo) { App.toast('Esperá a que termine de subir la autorización.', 'error'); return; }
+        if (subiendoAlgo()) { App.toast('Esperá a que termine de subir el archivo.', 'error'); return; }
         if (!st.torneo) { App.toast('No hay inscripciones abiertas en este momento.', 'error'); return; }
 
         const datos = datosForm();
@@ -564,7 +613,7 @@
         }
       }
 
-      function labelSubmit() { return st.editando ? 'Guardar cambios' : esInvitados() ? 'Inscribir a los dos invitados' : 'Enviar inscripción'; }
+      function labelSubmit() { return st.editando ? 'Guardar cambios' : esInvitados() ? 'Inscribir a los dos invitados' : 'Confirmar inscripción'; }
       function esInvitados() { return st.tipo === 'invitados' && !st.editando; }
 
       function seccion(n, titulo, ...hijos) {
@@ -589,24 +638,17 @@
         Object.keys(refs).forEach(k => delete refs[k]);
         st.catSig = '';
         st.intentado = false;
-        st.autError = '';
-        st.autCambiando = false;
         st.dirty = false;
-        if (prefill) {
-          st.aut = prefill.autorizacion && prefill.autorizacion.assetId ? Object.assign({}, prefill.autorizacion) : null;
-          st.categoria = prefill.categoria || '';
-        } else {
-          st.aut = null;
-          st.categoria = '';
-        }
+        st.subiendo = {};
+        st.archivos = {};
+        st.categorias = prefill ? Store.categoriasDe(prefill) : [];
+        if (prefill) LICENCIAS.forEach(l => { st.archivos[l.key] = prefill[l.key] && prefill[l.key].assetId ? Object.assign({}, prefill[l.key]) : null; });
 
-        catList = h('div', { class: 'cat-list' });
+        catList = h('div', { class: 'cat-list cat-multi' });
         catErr = h('p', { class: 'error', id: 'reg-categoria-error', hidden: true });
         catFieldset = h('fieldset', { class: 'field full', id: 'reg-categoria' },
-          h('legend', null, 'Categoría'), catList,
-          h('p', { class: 'hint' }, 'Elegí en la que querés correr. El organizador la confirma.'), catErr);
-        autBox = h('div', { class: 'aut-box', id: 'reg-autorizacion', role: 'group', 'aria-labelledby': 'reg-sec-3', 'aria-describedby': 'reg-aut-hint' });
-        autErrEl = h('p', { class: 'error', role: 'alert', hidden: true });
+          h('legend', null, 'Categorías en las que vas a participar'),
+          h('p', { class: 'hint' }, 'Podés marcar una o más.'), catList, catErr);
         closedEl = h('p', { class: 'reg-closed', role: 'alert', hidden: true },
           'Las inscripciones se cerraron mientras completabas el formulario. Consultá con el organizador.');
         submitBtn = h('button', { type: 'submit', class: 'btn btn-primary btn-lg', id: 'reg-enviar' }, labelSubmit());
@@ -616,7 +658,7 @@
         const p1Sub = h('p', { class: 'p-sub' }, 'Piloto 1');
         const p2Box = h('div', { class: 'p2-box' }, h('p', { class: 'p-sub' }, 'Piloto 2'),
           h('div', { class: 'form-grid' }, CAMPOS_P2.map(campo)),
-          h('p', { class: 'hint' }, 'El teléfono, el email, la dirección, el kart y el seguro son los mismos para los dos.'));
+          h('p', { class: 'hint' }, 'El resto de los datos (contacto, domicilio, kart y emergencia) es el mismo para los dos.'));
         const sec1Title = h('span');
         const tipoList = h('div', { class: 'cat-list tipo-list' });
         const tipoField = h('fieldset', { class: 'field', id: 'reg-tipo' }, h('legend', null, '¿Cómo te anotás?'), tipoList);
@@ -639,6 +681,12 @@
         }));
         tipoField.hidden = !!st.editando;
 
+        /* Confirmación final */
+        declTexto = h('p', { class: 'reg-decl-txt' }, textoDeclaracion(st.torneo));
+        declChk = h('input', { type: 'checkbox', id: 'reg-declaracion', 'aria-describedby': 'reg-declaracion-error' });
+        declChk.addEventListener('change', () => { st.dirty = true; if (st.intentado) validarCampo('declaracion'); });
+        declErr = h('p', { class: 'error', id: 'reg-declaracion-error', hidden: true });
+
         const aviso = !App.isAdmin && st.mia && !st.editando && prefill
           ? h('p', { class: 'small muted' }, 'Precargamos tus datos de la inscripción anterior. Revisalos antes de enviar.')
           : null;
@@ -649,28 +697,37 @@
             p1Sub,
             h('div', { class: 'form-grid' }, CAMPOS.map(campo)),
             p2Box),
-          seccion(2, 'Tu kart',
-            h('div', { class: 'form-grid' }, catFieldset, CAMPOS_KART.map(campo))),
-          seccion(3, 'Autorización de los padres',
-            h('div', { class: 'field' },
-              h('p', { class: 'hint', id: 'reg-aut-hint' }, 'Obligatoria para menores de 18 años. Podés sacarle una foto al papel firmado o subir un PDF.'),
-              autBox, inCamara, inArchivo, autErrEl)),
+          seccion(2, 'Categorías y kart',
+            catFieldset,
+            h('div', { class: 'form-grid' }, CAMPOS_KART.map(campo))),
+          seccion(3, 'Salud y emergencia',
+            h('div', { class: 'form-grid' }, CAMPOS_SALUD.map(campo))),
+          seccion(4, 'Licencias',
+            h('p', { class: 'hint' }, 'Opcional: si las tenés a mano, subí una foto o un PDF. Si no, podés seguir con la inscripción igual.'),
+            h('div', { class: 'lic-grid' }, LICENCIAS.map(cajaLicencia))),
+          seccion(5, 'Confirmación final',
+            h('div', { class: 'reg-decl' },
+              h('span', { class: 'reg-decl-tit' }, 'Declaración'),
+              declTexto,
+              h('label', { class: 'reg-decl-chk', for: 'reg-declaracion' }, declChk, h('span', null, 'Confirmo que los datos son correctos y mi participación.'))),
+            declErr),
           closedEl,
           h('div', { class: 'reg-submit' },
             submitBtn,
             st.editando ? h('button', { type: 'button', class: 'btn btn-ghost', onclick: cancelarEdicion }, 'Cancelar') : null,
-            h('p', { class: 'reg-foot' }, 'Al enviar, el organizador revisa tus datos y te confirma la categoría.')));
+            h('p', { class: 'reg-foot' }, '⚠️ Completá la información de manera correcta y actualizada.')));
 
-        if (prefill) TODOS.forEach(c => { if (prefill[c.key] != null) refs[c.key].input.value = String(prefill[c.key]); });
+        if (prefill) TODOS.forEach(c => { if (prefill[c.key] != null && prefill[c.key] !== '') refs[c.key].input.value = String(prefill[c.key]); });
         actualizarCategorias(true);
         actualizarCierre();
-        renderAut();
+        LICENCIAS.forEach(l => pintarLicencia(l.key));
         pintarTipo();
 
         return h('div', { class: 'stack-lg' },
           (App.isAdmin && !App.vistaCompetidor) ? compartir() : null,
-          st.editando ? null : h('p', { class: 'reg-intro' }, 'Completá tus datos para anotarte. Todos los campos son obligatorios, salvo la autorización si sos mayor de 18.'),
-          st.editando ? h('p', { class: 'reg-intro' }, 'Corregí lo que haga falta y guardá los cambios.') : null,
+          st.editando
+            ? h('p', { class: 'reg-intro' }, 'Corregí lo que haga falta y guardá los cambios.')
+            : h('p', { class: 'reg-intro' }, 'Completá el formulario con todos tus datos para registrar tu inscripción. Las licencias y la obra social son opcionales.'),
           aviso,
           formEl);
       }
@@ -710,12 +767,12 @@
       }
 
       function datosPrevios(m) {
-        // Reutiliza los datos personales de una inscripción anterior (otro torneo); categoría solo si existe en este torneo.
+        // Reutiliza los datos personales de una inscripción anterior (otro torneo); categorías solo si existen en este torneo.
         const p = {};
         TODOS.forEach(c => { p[c.key] = m[c.key] || ''; });
-        const cats = (st.torneo && st.torneo.categorias) || [];
-        p.categoria = cats.some(c => c.nombre === m.categoria) ? m.categoria : '';
-        p.autorizacion = m.autorizacion || null;
+        const cats = ((st.torneo && st.torneo.categorias) || []).map(c => c.nombre);
+        p.categorias = Store.categoriasDe(m).filter(c => cats.includes(c));
+        LICENCIAS.forEach(l => { p[l.key] = m[l.key] || null; });
         return p;
       }
 

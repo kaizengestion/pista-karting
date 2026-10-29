@@ -177,7 +177,7 @@
       wrap.appendChild(h('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
         const ok = await confirmDialog({ title: 'Volver a los datos de ejemplo', body: 'Se borran los cambios que hiciste en este dispositivo y se cargan otra vez los datos de ejemplo.', okLabel: 'Reiniciar', danger: true });
         if (!ok) return;
-        try { localStorage.removeItem('pista-karting-demo-v1'); localStorage.removeItem('pista-karting-demo-v2'); localStorage.removeItem('pista-karting-demo-v3'); localStorage.removeItem('pista-karting-demo-archivos'); } catch (e) {}
+        try { localStorage.removeItem('pista-karting-demo-v1'); localStorage.removeItem('pista-karting-demo-v2'); localStorage.removeItem('pista-karting-demo-v3'); localStorage.removeItem('pista-karting-demo-v4'); localStorage.removeItem('pista-karting-demo-archivos'); } catch (e) {}
         location.hash = 'inicio'; location.reload();
       } }, 'Reiniciar prueba'));
     }
@@ -193,5 +193,31 @@
     return base + '#inscripcion';
   }
 
-  window.App = { h, append, css, toast, modal, confirm: confirmDialog, fmt, view, go, start, render, linkInscripcion, isAdmin: true, mode: 'demo' };
+  /* Listas compartidas por el formulario de inscripción y la ficha del competidor */
+  const datos = {
+    PROVINCIAS: ['Santa Fe', 'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy',
+      'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz',
+      'Santiago del Estero', 'Tierra del Fuego', 'Tucumán'],
+    GRUPOS: ['0+', '0-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'No sé'],
+    /* Edad cumplida a hoy a partir de 'AAAA-MM-DD'; null si no es válida */
+    edad(iso) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+      if (!m) return null;
+      const hoy = new Date();
+      let e = hoy.getFullYear() - +m[1];
+      if (hoy.getMonth() + 1 < +m[2] || (hoy.getMonth() + 1 === +m[2] && hoy.getDate() < +m[3])) e--;
+      return e >= 0 && e < 120 ? e : null;
+    },
+    /* Días de un torneo en texto: "24 y 25 de octubre", "29 de noviembre y 6 de diciembre" */
+    dias(fechas) {
+      const ds = (fechas || []).filter(Boolean).map(f => new Date(f + 'T12:00:00')).filter(d => !isNaN(d));
+      if (!ds.length) return '';
+      const mes = (d) => d.toLocaleDateString('es-AR', { month: 'long' });
+      const unir = (xs) => xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' y ' + xs[xs.length - 1];
+      if (ds.every(d => d.getMonth() === ds[0].getMonth() && d.getFullYear() === ds[0].getFullYear())) return unir(ds.map(d => String(d.getDate()))) + ' de ' + mes(ds[0]);
+      return unir(ds.map(d => d.getDate() + ' de ' + mes(d)));
+    },
+  };
+
+  window.App = { h, append, css, toast, modal, confirm: confirmDialog, fmt, view, go, start, render, linkInscripcion, datos, isAdmin: true, mode: 'demo' };
 })();

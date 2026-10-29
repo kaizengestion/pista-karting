@@ -1,7 +1,8 @@
-/* Competidores: registro de todos los anotados, con cambio de categoría al instante, edición y autorizaciones.
-   Exporta KartUI.editarCompetidor(insc|null, torneos, opciones) y KartUI.verAutorizacion(insc) para otras vistas. */
+/* Competidores: registro de todos los anotados, con su ficha completa, categorías (una o más), licencias e invitados.
+   Exporta KartUI.editarCompetidor(insc|null, torneos, opciones), KartUI.verFicha(insc, torneos) y KartUI.verArchivo(insc, clave). */
 (function () {
   const { h } = App;
+  const D = App.datos;
 
   App.css(`
 .v-competidores .head-counts { color: var(--ink-2); }
@@ -11,19 +12,19 @@
 .v-competidores .tbl td { white-space: nowrap; }
 .v-competidores .tbl td.name { white-space: normal; min-width: 170px; }
 .v-competidores .tbl td.name strong { font-weight: 600; }
-.v-competidores .tbl td.email { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
-.v-competidores .tbl td.tor { max-width: 200px; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); font-size: .85rem; }
+.v-competidores .tbl td.name button { all: unset; cursor: pointer; }
+.v-competidores .tbl td.name button:hover strong, .v-competidores .tbl td.name button:focus-visible strong { text-decoration: underline; text-decoration-color: var(--accent); }
+.v-competidores .tbl td.cats { white-space: normal; min-width: 150px; }
+.v-competidores .tbl td.cats .pill { margin: 1px 2px 1px 0; }
+.v-competidores .tbl td.emer { color: var(--ink-2); font-size: .85rem; }
 .v-competidores .tbl td a { text-decoration: none; }
 .v-competidores .tbl td a:hover { text-decoration: underline; }
-.v-competidores .tbl select.cat-sel { width: auto; min-height: 32px; padding: 4px 8px; font-size: .88rem; }
 .v-competidores .tbl td.acts { text-align: right; }
 .v-competidores .tbl td.acts .btn + .btn { margin-left: 6px; }
 .v-competidores .pill-btn, .kart-form .pill-btn { font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
 .v-competidores .pill-btn:hover { border-color: currentColor; }
-.v-competidores .inv-cell { text-align: center; }
-.kart-form .inv-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); }
-.kart-form .inv-check input { margin-top: 2px; flex: none; }
-.kart-form .inv-check span { display: flex; flex-direction: column; gap: 2px; }
+.v-competidores .center { text-align: center; }
+.v-competidores .lic-cell { display: inline-flex; gap: 4px; }
 .v-competidores .tabs button .n { color: var(--ink-3); font-weight: 600; }
 .v-competidores .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 640px) {
@@ -32,40 +33,59 @@
   .v-competidores .page-head .actions .btn { flex: 1; }
 }
 
+.kart-form .inv-check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); }
+.kart-form .inv-check input { margin-top: 2px; flex: none; }
+.kart-form .inv-check span { display: flex; flex-direction: column; gap: 2px; }
+.kart-form .cat-checks { display: grid; gap: 6px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.kart-form .cat-checks label { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); cursor: pointer; font-size: .92rem; }
+.kart-form .cat-checks label:has(input:checked) { border-color: var(--accent); }
+.kart-form .lic-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .kart-form .aut-box { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px; border: 1.5px dashed var(--line); border-radius: var(--radius); background: var(--surface-2); }
-.kart-form .aut-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); flex: none; }
-.kart-form .aut-doc { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); font: 700 .8rem var(--font-display); flex: none; }
-.kart-form .aut-info { flex: 1 1 160px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.kart-form .aut-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); flex: none; }
+.kart-form .aut-doc { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); font: 700 .8rem var(--font-display); flex: none; }
+.kart-form .aut-info { flex: 1 1 120px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .kart-form .aut-info .nm { font-weight: 600; overflow-wrap: anywhere; }
 .kart-form .aut-acts { display: flex; gap: 6px; flex-wrap: wrap; }
 .kart-form .sep { border-top: 1px solid var(--line); margin: 2px 0; }
+.kart-form .sub { font: 700 .85rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--accent-text); }
 
 .kart-aut { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
 .kart-aut img { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; border-radius: 4px; border: 1px solid var(--line); background: var(--surface-2); }
 .kart-aut .meta { color: var(--ink-2); font-size: .88rem; overflow-wrap: anywhere; }
+
+.kart-ficha { display: flex; flex-direction: column; gap: 16px; }
+.kart-ficha h3 { font: 700 .85rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--accent-text); }
+.kart-ficha dl { display: grid; grid-template-columns: minmax(110px, max-content) 1fr; gap: 6px 14px; margin: 0; }
+.kart-ficha dt { color: var(--ink-3); font-size: .85rem; font-weight: 600; }
+.kart-ficha dd { margin: 0; overflow-wrap: anywhere; }
+.kart-ficha .decl { font-size: .85rem; color: var(--ink-2); border-left: 3px solid var(--accent); padding-left: 10px; }
 `);
 
   const CAMPOS = [
-    { k: 'nombre', label: 'Nombre', req: true, ac: 'off' },
-    { k: 'apellido', label: 'Apellido', req: true, ac: 'off' },
+    { k: 'nombre', label: 'Nombre', req: true },
+    { k: 'apellido', label: 'Apellido', req: true },
     { k: 'dni', label: 'DNI', req: true, inputmode: 'numeric' },
+    { k: 'fechaNacimiento', label: 'Fecha de nacimiento', type: 'date' },
     { k: 'telefono', label: 'Teléfono', type: 'tel' },
     { k: 'email', label: 'Email', type: 'email' },
-    { k: 'direccion', label: 'Dirección', full: true },
-    { k: 'seguro', label: 'Seguro', hint: 'Compañía y nº de póliza' },
-    { k: 'nroMotor', label: 'Nº de motor' },
+    { k: 'direccion', label: 'Domicilio', full: true },
+    { k: 'provincia', label: 'Provincia', type: 'select', opciones: D.PROVINCIAS, vacio: '—' },
+    { k: 'localidad', label: 'Localidad' },
+    { k: 'grupoSanguineo', label: 'Grupo sanguíneo', type: 'select', opciones: D.GRUPOS, vacio: '—' },
     { k: 'nroKarting', label: 'Nº de kart', inputmode: 'numeric' },
+    { k: 'obraSocial', label: 'Obra social / prepaga', full: true, hint: 'Ej.: OSDE – Afiliado N.º 123456789' },
+    { k: 'emergenciaNombre', label: 'Contacto de emergencia' },
+    { k: 'emergenciaTelefono', label: 'Teléfono de emergencia', type: 'tel' },
+  ];
+  const LICENCIAS = [
+    { key: 'licenciaDeportiva', titulo: 'Licencia deportiva', corto: 'Dep.' },
+    { key: 'licenciaMedica', titulo: 'Licencia médica', corto: 'Méd.' },
   ];
 
-  function torneoActual(ts) {
-    const S = window.Store;
-    return (S && S.torneoActual) ? S.torneoActual(ts) : (ts.find(t => t.estado === 'actual') || null);
-  }
-  function torneoInscripcion(ts) {
-    const S = window.Store;
-    if (S && S.torneoInscripcion) return S.torneoInscripcion(ts);
-    return torneoActual(ts) || ts.filter(t => t.estado === 'proximo').sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)))[0] || null;
-  }
+  const S = () => window.Store;
+  const cats = (i) => S().categoriasDe(i);
+  function torneoActual(ts) { return S().torneoActual(ts); }
+  function torneoInscripcion(ts) { return S().torneoInscripcion(ts); }
   function suscribir(ctx, unsub) {
     if (typeof unsub === 'function') ctx.onCleanup(unsub);
     else if (unsub && typeof unsub.then === 'function') unsub.then(f => { if (typeof f !== 'function') return; if (ctx.isCurrent()) ctx.onCleanup(f); else f(); });
@@ -80,40 +100,77 @@
     return (b / 1024 / 1024).toFixed(1).replace('.', ',') + ' MB';
   }
   function esImagen(a) { return /^image\//.test(a.tipo || '') || /\.(png|jpe?g|gif|webp|bmp|heic|heif|avif)$/i.test(a.nombre || ''); }
-  function urlDe(a) { try { return window.Store.urlArchivo(a.assetId); } catch (e) { return ''; } }
+  function urlDe(a) { try { return S().urlArchivo(a.assetId); } catch (e) { return ''; } }
   function etiquetaTorneo(t) {
     if (t.estado === 'actual') return t.nombre + ' (en curso)';
     if (t.estado === 'finalizado') return t.nombre + ' (finalizado)';
     return t.nombre + ' — ' + App.fmt.fecha(t.fecha);
   }
 
-  /* ---------- Ver autorización ---------- */
-  function verAutorizacion(insc) {
-    const a = insc && insc.autorizacion;
-    if (!a || !a.assetId) { App.toast('Este competidor no tiene autorización cargada'); return null; }
+  /* ---------- Ver una licencia ---------- */
+  function verArchivo(insc, clave) {
+    const l = LICENCIAS.find(x => x.key === clave) || { titulo: 'Archivo' };
+    const a = insc && insc[clave];
+    if (!a || !a.assetId) { App.toast(l.titulo + ': no está cargada'); return null; }
     const url = urlDe(a);
     const meta = h('p', { class: 'meta' }, [a.nombre, tamano(a.tamano)].filter(Boolean).join(' · '));
     let vista;
     if (esImagen(a)) {
-      vista = h('img', { src: url, alt: 'Autorización de ' + App.fmt.nombre(insc) });
+      vista = h('img', { src: url, alt: l.titulo + ' de ' + App.fmt.nombre(insc) });
       vista.addEventListener('error', () => vista.replaceWith(h('div', { class: 'empty' }, 'No se pudo cargar la imagen.', h('a', { href: url, target: '_blank', rel: 'noopener' }, 'Probá abrirla en otra pestaña'))));
     } else {
-      vista = h('div', { class: 'empty' },
-        h('strong', null, 'Documento PDF'),
-        h('a', { class: 'btn btn-dark', href: url, target: '_blank', rel: 'noopener' }, 'Abrir PDF'));
+      vista = h('div', { class: 'empty' }, h('strong', null, 'Documento PDF'), h('a', { class: 'btn btn-dark', href: url, target: '_blank', rel: 'noopener' }, 'Abrir PDF'));
     }
     return App.modal({
-      title: 'Autorización — ' + App.fmt.nombre(insc),
+      title: l.titulo + ' — ' + App.fmt.nombre(insc),
       content: h('div', { class: 'kart-aut' }, vista, h('div', { class: 'row' }, meta, h('span', { class: 'spacer' }),
         h('a', { href: url, target: '_blank', rel: 'noopener', class: 'small' }, 'Abrir en otra pestaña'))),
       actions: [{ label: 'Cerrar', kind: 'ghost' }],
     });
   }
 
+  /* ---------- Ficha completa (solo lectura) ---------- */
+  function verFicha(i, torneos, opciones) {
+    const t = (torneos || []).find(x => x.id === i.torneoId);
+    const e = D.edad(i.fechaNacimiento);
+    const fila = (k, v) => [h('dt', null, k), h('dd', null, v == null || v === '' ? '—' : v)];
+    const lic = (l) => i[l.key] && i[l.key].assetId
+      ? h('button', { type: 'button', class: 'pill pill-ok pill-btn', onclick: () => verArchivo(i, l.key) }, 'Ver ' + l.titulo.toLowerCase())
+      : h('span', { class: 'pill' }, 'No la subió');
+    const d = i.declaracion;
+    const m = App.modal({
+      title: App.fmt.nombre(i) || 'Competidor',
+      content: h('div', { class: 'kart-ficha' },
+        h('div', { class: 'row' }, i.nroKarting ? h('span', { class: 'kart-no' }, i.nroKarting) : null,
+          cats(i).map(c => h('span', { class: 'pill' }, c)), i.invitado ? h('span', { class: 'pill pill-inv' }, 'Invitado') : null),
+        h('h3', null, 'Datos personales'),
+        h('dl', null,
+          fila('DNI', i.dni),
+          fila('Nacimiento', i.fechaNacimiento ? App.fmt.fecha(i.fechaNacimiento) + (e != null ? ' · ' + e + ' años' : '') : ''),
+          fila('Teléfono', i.telefono ? h('a', { href: 'tel:' + String(i.telefono).replace(/[^\d+]/g, '') }, i.telefono) : ''),
+          fila('Email', i.email ? h('a', { href: 'mailto:' + i.email }, i.email) : ''),
+          fila('Domicilio', i.direccion),
+          fila('Localidad', [i.localidad, i.provincia].filter(Boolean).join(', ')),
+          fila('Torneo', t ? t.nombre : '')),
+        h('h3', null, 'Salud y emergencia'),
+        h('dl', null,
+          fila('Grupo sanguíneo', i.grupoSanguineo),
+          fila('Obra social', i.obraSocial || 'No tiene'),
+          fila('Emergencia', [i.emergenciaNombre, i.emergenciaTelefono].filter(Boolean).join(' · '))),
+        h('h3', null, 'Licencias'),
+        h('dl', null, LICENCIAS.map(l => fila(l.titulo, lic(l)))),
+        d && d.aceptada ? h('p', { class: 'decl' }, 'Declaración aceptada el ' + App.fmt.fecha(d.fecha) + (d.texto ? ': «' + d.texto + '»' : '')) : null),
+      actions: [
+        { label: 'Cerrar', kind: 'ghost' },
+        { label: 'Editar', kind: 'primary', onClick: (close) => { close(); editarCompetidor(i, torneos, opciones || {}); } },
+      ],
+    });
+    return m;
+  }
+
   /* ---------- Editar / agregar competidor ----------
-     opciones: { torneoId, categoria, inscripciones (para cupos y DNI repetido), onSaved(id) } */
+     opciones: { torneoId, categoria, inscripciones (para DNI repetido), onSaved(id) } */
   function editarCompetidor(insc, torneos, opciones) {
-    const S = window.Store;
     const o = opciones || {};
     torneos = torneos || [];
     const lista = o.inscripciones || null;
@@ -122,7 +179,11 @@
 
     const campos = CAMPOS.map(c => {
       const id = 'kf-' + c.k;
-      const inp = h('input', { id, type: c.type || 'text', value: insc ? (insc[c.k] || '') : '', inputmode: c.inputmode, autocomplete: c.ac || 'off', 'aria-required': c.req ? 'true' : null });
+      const valor = insc ? (insc[c.k] || '') : (c.k === 'provincia' ? 'Santa Fe' : '');
+      const inp = c.type === 'select'
+        ? h('select', { id }, h('option', { value: '' }, c.vacio), c.opciones.map(x => h('option', { value: x }, x)))
+        : h('input', { id, type: c.type || 'text', inputmode: c.inputmode, autocomplete: 'off', 'aria-required': c.req ? 'true' : null });
+      inp.value = valor;
       inp.addEventListener('input', () => { if (inp.getAttribute('aria-invalid')) { inp.removeAttribute('aria-invalid'); errores[c.k].textContent = ''; } });
       inputs[c.k] = inp;
       errores[c.k] = h('span', { class: 'error', role: 'alert' });
@@ -130,74 +191,62 @@
         h('label', { for: id }, c.label + (c.req ? ' *' : '')), inp, c.hint ? h('span', { class: 'hint' }, c.hint) : null, errores[c.k]);
     });
 
-    // Torneo y categoría
+    // Torneo y categorías (una o más)
     const elegibles = torneos.filter(t => t.estado !== 'finalizado' || (insc && t.id === insc.torneoId));
     const selT = h('select', { id: 'kf-torneo' });
-    const selC = h('select', { id: 'kf-cat' });
     const errT = h('span', { class: 'error', role: 'alert' });
+    const errC = h('span', { class: 'error', role: 'alert' });
     elegibles.forEach(t => selT.appendChild(h('option', { value: t.id }, etiquetaTorneo(t))));
     const torneoIni = (insc && insc.torneoId) || o.torneoId || (torneoInscripcion(torneos) || {}).id || (elegibles[0] || {}).id || '';
     if (torneoIni && !elegibles.some(t => t.id === torneoIni)) selT.appendChild(h('option', { value: torneoIni }, 'Torneo borrado'));
     selT.value = torneoIni;
-
-    function llenarCategorias(preferida) {
+    const catBox = h('div', { class: 'cat-checks' });
+    function llenarCategorias(marcadas) {
       const t = torneos.find(x => x.id === selT.value);
-      const cats = (t && t.categorias) || [];
-      selC.replaceChildren();
-      cats.forEach(c => {
-        let txt = c.nombre;
-        if (lista) {
-          const n = lista.filter(i => i.torneoId === t.id && i.categoria === c.nombre && (!insc || i.id !== insc.id)).length;
-          txt += ' (' + n + '/' + (c.cupo || '—') + (c.cupo && n >= c.cupo ? ', completa' : '') + ')';
-        }
-        selC.appendChild(h('option', { value: c.nombre }, txt));
-      });
-      if (preferida && !cats.some(c => c.nombre === preferida)) selC.appendChild(h('option', { value: preferida }, preferida));
-      if (preferida) selC.value = preferida;
-      selC.disabled = !selC.options.length;
+      const nombres = ((t && t.categorias) || []).map(c => c.nombre);
+      marcadas.forEach(m => { if (!nombres.includes(m)) nombres.push(m); });
+      catBox.replaceChildren(...nombres.map((n, k) => h('label', { for: 'kf-cat-' + k },
+        h('input', { type: 'checkbox', id: 'kf-cat-' + k, value: n, checked: marcadas.includes(n) }), n)));
     }
-    llenarCategorias((insc && insc.categoria) || o.categoria || null);
-    selT.addEventListener('change', () => { const prev = selC.value; llenarCategorias(null); if ([...selC.options].some(op => op.value === prev)) selC.value = prev; errT.textContent = ''; });
+    const marcadasDe = () => Array.from(catBox.querySelectorAll('input:checked')).map(x => x.value);
+    llenarCategorias(insc ? cats(insc) : (o.categoria ? [o.categoria] : []));
+    selT.addEventListener('change', () => { llenarCategorias(marcadasDe()); errT.textContent = ''; });
 
-    // Autorización
-    const st = { aut: (insc && insc.autorizacion) || null, subiendo: false };
-    const autBox = h('div', { class: 'aut-box' });
-    const fileIn = h('input', { type: 'file', accept: 'image/*,application/pdf', hidden: true, 'aria-label': 'Archivo de autorización' });
-    fileIn.addEventListener('change', async () => {
-      const f = fileIn.files && fileIn.files[0];
-      fileIn.value = '';
-      if (!f) return;
-      st.subiendo = true; pintarAut();
-      try {
-        st.aut = await S.subirArchivo(f);
-        App.toast('Autorización cargada', 'ok');
-      } catch (e) {
-        App.toast(errMsg(e), 'error');
-      } finally {
-        st.subiendo = false; pintarAut();
+    // Licencias (opcionales)
+    const st = { archivos: {}, subiendo: {} };
+    const cajas = LICENCIAS.map(l => {
+      st.archivos[l.key] = (insc && insc[l.key]) || null;
+      const caja = h('div', { class: 'aut-box' });
+      const fileIn = h('input', { type: 'file', accept: 'image/*,application/pdf', hidden: true, 'aria-label': l.titulo });
+      fileIn.addEventListener('change', async () => {
+        const f = fileIn.files && fileIn.files[0];
+        fileIn.value = '';
+        if (!f) return;
+        st.subiendo[l.key] = true; pintar();
+        try { st.archivos[l.key] = await S().subirArchivo(f); App.toast(l.titulo + ' cargada', 'ok'); }
+        catch (e) { App.toast(errMsg(e), 'error'); }
+        finally { st.subiendo[l.key] = false; pintar(); }
+      });
+      function pintar() {
+        if (st.subiendo[l.key]) { caja.replaceChildren(h('span', { class: 'muted' }, 'Subiendo archivo…')); return; }
+        const a = st.archivos[l.key];
+        if (!a) {
+          caja.replaceChildren(h('span', { class: 'aut-info muted small' }, 'Sin cargar'),
+            h('button', { type: 'button', class: 'btn btn-sm btn-dark', onclick: () => fileIn.click() }, 'Subir'));
+          return;
+        }
+        const url = urlDe(a);
+        caja.replaceChildren(
+          esImagen(a) && url ? h('img', { class: 'aut-thumb', src: url, alt: '' }) : h('span', { class: 'aut-doc' }, 'PDF'),
+          h('span', { class: 'aut-info' }, h('span', { class: 'nm' }, a.nombre || 'Archivo'), h('span', { class: 'small muted' }, tamano(a.tamano))),
+          h('span', { class: 'aut-acts' },
+            url ? h('a', { class: 'btn btn-sm btn-ghost', href: url, target: '_blank', rel: 'noopener' }, 'Ver') : null,
+            h('button', { type: 'button', class: 'btn btn-sm', onclick: () => fileIn.click() }, 'Cambiar'),
+            h('button', { type: 'button', class: 'btn btn-sm btn-danger', onclick: () => { st.archivos[l.key] = null; pintar(); } }, 'Quitar')));
       }
+      pintar();
+      return h('div', { class: 'field' }, h('span', { class: 'label' }, l.titulo + ' (opcional)'), caja, fileIn);
     });
-    function pintarAut() {
-      if (st.subiendo) { autBox.replaceChildren(h('span', { class: 'muted' }, 'Subiendo archivo…')); return; }
-      const a = st.aut;
-      if (!a) {
-        autBox.replaceChildren(
-          h('span', { class: 'pill pill-warn' }, 'Falta'),
-          h('span', { class: 'aut-info muted small' }, 'Foto o PDF de la autorización firmada por madre, padre o tutor.'),
-          h('button', { type: 'button', class: 'btn btn-sm btn-dark', onclick: () => fileIn.click() }, 'Subir archivo'));
-        return;
-      }
-      const url = urlDe(a);
-      const thumb = esImagen(a) && url ? h('img', { class: 'aut-thumb', src: url, alt: '' }) : h('span', { class: 'aut-doc' }, 'PDF');
-      autBox.replaceChildren(
-        thumb,
-        h('span', { class: 'aut-info' }, h('span', { class: 'nm' }, a.nombre || 'Archivo'), h('span', { class: 'small muted' }, tamano(a.tamano))),
-        h('span', { class: 'aut-acts' },
-          url ? h('a', { class: 'btn btn-sm btn-ghost', href: url, target: '_blank', rel: 'noopener' }, 'Ver') : null,
-          h('button', { type: 'button', class: 'btn btn-sm', onclick: () => fileIn.click() }, 'Reemplazar'),
-          h('button', { type: 'button', class: 'btn btn-sm btn-danger', onclick: () => { st.aut = null; pintarAut(); } }, 'Quitar')));
-    }
-    pintarAut();
 
     // Invitado: lo decide el organizador (los invitados corren de a dos con el mismo kart)
     const chkInv = h('input', { type: 'checkbox', id: 'kf-invitado', checked: !!(insc && insc.invitado) });
@@ -206,34 +255,40 @@
 
     const sinTorneos = !elegibles.length && !torneoIni;
     const form = h('form', { class: 'kart-form stack', novalidate: true, onsubmit: (e) => { e.preventDefault(); guardar(); } },
+      h('span', { class: 'sub' }, 'Datos del competidor'),
       h('div', { class: 'form-grid' }, campos),
       h('div', { class: 'sep' }),
-      h('div', { class: 'form-grid' },
-        h('div', { class: 'field' }, h('label', { for: 'kf-torneo' }, 'Torneo *'), selT, errT,
-          sinTorneos ? h('span', { class: 'hint' }, 'Primero creá un torneo en Próximos torneos.') : null),
-        h('div', { class: 'field' }, h('label', { for: 'kf-cat' }, 'Categoría *'), selC)),
+      h('span', { class: 'sub' }, 'Torneo y categorías'),
+      h('div', { class: 'field' }, h('label', { for: 'kf-torneo' }, 'Torneo *'), selT, errT,
+        sinTorneos ? h('span', { class: 'hint' }, 'Primero creá un torneo en Próximos torneos.') : null),
+      h('div', { class: 'field' }, h('span', { class: 'label' }, 'Categorías * (una o más)'), catBox, errC),
       invField,
-      h('div', { class: 'field' }, h('span', { class: 'label' }, 'Autorización de los padres'), autBox, fileIn));
+      h('div', { class: 'sep' }),
+      h('span', { class: 'sub' }, 'Licencias'),
+      h('div', { class: 'lic-grid' }, cajas));
     form.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'file') { e.preventDefault(); guardar(); }
+      if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'file' && e.target.type !== 'checkbox') { e.preventDefault(); guardar(); }
     });
 
     let guardando = false;
     let modal = null;
     async function guardar() {
       if (guardando) return;
-      if (st.subiendo) { App.toast('Esperá a que termine de subir el archivo'); return; }
+      if (Object.values(st.subiendo).some(Boolean)) { App.toast('Esperá a que termine de subir el archivo'); return; }
       const datos = {};
       CAMPOS.forEach(c => { datos[c.k] = inputs[c.k].value.trim(); });
       let primero = null;
       const marcar = (k, msg) => { inputs[k].setAttribute('aria-invalid', 'true'); errores[k].textContent = msg; primero = primero || inputs[k]; };
       CAMPOS.forEach(c => { errores[c.k].textContent = ''; inputs[c.k].removeAttribute('aria-invalid'); });
-      errT.textContent = '';
+      errT.textContent = ''; errC.textContent = '';
       if (!datos.nombre) marcar('nombre', 'Completá el nombre');
       if (!datos.apellido) marcar('apellido', 'Completá el apellido');
       if (!datos.dni) marcar('dni', 'Completá el DNI');
       if (datos.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) marcar('email', 'Revisá el email');
+      if (datos.fechaNacimiento && D.edad(datos.fechaNacimiento) == null) marcar('fechaNacimiento', 'Revisá la fecha');
       if (!selT.value) { errT.textContent = 'Elegí un torneo'; primero = primero || selT; }
+      const categorias = marcadasDe();
+      if (!categorias.length) { errC.textContent = 'Marcá al menos una categoría'; primero = primero || catBox.querySelector('input'); }
       const dniLimpio = datos.dni.replace(/\D/g, '');
       if (!primero && lista && dniLimpio && !chkInv.checked) {
         const dup = lista.find(i => i.torneoId === selT.value && String(i.dni || '').replace(/\D/g, '') === dniLimpio && (!insc || i.id !== insc.id));
@@ -241,16 +296,17 @@
       }
       if (primero) { primero.focus(); return; }
       datos.torneoId = selT.value;
-      datos.categoria = selC.value || '';
-      datos.autorizacion = st.aut || null;
+      datos.categorias = categorias;
+      datos.categoria = categorias[0];
+      LICENCIAS.forEach(l => { datos[l.key] = st.archivos[l.key] || null; });
       datos.invitado = chkInv.checked;
       guardando = true;
       const btn = modal && modal.el.querySelector('.modal-foot .btn-primary');
       if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
       try {
         let id;
-        if (insc && insc.id) { await S.actualizarInscripcion(insc.id, datos); id = insc.id; App.toast('Cambios guardados', 'ok'); }
-        else { id = await S.inscribir(datos); App.toast('Competidor agregado', 'ok'); }
+        if (insc && insc.id) { await S().actualizarInscripcion(insc.id, datos); id = insc.id; App.toast('Cambios guardados', 'ok'); }
+        else { id = await S().inscribir(datos); App.toast('Competidor agregado', 'ok'); }
         modal && modal.close();
         o.onSaved && o.onSaved(id);
       } catch (e) {
@@ -274,17 +330,16 @@
 
   window.KartUI = window.KartUI || {};
   window.KartUI.editarCompetidor = editarCompetidor;
-  window.KartUI.verAutorizacion = verAutorizacion;
+  window.KartUI.verFicha = verFicha;
+  window.KartUI.verArchivo = verArchivo;
 
   /* ---------- Vista ---------- */
   App.view('competidores', {
     title: 'Competidores',
     admin: true,
     async render(el, ctx) {
-      const S = window.Store;
       let torneos = null, inscs = null;
       const st = { torneo: ctx.param || null, cat: '*', q: '' };
-      let tablaPendiente = false;
 
       const counts = h('p', { class: 'head-counts' }, 'Cargando…');
       const btnAdd = h('button', {
@@ -296,15 +351,11 @@
       }, 'Agregar competidor');
       const selT = h('select', { id: 'comp-torneo', onchange: () => { st.torneo = selT.value; st.cat = '*'; draw(); } });
       const q = h('input', {
-        id: 'comp-q', type: 'search', placeholder: 'Nombre, DNI, kart, teléfono…', autocomplete: 'off',
-        oninput: () => { st.q = q.value; dibujarTabla(true); },
+        id: 'comp-q', type: 'search', placeholder: 'Nombre, DNI, kart, localidad, teléfono…', autocomplete: 'off',
+        oninput: () => { st.q = q.value; dibujarTabla(); },
       });
       const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Categorías' });
       const tablaBox = h('div');
-      tablaBox.addEventListener('focusout', () => setTimeout(() => {
-        const act = document.activeElement;
-        if (tablaPendiente && ctx.isCurrent() && !(act && act.tagName === 'SELECT' && tablaBox.contains(act))) dibujarTabla(true);
-      }, 0));
 
       el.appendChild(h('div', { class: 'v-competidores stack' },
         h('div', { class: 'page-head' },
@@ -353,67 +404,39 @@
         const add = (n) => { if (n && !nombres.includes(n)) nombres.push(n); };
         if (st.torneo === '*') torneos.forEach(t => (t.categorias || []).forEach(c => add(c.nombre)));
         else ((torneoDe(st.torneo) || {}).categorias || []).forEach(c => add(c.nombre));
-        lista.forEach(i => add(i.categoria));
+        lista.forEach(i => cats(i).forEach(add));
         return nombres;
       }
 
       function dibujarEncabezado(lista) {
-        const sinAut = lista.filter(i => !(i.autorizacion && i.autorizacion.assetId)).length;
         const nInv = lista.filter(i => i.invitado).length;
+        const sinLic = lista.filter(i => LICENCIAS.some(l => !(i[l.key] && i[l.key].assetId))).length;
         counts.replaceChildren(
           h('strong', { class: 'tnum' }, plural(lista.length, 'anotado', 'anotados')),
           nInv ? ' · ' + plural(nInv, 'invitado', 'invitados') : '',
-          lista.length ? ' · ' : null,
-          lista.length ? (sinAut ? h('span', { class: 'warn tnum' }, sinAut + ' sin autorización') : 'todos con autorización') : null);
+          lista.length ? ' · ' : '',
+          lista.length ? (sinLic ? h('span', { class: 'warn tnum' }, sinLic + ' con licencias sin subir') : 'todos con licencias') : '');
       }
 
       function dibujarTabs(lista) {
-        const cats = categorias(lista);
-        if (st.cat !== '*' && !cats.includes(st.cat)) st.cat = '*';
+        // Solo las categorías con anotados (con 12 categorías, las vacías no aportan)
+        const cs = categorias(lista).filter(c => lista.some(i => cats(i).includes(c)));
+        if (st.cat !== '*' && !cs.includes(st.cat)) st.cat = '*';
         const mk = (val, txt, n) => h('button', {
           type: 'button', role: 'tab', 'aria-selected': String(st.cat === val),
-          onclick: () => { st.cat = val; dibujarTabs(alcance()); dibujarTabla(true); },
+          onclick: () => { st.cat = val; dibujarTabs(alcance()); dibujarTabla(); },
         }, txt + ' ', h('span', { class: 'n tnum' }, '(' + n + ')'));
-        tabs.replaceChildren(mk('*', 'Todas', lista.length), ...cats.map(c => mk(c, c, lista.filter(i => i.categoria === c).length)));
-      }
-
-      function selectorCategoria(i) {
-        const t = torneoDe(i.torneoId);
-        const nombres = ((t && t.categorias) || []).map(c => c.nombre);
-        if (i.categoria && !nombres.includes(i.categoria)) nombres.unshift(i.categoria);
-        const sel = h('select', { class: 'cat-sel', 'aria-label': 'Categoría de ' + App.fmt.nombre(i) },
-          i.categoria ? null : h('option', { value: '' }, 'Sin categoría'),
-          nombres.map(n => h('option', { value: n }, n)));
-        sel.value = i.categoria || '';
-        sel.addEventListener('change', async () => {
-          const nueva = sel.value, previa = i.categoria;
-          if (!nueva || nueva === previa) return;
-          const cat = t && (t.categorias || []).find(c => c.nombre === nueva);
-          const ocupados = inscs.filter(x => x.torneoId === i.torneoId && x.categoria === nueva && x.id !== i.id).length;
-          sel.disabled = true;
-          try {
-            await S.actualizarInscripcion(i.id, { categoria: nueva });
-            i.categoria = nueva;
-            if (cat && cat.cupo && ocupados >= cat.cupo) App.toast('Movido a ' + nueva + '. Ojo: la categoría quedó con ' + (ocupados + 1) + ' de ' + cat.cupo + ' lugares (supera el cupo).');
-            else App.toast('Movido a ' + nueva, 'ok');
-          } catch (e) {
-            sel.value = previa || '';
-            App.toast('No se pudo mover: ' + errMsg(e), 'error');
-          } finally {
-            sel.disabled = false;
-          }
-        });
-        return sel;
+        tabs.replaceChildren(mk('*', 'Todas', lista.length), ...cs.map(c => mk(c, c, lista.filter(i => cats(i).includes(c)).length)));
       }
 
       async function borrar(i) {
         const ok = await App.confirm({
           title: '¿Borrar a ' + App.fmt.nombre(i) + '?',
-          body: 'Se borra la inscripción con todos sus datos y su tiempo. No se puede deshacer.',
+          body: 'Se borra la inscripción con todos sus datos y sus tiempos. No se puede deshacer.',
           okLabel: 'Borrar', danger: true,
         });
         if (!ok) return;
-        try { await S.borrarInscripcion(i.id); App.toast('Competidor borrado', 'ok'); }
+        try { await S().borrarInscripcion(i.id); App.toast('Competidor borrado', 'ok'); }
         catch (e) { App.toast('No se pudo borrar: ' + errMsg(e), 'error'); }
       }
       const editar = (i) => editarCompetidor(i, torneos, { inscripciones: inscs });
@@ -422,7 +445,7 @@
         const nuevo = !i.invitado;
         btn.disabled = true;
         try {
-          await S.actualizarInscripcion(i.id, { invitado: nuevo });
+          await S().actualizarInscripcion(i.id, { invitado: nuevo });
           i.invitado = nuevo;
           App.toast(App.fmt.nombre(i) + (nuevo ? ' ahora es invitado' : ' ya no es invitado'), 'ok');
         } catch (e) {
@@ -434,28 +457,28 @@
 
       function fila(i, conTorneo) {
         const t = torneoDe(i.torneoId);
-        const aut = i.autorizacion && i.autorizacion.assetId;
+        const e = D.edad(i.fechaNacimiento);
+        const inv = h('button', {
+          type: 'button', class: 'pill pill-btn' + (i.invitado ? ' pill-inv' : ''), 'aria-pressed': String(!!i.invitado),
+          title: i.invitado ? 'Tocá para marcarlo como piloto común' : 'Tocá para marcarlo como invitado',
+          onclick: () => cambiarInvitado(i, inv),
+        }, i.invitado ? 'Invitado' : 'No');
         return h('tr', { dataset: { id: i.id } },
           h('td', null, i.nroKarting ? h('span', { class: 'kart-no' }, i.nroKarting) : h('span', { class: 'muted' }, '—')),
-          h('td', { class: 'name' }, h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : ''),
-          h('td', { class: 'inv-cell' }, (() => {
-            const b = h('button', {
-              type: 'button', class: 'pill pill-btn' + (i.invitado ? ' pill-inv' : ''), 'aria-pressed': String(!!i.invitado),
-              title: i.invitado ? 'Tocá para marcarlo como piloto común' : 'Tocá para marcarlo como invitado',
-              onclick: () => cambiarInvitado(i, b),
-            }, i.invitado ? 'Invitado' : 'No');
-            return b;
-          })()),
+          h('td', { class: 'name' }, h('button', { type: 'button', title: 'Ver ficha completa', onclick: () => verFicha(i, torneos, { inscripciones: inscs }) },
+            h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : '')),
+          h('td', { class: 'center' }, inv),
           h('td', { class: 'tnum' }, i.dni || '—'),
-          conTorneo ? h('td', { class: 'tor', title: t ? t.nombre : '' }, t ? t.nombre : '—') : null,
-          h('td', null, selectorCategoria(i)),
+          h('td', { class: 'tnum center' }, e != null ? String(e) : '—'),
+          conTorneo ? h('td', { class: 'muted small' }, t ? t.nombre : '—') : null,
+          h('td', { class: 'cats' }, cats(i).length ? cats(i).map(c => h('span', { class: 'pill' }, c)) : h('span', { class: 'pill pill-warn' }, 'Sin categoría')),
+          h('td', null, i.localidad || '—'),
           h('td', { class: 'tnum' }, i.telefono ? h('a', { href: 'tel:' + String(i.telefono).replace(/[^\d+]/g, '') }, i.telefono) : '—'),
-          h('td', { class: 'email', title: i.email || '' }, i.email ? h('a', { href: 'mailto:' + i.email }, i.email) : '—'),
-          h('td', null, i.seguro || '—'),
-          h('td', { class: 'mono' }, i.nroMotor || '—'),
-          h('td', null, aut
-            ? h('button', { type: 'button', class: 'pill pill-ok pill-btn', title: 'Ver autorización', onclick: () => verAutorizacion(i) }, 'Ver')
-            : h('button', { type: 'button', class: 'pill pill-warn pill-btn', title: 'Cargar autorización', onclick: () => editar(i) }, 'Falta')),
+          h('td', { class: 'center' }, i.grupoSanguineo || '—'),
+          h('td', { class: 'emer' }, [i.emergenciaNombre, i.emergenciaTelefono].filter(Boolean).join(' · ') || '—'),
+          h('td', null, h('span', { class: 'lic-cell' }, LICENCIAS.map(l => i[l.key] && i[l.key].assetId
+            ? h('button', { type: 'button', class: 'pill pill-ok pill-btn', title: 'Ver ' + l.titulo.toLowerCase(), onclick: () => verArchivo(i, l.key) }, l.corto)
+            : h('span', { class: 'pill', title: l.titulo + ' sin subir' }, l.corto + ' —')))),
           h('td', { class: 'acts' },
             h('button', { type: 'button', class: 'btn btn-sm', onclick: () => editar(i) }, 'Editar'),
             h('button', { type: 'button', class: 'btn btn-sm btn-danger', onclick: () => borrar(i) }, 'Borrar')));
@@ -464,15 +487,12 @@
       function coincide(i, terms) {
         if (!terms.length) return true;
         const t = torneoDe(i.torneoId);
-        const txt = App.fmt.norm([i.nombre, i.apellido, i.dni, String(i.dni || '').replace(/\D/g, ''), i.telefono, i.email, i.seguro, i.nroMotor, i.nroKarting, i.direccion, i.categoria, t && t.nombre, i.invitado ? 'invitado' : ''].join(' '));
+        const txt = App.fmt.norm([i.nombre, i.apellido, i.dni, String(i.dni || '').replace(/\D/g, ''), i.telefono, i.email, i.nroKarting, i.direccion,
+          i.localidad, i.provincia, i.grupoSanguineo, i.obraSocial, i.emergenciaNombre, cats(i).join(' '), t && t.nombre, i.invitado ? 'invitado' : ''].join(' '));
         return terms.every(w => txt.includes(w));
       }
 
-      function dibujarTabla(forzar) {
-        // Si hay un selector de la tabla con foco, se espera a que lo suelte
-        const act = document.activeElement;
-        if (!forzar && act && act.tagName === 'SELECT' && tablaBox.contains(act)) { tablaPendiente = true; return; }
-        tablaPendiente = false;
+      function dibujarTabla() {
         if (!torneos.length && !inscs.length) {
           tablaBox.replaceChildren(h('div', { class: 'empty' },
             h('strong', null, 'Todavía no hay torneos.'),
@@ -482,12 +502,12 @@
         }
         const lista = alcance();
         const terms = App.fmt.norm(st.q).trim().split(/\s+/).filter(Boolean);
-        const filas = lista.filter(i => (st.cat === '*' || i.categoria === st.cat) && coincide(i, terms));
+        const filas = lista.filter(i => (st.cat === '*' || cats(i).includes(st.cat)) && coincide(i, terms));
         if (!filas.length) {
           if (terms.length) {
             tablaBox.replaceChildren(h('div', { class: 'empty' },
               h('span', null, 'No hay competidores que coincidan con “' + st.q.trim() + '”.'),
-              h('button', { type: 'button', class: 'btn btn-sm', onclick: () => { q.value = ''; st.q = ''; dibujarTabla(true); q.focus(); } }, 'Limpiar filtro')));
+              h('button', { type: 'button', class: 'btn btn-sm', onclick: () => { q.value = ''; st.q = ''; dibujarTabla(); q.focus(); } }, 'Limpiar filtro')));
           } else {
             tablaBox.replaceChildren(h('div', { class: 'empty' },
               h('strong', null, st.cat === '*' ? 'Todavía no hay anotados.' : 'No hay anotados en ' + st.cat + '.'),
@@ -501,10 +521,10 @@
         tablaBox.replaceChildren(h('div', { class: 'table-wrap' },
           h('table', { class: 'tbl' },
             h('thead', null, h('tr', null,
-              h('th', null, 'Kart'), h('th', null, 'Apellido y nombre'), h('th', { class: 'center' }, 'Invitado'), h('th', null, 'DNI'),
+              h('th', null, 'Kart'), h('th', null, 'Apellido y nombre'), h('th', { class: 'center' }, 'Invitado'), h('th', null, 'DNI'), h('th', { class: 'center' }, 'Edad'),
               conTorneo ? h('th', null, 'Torneo') : null,
-              h('th', null, 'Categoría'), h('th', null, 'Teléfono'), h('th', null, 'Email'), h('th', null, 'Seguro'),
-              h('th', null, 'Nº motor'), h('th', null, 'Autorización'), h('th', null, h('span', { class: 'sr' }, 'Acciones')))),
+              h('th', null, 'Categorías'), h('th', null, 'Localidad'), h('th', null, 'Teléfono'), h('th', { class: 'center' }, 'Grupo'),
+              h('th', null, 'Emergencia'), h('th', null, 'Licencias'), h('th', null, h('span', { class: 'sr' }, 'Acciones')))),
             h('tbody', null, filas.map(i => fila(i, conTorneo))))));
       }
 
@@ -514,12 +534,12 @@
         const lista = alcance();
         dibujarEncabezado(lista);
         dibujarTabs(lista);
-        dibujarTabla(false);
+        dibujarTabla();
       }
 
       tablaBox.replaceChildren(h('p', { class: 'loading' }, 'Cargando…'));
-      suscribir(ctx, S.watchTorneos(ts => { torneos = ts || []; draw(); }));
-      suscribir(ctx, S.watchInscripciones(list => { inscs = list || []; draw(); }));
+      suscribir(ctx, S().watchTorneos(ts => { torneos = ts || []; draw(); }));
+      suscribir(ctx, S().watchInscripciones(list => { inscs = list || []; draw(); }));
     },
   });
 })();

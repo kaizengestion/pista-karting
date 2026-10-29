@@ -1,4 +1,4 @@
-/* Próximos torneos: lista de torneos programados, alta/edición con categorías y cupos, inicio y borrado. */
+/* Próximos torneos: lista de torneos programados, alta/edición con fechas y categorías, inicio y borrado. */
 (function () {
   const h = App.h;
 
@@ -22,11 +22,13 @@
 .v-proximos .pr-fecha b { font: 700 .95rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; }
 .v-proximos .pr-fecha span { font-size: .85rem; color: var(--ink-2); }
 .v-proximos .pr-fecha span::first-letter { text-transform: uppercase; }
-.v-proximos .pr-cats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
-.v-proximos .pr-cat { border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; background: var(--surface-2); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.v-proximos .pr-cats { display: flex; gap: 6px; flex-wrap: wrap; }
+.v-proximos .pr-cat { border: 1px solid var(--line); border-radius: 999px; padding: 4px 6px 4px 12px; background: var(--surface-2); display: inline-flex; align-items: center; gap: 8px; }
+.v-proximos .pr-cat.vacia { opacity: .6; }
 .v-proximos .pr-cat-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.v-proximos .pr-cat-name { font: 700 .95rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .04em; overflow-wrap: anywhere; }
-.v-proximos .pr-cat-num { font-variant-numeric: tabular-nums; font-size: .88rem; color: var(--ink-2); white-space: nowrap; }
+.v-proximos .pr-cat-name { font: 700 .88rem/1.1 var(--font-display); text-transform: uppercase; letter-spacing: .04em; overflow-wrap: anywhere; }
+.v-proximos .pr-cat-num { font: 700 .8rem/1 var(--font-display); min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); display: inline-grid; place-items: center; }
+.v-proximos .pr-cat.vacia .pr-cat-num { background: var(--line); color: var(--ink-2); }
 .v-proximos .pr-meter { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
 .v-proximos .pr-meter > span { display: block; height: 100%; background: var(--accent); }
 .v-proximos .pr-meter.full > span { background: var(--ok); }
@@ -35,7 +37,7 @@
 .v-proximos .pr-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .v-proximos .pr-total { font-size: .88rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .v-proximos-modal .pr-cat-rows { display: flex; flex-direction: column; gap: 8px; }
-.v-proximos-modal .pr-cat-row { display: grid; grid-template-columns: minmax(0, 1fr) 96px auto; gap: 8px; align-items: center; }
+.v-proximos-modal .pr-cat-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .v-proximos-modal .pr-cat-head { display: grid; grid-template-columns: minmax(0, 1fr) 96px auto; gap: 8px; font-size: .8rem; color: var(--ink-3); font-weight: 600; }
 .v-proximos-modal .pr-cat-head span:last-child { visibility: hidden; }
 .v-proximos-modal .pr-cat-row input[type="number"] { font-variant-numeric: tabular-nums; }
@@ -50,7 +52,7 @@
   .v-proximos .pr-date { flex-direction: row; justify-content: flex-start; align-items: baseline; gap: 8px; padding: 8px 12px; align-self: start; width: max-content; }
   .v-proximos .pr-day { font-size: 1.8rem; }
   .v-proximos .pr-actions .btn-primary { flex: 1 1 100%; }
-  .v-proximos-modal .pr-cat-row, .v-proximos-modal .pr-cat-head { grid-template-columns: minmax(0, 1fr) 72px auto; }
+  .v-proximos-modal .pr-cat-row { grid-template-columns: minmax(0, 1fr) auto; }
 }
 `);
 
@@ -98,7 +100,7 @@
         for (const i of inscs) {
           if (i.torneoId !== t.id) continue;
           total++;
-          porCat[i.categoria] = (porCat[i.categoria] || 0) + 1;
+          S.categoriasDe(i).forEach(c => { porCat[c] = (porCat[c] || 0) + 1; });
         }
         return { porCat, total };
       }
@@ -123,7 +125,7 @@
           ? h('div', { class: 'pr-list' }, proximos.map(card))
           : h('div', { class: 'empty' },
             h('strong', null, 'No hay torneos programados'),
-            h('span', null, 'Creá el próximo torneo con sus categorías y cupos para que los competidores se puedan anotar.'),
+            h('span', null, 'Creá el próximo torneo con sus fechas y categorías para que los competidores se puedan anotar.'),
             h('button', { type: 'button', class: 'btn btn-primary', onclick: () => editor(null) }, 'Nuevo torneo'));
 
         root.replaceChildren(head, live, body);
@@ -133,7 +135,6 @@
         const f = partesFecha(t.fecha);
         const { porCat, total } = conteos(t);
         const cats = t.categorias || [];
-        const cupoTotal = cats.reduce((s, c) => s + (c.cupo == null || c.cupo === '' ? 0 : +c.cupo), 0);
         const btnIniciar = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => iniciar(t, btnIniciar) }, 'Iniciar torneo');
         return h('article', { class: 'card pr-card' },
           h('div', { class: 'pr-date', 'aria-hidden': 'true' },
@@ -141,25 +142,20 @@
           h('div', { class: 'pr-body' },
             h('div', { class: 'stack', style: { gap: '4px' } },
               h('h2', null, t.nombre || 'Torneo sin nombre'),
-              h('p', { class: 'pr-meta' }, App.fmt.fechasDe(t).length > 1 ? (t.lugar || '') : App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : ''))),
+              h('p', { class: 'pr-meta' }, (App.fmt.fechasDe(t).length > 1 ? (t.lugar || '') : App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : '')) +
+                (t.sentido ? ' · Sentido ' + t.sentido : ''))),
             /* Fechas del torneo: cada una corre con las mismas categorías */
             App.fmt.fechasDe(t).length > 1 ? h('div', { class: 'pr-fechas' }, App.fmt.fechasDe(t).map((f, k) => h('div', { class: 'pr-fecha' },
               h('b', null, 'Fecha ' + (k + 1)), h('span', null, App.fmt.fechaLarga(f))))) : null,
             cats.length
               ? h('div', { class: 'pr-cats' }, cats.map(c => {
                 const n = porCat[c.nombre] || 0;
-                const cupo = c.cupo == null || c.cupo === '' ? null : +c.cupo;
-                const pct = cupo ? Math.min(100, Math.round(n / cupo * 100)) : (n ? 100 : 0);
-                const estado = cupo == null ? '' : n > cupo ? ' over' : n === cupo ? ' full' : '';
-                return h('div', { class: 'pr-cat' },
-                  h('div', { class: 'pr-cat-top' },
-                    h('span', { class: 'pr-cat-name' }, c.nombre),
-                    h('span', { class: 'pr-cat-num' }, cupo == null ? pl(n, 'anotado', 'anotados') : n + ' / ' + cupo)),
-                  h('div', { class: 'pr-meter' + estado, role: 'img', 'aria-label': cupo == null ? n + ' anotados, sin cupo' : n + ' de ' + cupo + ' lugares ocupados' },
-                    h('span', { style: { width: pct + '%' } })));
+                return h('div', { class: 'pr-cat' + (n ? '' : ' vacia') },
+                  h('span', { class: 'pr-cat-name' }, c.nombre),
+                  h('span', { class: 'pr-cat-num' }, String(n)));
               }))
               : h('p', { class: 'muted small' }, 'Sin categorías definidas.'),
-            h('p', { class: 'pr-total' }, pl(total, 'competidor anotado', 'competidores anotados') + (cupoTotal ? ' de ' + cupoTotal + ' lugares' : '')),
+            h('p', { class: 'pr-total' }, pl(total, 'competidor anotado', 'competidores anotados')),
             t.notas ? h('p', { class: 'pr-notas' }, t.notas) : null,
             h('div', { class: 'pr-actions' },
               btnIniciar,
@@ -201,7 +197,7 @@
       /* ---------- Alta / edición ---------- */
       function editor(t) {
         const editing = !!t;
-        const inscDe = (cat) => editing ? inscs.filter(i => i.torneoId === t.id && i.categoria === cat) : [];
+        const inscDe = (cat) => editing ? inscs.filter(i => i.torneoId === t.id && S.categoriasDe(i).includes(cat)) : [];
 
         const fNombre = h('input', { type: 'text', id: 'pr-f-nombre', value: t ? t.nombre || '' : '', placeholder: 'Copa Primavera — Fecha 4', autocomplete: 'off' });
         /* Fechas del torneo: de 1 a 3 */
@@ -233,7 +229,10 @@
         }
         const fechasIni = t ? App.fmt.fechasDe(t) : [];
         (fechasIni.length ? fechasIni : ['']).forEach(f => addFecha(f));
-        const fLugar = h('input', { type: 'text', id: 'pr-f-lugar', value: t ? t.lugar || '' : '', placeholder: 'Kartódromo Municipal', autocomplete: 'off' });
+        const fLugar = h('input', { type: 'text', id: 'pr-f-lugar', value: t ? t.lugar || '' : '', placeholder: 'Autoclub Cañada de Gómez', autocomplete: 'off' });
+        const fSentido = h('select', { id: 'pr-f-sentido' },
+          h('option', { value: '' }, 'Sin indicar'), h('option', { value: 'horario' }, 'Horario'), h('option', { value: 'antihorario' }, 'Antihorario'));
+        fSentido.value = t && t.sentido ? t.sentido : '';
         const fNotas = h('textarea', { id: 'pr-f-notas', rows: '3', placeholder: 'Horario de acreditación, reglamento, etc.' });
         fNotas.value = t ? t.notas || '' : '';
 
@@ -244,8 +243,7 @@
         function addRow(c, focus) {
           const r = { original: c && c.original ? c.original : null };
           r.nombre = h('input', { type: 'text', value: c ? c.nombre || '' : '', placeholder: 'Nombre de la categoría', 'aria-label': 'Nombre de la categoría', autocomplete: 'off' });
-          r.cupo = h('input', { type: 'number', min: '0', step: '1', inputmode: 'numeric', value: c && c.cupo != null ? String(c.cupo) : '', placeholder: 'Sin cupo', 'aria-label': 'Cupo' });
-          r.el = h('div', { class: 'pr-cat-row' }, r.nombre, r.cupo,
+          r.el = h('div', { class: 'pr-cat-row' }, r.nombre,
             h('button', {
               type: 'button', class: 'btn btn-ghost btn-sm', 'aria-label': 'Quitar categoría',
               onclick: () => {
@@ -261,7 +259,7 @@
           if (focus) r.nombre.focus();
         }
         const iniciales = t && t.categorias && t.categorias.length
-          ? t.categorias.map(c => ({ nombre: c.nombre, cupo: c.cupo, original: c.nombre }))
+          ? t.categorias.map(c => ({ nombre: c.nombre, original: c.nombre }))
           : DEFAULT_CATS;
         iniciales.forEach(c => addRow(c));
 
@@ -273,14 +271,14 @@
               fechasEl,
               h('div', null, btnAddFecha),
               h('span', { class: 'hint' }, 'Un torneo puede tener hasta ' + MAXF + ' fechas. En cada fecha se cargan tiempos aparte.')),
-            h('div', { class: 'field full' }, h('label', { for: 'pr-f-lugar' }, 'Lugar'), fLugar),
+            h('div', { class: 'field' }, h('label', { for: 'pr-f-lugar' }, 'Lugar'), fLugar),
+            h('div', { class: 'field' }, h('label', { for: 'pr-f-sentido' }, 'Sentido del circuito'), fSentido),
             h('div', { class: 'field full' }, h('label', { for: 'pr-f-notas' }, 'Notas'), fNotas)),
           h('div', { class: 'field' },
-            h('span', { class: 'label' }, 'Categorías y cupos'),
-            h('div', { class: 'pr-cat-head', 'aria-hidden': 'true' }, h('span', null, 'Categoría'), h('span', null, 'Cupo'), h('span', null, 'Quitar')),
+            h('span', { class: 'label' }, 'Categorías'),
             rowsEl,
-            h('div', null, h('button', { type: 'button', class: 'btn btn-sm', onclick: () => addRow({ nombre: '', cupo: null }, true) }, '+ Agregar categoría')),
-            h('span', { class: 'hint' }, 'Dejá el cupo vacío si la categoría no tiene límite.' + (editing ? ' Si cambiás el nombre de una categoría, sus competidores pasan a la nueva.' : ''))),
+            h('div', null, h('button', { type: 'button', class: 'btn btn-sm', onclick: () => addRow({ nombre: '' }, true) }, '+ Agregar categoría')),
+            h('span', { class: 'hint' }, 'Los competidores pueden anotarse en una o más.' + (editing ? ' Si cambiás el nombre de una categoría, sus competidores pasan a la nueva.' : ''))),
           errEl,
           h('button', { type: 'submit', hidden: true, tabindex: '-1' }, 'Guardar'));
 
@@ -319,19 +317,11 @@
           const renombres = [];
           for (const r of rows) {
             const cn = r.nombre.value.trim();
-            const cv = r.cupo.value.trim();
-            if (!cn && !cv) continue;
-            if (!cn) return fail('Falta el nombre de una categoría.', r.nombre);
+            if (!cn) continue;
             const key = App.fmt.norm(cn);
             if (vistos.has(key)) return fail('La categoría «' + cn + '» está repetida.', r.nombre);
             vistos.add(key);
-            let cupo = null;
-            if (cv) {
-              const n = Number(cv);
-              if (!Number.isInteger(n) || n < 0) return fail('El cupo tiene que ser un número entero (o vacío).', r.cupo);
-              cupo = n;
-            }
-            categorias.push({ nombre: cn, cupo });
+            categorias.push({ nombre: cn, cupo: null });
             if (r.original && r.original !== cn) renombres.push([r.original, cn]);
           }
           if (!categorias.length) return fail('Agregá al menos una categoría.', rows[0] ? rows[0].nombre : null);
@@ -344,7 +334,7 @@
           }
 
           const data = Object.assign({}, t || {}, {
-            nombre, fecha, fechas, lugar: fLugar.value.trim(), notas: fNotas.value.trim(), categorias,
+            nombre, fecha, fechas, lugar: fLugar.value.trim(), sentido: fSentido.value, notas: fNotas.value.trim(), categorias,
             estado: t && t.estado ? t.estado : 'proximo',
             creado: t && t.creado ? t.creado : new Date().toISOString(),
           });
@@ -354,7 +344,10 @@
           try {
             await S.guardarTorneo(data);
             for (const [de, a] of renombres) {
-              for (const i of inscDe(de)) await S.actualizarInscripcion(i.id, { categoria: a });
+              for (const i of inscDe(de)) {
+                const cs = S.categoriasDe(i).map(c => (c === de ? a : c));
+                await S.actualizarInscripcion(i.id, { categorias: cs, categoria: cs[0] });
+              }
             }
             m.close();
             App.toast(editing ? 'Cambios guardados' : 'Torneo creado', 'ok');

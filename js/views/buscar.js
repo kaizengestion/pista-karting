@@ -106,9 +106,10 @@
   /* ---------- Ficha de solo lectura (si no está KartUI) ---------- */
   function fichaSoloLectura(i, torneo) {
     const filas = [
-      ['Apellido y nombre', App.fmt.nombre(i)], ['DNI', i.dni], ['Torneo', torneo && torneo.nombre], ['Categoría', i.categoria],
-      ['Nº de kart', i.nroKarting], ['Nº de motor', i.nroMotor], ['Teléfono', i.telefono], ['Email', i.email],
-      ['Dirección', i.direccion], ['Seguro', i.seguro], ['Autorización', i.autorizacion ? (i.autorizacion.nombre || 'Cargada') : 'Falta'],
+      ['Apellido y nombre', App.fmt.nombre(i)], ['DNI', i.dni], ['Torneo', torneo && torneo.nombre], ['Categorías', window.Store.categoriasDe(i).join(', ')],
+      ['Nº de kart', i.nroKarting], ['Teléfono', i.telefono], ['Email', i.email],
+      ['Domicilio', [i.direccion, i.localidad, i.provincia].filter(Boolean).join(', ')], ['Grupo sanguíneo', i.grupoSanguineo],
+      ['Emergencia', [i.emergenciaNombre, i.emergenciaTelefono].filter(Boolean).join(' · ')],
     ];
     App.modal({
       title: App.fmt.nombre(i),
@@ -128,7 +129,7 @@
 
       const input = h('input', {
         type: 'search', id: 'buscar-q', autofocus: true, autocomplete: 'off', spellcheck: 'false', value: st.q,
-        placeholder: 'Nombre, DNI, teléfono, nº de kart, motor, seguro, torneo…',
+        placeholder: 'Nombre, DNI, teléfono, nº de kart, localidad, torneo…',
         'aria-label': 'Buscar competidores y torneos', 'aria-describedby': 'buscar-status',
       });
       input.addEventListener('input', () => { st.q = input.value; st.abiertos = {}; recordar(); dibujar(); });
@@ -157,8 +158,8 @@
         // Competidores
         const comp = inscs.filter(i => {
           const t = torneoDe(i.torneoId);
-          return todos([i.nombre, i.apellido, i.dni, i.direccion, i.telefono, i.email, i.seguro, i.nroMotor, i.nroKarting, i.categoria,
-            t && t.nombre, i.autorizacion && i.autorizacion.nombre], terms);
+          return todos([i.nombre, i.apellido, i.dni, i.direccion, i.localidad, i.provincia, i.telefono, i.email, i.nroKarting,
+            ...S.categoriasDe(i), i.obraSocial, i.emergenciaNombre, i.grupoSanguineo, t && t.nombre], terms);
         }).map((i, n) => ({ i, t: torneoDe(i.torneoId), n }))
           .sort((a, b) => ((RANGO[a.t && a.t.estado] ?? 3) - (RANGO[b.t && b.t.estado] ?? 3)) || a.n - b.n);
 
@@ -185,7 +186,7 @@
       }
 
       function abrirCompetidor(i) {
-        if (window.KartUI && typeof window.KartUI.editarCompetidor === 'function') window.KartUI.editarCompetidor(i, torneos, { inscripciones: inscs });
+        if (window.KartUI && typeof window.KartUI.verFicha === 'function') window.KartUI.verFicha(i, torneos, { inscripciones: inscs });
         else fichaSoloLectura(i, torneoDe(i.torneoId));
       }
       function rutaTorneo(t) {
@@ -198,23 +199,19 @@
 
       function filaCompetidor({ i, t }, terms) {
         const kartHit = terms.some(w => coincide(i.nroKarting, w));
-        const visibles = new Set(['nombre', 'apellido', 'dni', 'nroKarting', 'categoria']);
-        const extras = [['telefono', 'Teléfono'], ['email', 'Email'], ['nroMotor', 'Motor'], ['seguro', 'Seguro'], ['direccion', 'Dirección']]
-          .filter(([k]) => !visibles.has(k) && terms.some(w => coincide(i[k], w)));
-        if (i.autorizacion && terms.some(w => coincide(i.autorizacion.nombre, w))) extras.push(['__aut', 'Autorización']);
+        const extras = [['telefono', 'Teléfono'], ['email', 'Email'], ['direccion', 'Domicilio'], ['localidad', 'Localidad'], ['obraSocial', 'Obra social'], ['emergenciaNombre', 'Emergencia']]
+          .filter(([k]) => terms.some(w => coincide(i[k], w)));
         const nombre = [i.apellido, i.nombre].filter(Boolean);
         return h('button', { type: 'button', class: 'res', onclick: () => abrirCompetidor(i) },
           i.nroKarting ? h('span', { class: 'kart-no' + (kartHit ? ' hit' : '') }, i.nroKarting) : h('span', { class: 'kart-no', style: { opacity: '.35' } }, '—'),
           h('span', { class: 'main' },
             h('span', { class: 't' },
               h('span', null, nombre.length > 1 ? [hl(i.apellido, terms), ', ', hl(i.nombre, terms)] : hl(nombre[0] || 'Sin nombre', terms)),
-              i.categoria ? h('span', { class: 'pill' }, hl(i.categoria, terms)) : null),
+              S.categoriasDe(i).map(c => h('span', { class: 'pill' }, hl(c, terms)))),
             h('span', { class: 'sub' },
               'DNI ', i.dni ? hl(i.dni, terms) : '—',
-              ' · ', t ? hl(t.nombre, terms) : 'Torneo borrado',
-              !(i.autorizacion && i.autorizacion.assetId) ? ' · Falta autorización' : ''),
-            extras.length ? h('span', { class: 'extra' }, extras.map(([k, label], n) => [n ? ' · ' : '', h('b', null, label + ': '),
-              hl(k === '__aut' ? i.autorizacion.nombre : i[k], terms)])) : null),
+              ' · ', t ? hl(t.nombre, terms) : 'Torneo borrado'),
+            extras.length ? h('span', { class: 'extra' }, extras.map(([k, label], n) => [n ? ' · ' : '', h('b', null, label + ': '), hl(i[k], terms)])) : null),
           chev());
       }
 
@@ -270,8 +267,8 @@
         if (conDni) add(soloDigitos(conDni.dni).slice(0, 4));
         const conLugar = torneos.find(t => t.lugar);
         if (conLugar) add(conLugar.lugar.split(/\s+/).filter(w => w.length > 3).pop() || conLugar.lugar);
-        const conSeguro = inscs.find(i => i.seguro);
-        if (conSeguro) add(conSeguro.seguro.split(/\s+/).sort((x, y) => y.length - x.length)[0]);
+        const conLocalidad = inscs.find(i => i.localidad);
+        if (conLocalidad) add(conLocalidad.localidad);
         const t0 = torneos[0];
         if (t0 && t0.categorias && t0.categorias[0]) add(t0.categorias[0].nombre);
         return out.slice(0, 6);
