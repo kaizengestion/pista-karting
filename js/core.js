@@ -209,6 +209,28 @@
       if (hoy.getMonth() + 1 < +m[2] || (hoy.getMonth() + 1 === +m[2] && hoy.getDate() < +m[3])) e--;
       return e >= 0 && e < 120 ? e : null;
     },
+    /* Fecha escrita a mano "DD/MM/AAAA" -> 'AAAA-MM-DD' (null si no existe ese día) */
+    textoAIso(t) {
+      const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(t || '').trim());
+      if (!m) return null;
+      const d = +m[1], mes = +m[2], a = +m[3];
+      const f = new Date(a, mes - 1, d);
+      if (f.getFullYear() !== a || f.getMonth() !== mes - 1 || f.getDate() !== d) return null;
+      return a + '-' + String(mes).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    },
+    isoATexto(iso) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+      return m ? m[3] + '/' + m[2] + '/' + m[1] : '';
+    },
+    /* Campo de fecha que se escribe con el teclado numérico: las barras se ponen solas (14052001 -> 14/05/2001) */
+    mascaraFecha(input) {
+      input.addEventListener('input', () => {
+        const n = input.value.replace(/\D/g, '').slice(0, 8);
+        const t = n.length > 4 ? n.slice(0, 2) + '/' + n.slice(2, 4) + '/' + n.slice(4) : n.length > 2 ? n.slice(0, 2) + '/' + n.slice(2) : n;
+        if (t !== input.value) input.value = t;
+      });
+      return input;
+    },
     /* Días de un torneo en texto: "24 y 25 de octubre", "29 de noviembre y 6 de diciembre" */
     dias(fechas) {
       const ds = (fechas || []).filter(Boolean).map(f => new Date(f + 'T12:00:00')).filter(d => !isNaN(d));

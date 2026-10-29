@@ -66,7 +66,7 @@
     { k: 'nombre', label: 'Nombre', req: true },
     { k: 'apellido', label: 'Apellido', req: true },
     { k: 'dni', label: 'DNI', req: true, inputmode: 'numeric' },
-    { k: 'fechaNacimiento', label: 'Fecha de nacimiento', type: 'date' },
+    { k: 'fechaNacimiento', label: 'Fecha de nacimiento', type: 'fecha', hint: 'DD/MM/AAAA' },
     { k: 'telefono', label: 'Teléfono', type: 'tel' },
     { k: 'email', label: 'Email', type: 'email' },
     { k: 'direccion', label: 'Domicilio', full: true },
@@ -183,8 +183,10 @@
       const valor = insc ? (insc[c.k] || '') : (c.k === 'provincia' ? 'Santa Fe' : '');
       const inp = c.type === 'select'
         ? h('select', { id }, h('option', { value: '' }, c.vacio), c.opciones.map(x => h('option', { value: x }, x)))
-        : h('input', { id, type: c.type || 'text', inputmode: c.inputmode, autocomplete: 'off', 'aria-required': c.req ? 'true' : null });
-      inp.value = valor;
+        : c.type === 'fecha'
+          ? D.mascaraFecha(h('input', { id, type: 'text', inputmode: 'numeric', maxlength: 10, placeholder: 'DD/MM/AAAA', autocomplete: 'off' }))
+          : h('input', { id, type: c.type || 'text', inputmode: c.inputmode, autocomplete: 'off', 'aria-required': c.req ? 'true' : null });
+      inp.value = c.type === 'fecha' ? D.isoATexto(valor) : valor;
       inp.addEventListener('input', () => { if (inp.getAttribute('aria-invalid')) { inp.removeAttribute('aria-invalid'); errores[c.k].textContent = ''; } });
       inputs[c.k] = inp;
       errores[c.k] = h('span', { class: 'error', role: 'alert' });
@@ -278,6 +280,8 @@
       if (Object.values(st.subiendo).some(Boolean)) { App.toast('Esperá a que termine de subir el archivo'); return; }
       const datos = {};
       CAMPOS.forEach(c => { datos[c.k] = inputs[c.k].value.trim(); });
+      const fechaTxt = datos.fechaNacimiento;
+      datos.fechaNacimiento = fechaTxt ? (D.textoAIso(fechaTxt) || '') : '';
       let primero = null;
       const marcar = (k, msg) => { inputs[k].setAttribute('aria-invalid', 'true'); errores[k].textContent = msg; primero = primero || inputs[k]; };
       CAMPOS.forEach(c => { errores[c.k].textContent = ''; inputs[c.k].removeAttribute('aria-invalid'); });
@@ -286,7 +290,7 @@
       if (!datos.apellido) marcar('apellido', 'Completá el apellido');
       if (!datos.dni) marcar('dni', 'Completá el DNI');
       if (datos.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) marcar('email', 'Revisá el email');
-      if (datos.fechaNacimiento && D.edad(datos.fechaNacimiento) == null) marcar('fechaNacimiento', 'Revisá la fecha');
+      if (fechaTxt && D.edad(datos.fechaNacimiento) == null) marcar('fechaNacimiento', 'Revisá la fecha (DD/MM/AAAA)');
       if (!selT.value) { errT.textContent = 'Elegí un torneo'; primero = primero || selT; }
       const categorias = marcadasDe();
       if (!categorias.length) { errC.textContent = 'Marcá al menos una categoría'; primero = primero || catBox.querySelector('input'); }

@@ -125,7 +125,7 @@
   const CSS_EXTRA = `
 .v-registro .reg-logo { display: block; width: min(320px, 80%); height: auto; margin: 0 auto 8px; }
 .v-registro select { min-height: 50px; font-size: 1rem; padding: 12px 14px; }
-.v-registro input[type="date"] { min-height: 50px; font-size: 1rem; padding: 10px 14px; }
+.v-registro .reg-edad { color: var(--ink-2); }
 .v-registro .opc { color: var(--ink-3); font-weight: 400; }
 .v-registro .cat-multi { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
 .v-registro .cat-multi .cat-opt { min-height: 52px; padding: 10px 12px; }
@@ -150,7 +150,7 @@
     { key: 'nombre', label: 'Nombre', autocomplete: 'given-name', autocapitalize: 'words', msg: 'Completá tu nombre.' },
     { key: 'apellido', label: 'Apellido', autocomplete: 'family-name', autocapitalize: 'words', msg: 'Completá tu apellido.' },
     { key: 'dni', label: 'DNI', autocomplete: 'off', inputmode: 'numeric', maxlength: 8, digits: true, hint: 'Solo números, sin puntos.', msg: 'Completá tu DNI.' },
-    { key: 'fechaNacimiento', label: 'Fecha de nacimiento', type: 'date', autocomplete: 'bday', msg: 'Completá tu fecha de nacimiento.' },
+    { key: 'fechaNacimiento', label: 'Fecha de nacimiento', type: 'fecha', msg: 'Completá tu fecha de nacimiento.' },
     { key: 'telefono', label: 'Teléfono', type: 'tel', autocomplete: 'tel', hint: 'Con código de área, ej. 3471 15-555123.', msg: 'Completá un teléfono de contacto.' },
     { key: 'email', label: 'Email', type: 'email', autocomplete: 'email', autocapitalize: 'off', spellcheck: 'false', msg: 'Completá tu email.' },
     { key: 'direccion', label: 'Domicilio', autocomplete: 'street-address', autocapitalize: 'sentences', full: true, hint: 'Calle y número.', msg: 'Completá tu domicilio.' },
@@ -392,30 +392,45 @@
           input.value = c.porDefecto || '';
           input.addEventListener('change', () => { st.dirty = true; if (st.intentado) validarCampo(c.key); });
         } else {
+          const esFecha = c.type === 'fecha';
           input = h('input', Object.assign(comunes, {
-            type: c.type || 'text', autocomplete: c.autocomplete || 'off', inputmode: c.inputmode,
-            maxlength: c.maxlength, autocapitalize: c.autocapitalize, spellcheck: c.spellcheck,
-            pattern: c.digits ? '[0-9]*' : null, enterkeyhint: 'next',
-            max: c.type === 'date' ? new Date().toISOString().slice(0, 10) : null,
+            type: esFecha ? 'text' : (c.type || 'text'), autocomplete: c.autocomplete || 'off', inputmode: esFecha ? 'numeric' : c.inputmode,
+            maxlength: esFecha ? 10 : c.maxlength, autocapitalize: c.autocapitalize, spellcheck: c.spellcheck,
+            pattern: c.digits ? '[0-9]*' : null, enterkeyhint: 'next', placeholder: esFecha ? 'DD/MM/AAAA' : null,
           }));
+          if (esFecha) D.mascaraFecha(input);
           input.addEventListener('input', () => {
             if (c.digits) {
               const limpio = input.value.replace(/\D/g, '');
               if (limpio !== input.value) input.value = limpio;
             }
             st.dirty = true;
+            if (c.type === 'fecha') mostrarEdad(c.key);
             if (st.intentado) validarCampo(c.key);
           });
           input.addEventListener('blur', () => { if (st.intentado || input.getAttribute('aria-invalid') === 'true') validarCampo(c.key); });
         }
         const err = h('p', { class: 'error', id: errId, hidden: true });
+        const edad = c.type === 'fecha' ? h('p', { class: 'hint reg-edad', 'aria-live': 'polite' }, 'Escribila con números, ej. 14/05/2001.') : null;
         const wrap = h('div', { class: 'field' + (c.full ? ' full' : '') },
           h('label', { for: id }, c.label, c.opcional ? h('span', { class: 'opc' }, ' (opcional)') : null),
           input,
           c.hint ? h('p', { class: 'hint', id: hintId }, c.hint) : null,
+          edad,
           err);
-        refs[c.key] = { input, err, wrap, def: c };
+        refs[c.key] = { input, err, wrap, def: c, edad };
         return wrap;
+      }
+
+      /* Valor de un campo como se guarda (las fechas pasan de DD/MM/AAAA a AAAA-MM-DD) */
+      function valor(key) {
+        const r = refs[key]; const v = r.input.value.trim();
+        return r.def.type === 'fecha' ? (D.textoAIso(v) || '') : v;
+      }
+      function mostrarEdad(key) {
+        const r = refs[key]; if (!r || !r.edad) return;
+        const e = D.edad(D.textoAIso(r.input.value));
+        r.edad.textContent = e != null && e >= 4 && e <= 99 ? e + ' años.' : 'Escribila con números, ej. 14/05/2001.';
       }
 
       function setErr(key, msg) {
@@ -448,9 +463,9 @@
         if (key === 'dni2' && refs.dni && v === refs.dni.input.value.trim()) return 'El DNI del piloto 2 no puede ser igual al del piloto 1.';
         if (key === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return 'Revisá el email: tiene que ser del estilo nombre@dominio.com.';
         if ((key === 'telefono' || key === 'emergenciaTelefono') && v.replace(/\D/g, '').length < 6) return 'Revisá el teléfono: parece incompleto.';
-        if (r.def.type === 'date') {
-          const e = D.edad(v);
-          if (e == null) return 'Revisá la fecha de nacimiento.';
+        if (r.def.type === 'fecha') {
+          const e = D.edad(D.textoAIso(v));
+          if (e == null) return 'Revisá la fecha: tiene que ser del estilo 14/05/2001.';
           if (e < 4 || e > 99) return 'Revisá la fecha de nacimiento: la edad no parece correcta.';
         }
         return '';
@@ -560,7 +575,7 @@
 
       function datosForm() {
         const d = { torneoId: st.torneo ? st.torneo.id : '', categorias: st.categorias.slice(), categoria: st.categorias[0] || '' };
-        TODOS.forEach(c => { d[c.key] = refs[c.key].input.value.trim(); });
+        TODOS.forEach(c => { d[c.key] = valor(c.key); });
         LICENCIAS.forEach(l => { d[l.key] = archivoPlano(st.archivos[l.key]); });
         d.declaracion = { aceptada: true, fecha: new Date().toISOString(), texto: textoDeclaracion(st.torneo) };
         d.invitado = st.tipo === 'invitado';
@@ -690,7 +705,11 @@
             st.editando ? h('button', { type: 'button', class: 'btn btn-ghost', onclick: cancelarEdicion }, 'Cancelar') : null,
             h('p', { class: 'reg-foot' }, '⚠️ Completá la información de manera correcta y actualizada.')));
 
-        if (prefill) TODOS.forEach(c => { if (prefill[c.key] != null && prefill[c.key] !== '') refs[c.key].input.value = String(prefill[c.key]); });
+        if (prefill) TODOS.forEach(c => {
+          if (prefill[c.key] == null || prefill[c.key] === '') return;
+          refs[c.key].input.value = c.type === 'fecha' ? D.isoATexto(prefill[c.key]) : String(prefill[c.key]);
+          if (c.type === 'fecha') mostrarEdad(c.key);
+        });
         actualizarCategorias(true);
         actualizarCierre();
         LICENCIAS.forEach(l => pintarLicencia(l.key));
