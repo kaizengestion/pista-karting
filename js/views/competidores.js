@@ -25,6 +25,12 @@
 .v-competidores .pill-btn, .kart-form .pill-btn { font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
 .v-competidores .pill-btn:hover { border-color: currentColor; }
 .v-competidores .center { text-align: center; }
+/* Invitado vinculado: debajo del competidor que lo anotó, corrido y con una línea celeste */
+.v-competidores .tbl tr.vinculado td { border-top-color: transparent; }
+.v-competidores .tbl tr.vinculado td:first-child, .v-competidores .tbl tr.con-invitado td:first-child { box-shadow: inset 4px 0 0 var(--inv-bg); }
+.v-competidores .tbl tr.con-invitado td { border-bottom-color: transparent; }
+.v-competidores .tbl tr.vinculado td.name { padding-left: 34px; position: relative; }
+.v-competidores .tbl tr.vinculado .vinc { position: absolute; left: 14px; color: var(--inv-bg); font-weight: 700; }
 .v-competidores .lic-cell { display: inline-flex; gap: 4px; }
 .v-competidores .tabs button .n { color: var(--ink-3); font-weight: 600; }
 .v-competidores .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -456,12 +462,13 @@
       }
       const editar = (i) => editarCompetidor(i, torneos, { inscripciones: inscs });
 
-      function fila(i, conTorneo) {
+      function fila(i, conTorneo, vinculado, conInvitado) {
         const t = torneoDe(i.torneoId);
         const e = D.edad(i.fechaNacimiento);
-        return h('tr', { dataset: { id: i.id } },
+        return h('tr', { class: vinculado ? 'vinculado' : conInvitado ? 'con-invitado' : null, dataset: { id: i.id } },
           h('td', null, i.nroKarting ? h('span', { class: 'kart-no' }, i.nroKarting) : h('span', { class: 'muted' }, '—')),
-          h('td', { class: 'name' }, h('button', { type: 'button', title: 'Ver ficha completa', onclick: () => verFicha(i, torneos, { inscripciones: inscs }) },
+          h('td', { class: 'name' }, vinculado ? h('span', { class: 'vinc', 'aria-hidden': 'true' }, '↳') : null,
+            h('button', { type: 'button', title: 'Ver ficha completa', onclick: () => verFicha(i, torneos, { inscripciones: inscs }) },
             h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : ''),
             i.invitado ? [' ', h('span', { class: 'pill pill-inv', title: i.invitadoDe ? 'Corre con el kart de ' + nombreDe(i.invitadoDe, { inscripciones: inscs }) : 'Invitado' }, 'Invitado')] : null),
           h('td', { class: 'tnum' }, i.dni || '—'),
@@ -498,7 +505,16 @@
         }
         const lista = alcance();
         const terms = App.fmt.norm(st.q).trim().split(/\s+/).filter(Boolean);
-        const filas = lista.filter(i => (st.cat === '*' || (st.cat === '__inv' ? i.invitado : cats(i).includes(st.cat))) && coincide(i, terms));
+        const visibles = lista.filter(i => (st.cat === '*' || (st.cat === '__inv' ? i.invitado : cats(i).includes(st.cat))) && coincide(i, terms));
+        /* Cada invitado va justo debajo del competidor que lo anotó (vinculados); si ese competidor no está en la lista, va en su lugar */
+        const ids = new Set(visibles.map(i => i.id));
+        const filas = [];
+        visibles.forEach(i => {
+          if (i.invitadoDe && ids.has(i.invitadoDe)) return;
+          const suyos = visibles.filter(x => x.invitadoDe === i.id);
+          filas.push({ i, vinculado: false, conInvitado: suyos.length > 0 });
+          suyos.forEach(x => filas.push({ i: x, vinculado: true }));
+        });
         if (!filas.length) {
           if (terms.length) {
             tablaBox.replaceChildren(h('div', { class: 'empty' },
@@ -521,7 +537,7 @@
               conTorneo ? h('th', null, 'Torneo') : null,
               h('th', null, 'Categorías'), h('th', null, 'Localidad'), h('th', null, 'Teléfono'), h('th', { class: 'center' }, 'Grupo'),
               h('th', null, 'Emergencia'), h('th', null, 'Licencias'), h('th', null, h('span', { class: 'sr' }, 'Acciones')))),
-            h('tbody', null, filas.map(i => fila(i, conTorneo))))));
+            h('tbody', null, filas.map(f => fila(f.i, conTorneo, f.vinculado, f.conInvitado))))));
       }
 
       function draw() {
