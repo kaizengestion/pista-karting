@@ -44,7 +44,7 @@
 .ta-editor input, .ta-editor select { min-height: 38px; padding: 6px 8px; font-size: .92rem; }
 .ta-editor .c-pos { width: 56px; } .ta-editor .c-kart { width: 64px; } .ta-editor .c-pts { width: 70px; }
 .ta-editor .c-nom { min-width: 150px; } .ta-editor .c-ins { min-width: 170px; }
-.ta-editor tr.sin-asignar select { border-color: var(--warn); }
+.ta-editor tr.sin-asignar select { border-color: var(--danger); outline: 1px solid var(--danger); }
 .ta-editor .ta-ed-wrap { overflow-x: auto; }
 .ta-progreso { display: flex; flex-direction: column; gap: 10px; }
 .ta-progreso .barra { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
@@ -71,34 +71,39 @@
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
-  /* Asignación de una fila leída a un inscripto. Tiene que coincidir el apellido (se tolera una letra mal leída);
-     el número de kart y el nombre sirven para desempatar. Fuera de la categoría, además tiene que coincidir el kart. */
+  /* Asignación de la planilla: todos los que aparecen en la foto están inscriptos (si no, no corren).
+     Cada fila se asigna al inscripto más parecido (apellido, nombre y kart), sin repetir, empezando por los pares más seguros. */
   function distancia(a, b) {
-    if (Math.abs(a.length - b.length) > 1) return 2;
     const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
     for (let j = 1; j <= b.length; j++) d[0][j] = j;
     for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
       d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
     return d[a.length][b.length];
   }
-  const palabras = (t) => norm(t).split(' ').filter(w => w.length > 2);
-  const parecidas = (x, y) => x === y || (x.length >= 4 && y.length >= 4 && distancia(x, y) <= 1);
-  const coincide = (leido, texto) => palabras(leido).some(w => palabras(texto).some(x => parecidas(w, x)));
+  const palabras = (t) => norm(t).split(' ').filter(w => w.length > 1);
+  const parecido = (x, y) => (!x || !y) ? 0 : 1 - distancia(x, y) / Math.max(x.length, y.length);
+  const mejorParecido = (ws, texto) => { const ys = palabras(texto); let m = 0; ws.forEach(w => ys.forEach(y => { m = Math.max(m, parecido(w, y)); })); return m; };
   const mismoKart = (fila, i) => { const k = String(fila.kart || '').replace(/^0+/, ''); return !!k && String(i.nroKarting || '').replace(/^0+/, '') === k; };
-  /* En la planilla el nombre viene "Apellido Nombre": la primera palabra es el apellido y el resto, el nombre */
-  function asignar(fila, enCat, todos, usados) {
+  /* En la planilla el nombre viene "Apellido Nombre" */
+  function puntaje(fila, i) {
     const ws = palabras(fila.nombre);
-    const ape = ws[0] || '', resto = ws.slice(1).join(' ');
-    const apellidoOk = (i) => !!ape && palabras(i.apellido).some(x => parecidas(ape, x));
-    const nombreOk = (i) => !!resto && coincide(resto, i.nombre);
-    const libres = (xs) => xs.filter(i => !usados.has(i.id));
-    // Mismo apellido y, además, mismo kart o mismo nombre (dos hermanos o dos pilotos con igual apellido no se confunden)
-    const enCategoria = libres(enCat).filter(i => apellidoOk(i) && (mismoKart(fila, i) || nombreOk(i)));
-    if (enCategoria.length) return enCategoria.find(i => mismoKart(fila, i) && nombreOk(i)) || enCategoria[0];
-    // Sin nombre legible: solo el kart dentro de la categoría
-    if (!ape) { const k = libres(enCat).filter(i => mismoKart(fila, i)); if (k.length === 1) return k[0]; }
-    // Fuera de la categoría: apellido, kart y nombre tienen que coincidir
-    return libres(todos).find(i => apellidoOk(i) && mismoKart(fila, i) && nombreOk(i)) || null;
+    const ape = mejorParecido(ws.slice(0, 1), i.apellido);
+    const nom = mejorParecido(ws.slice(1), i.nombre);
+    return ape * 2 + nom + (mismoKart(fila, i) ? 1.5 : 0);
+  }
+  function asignarTodas(filas, enCat, otros) {
+    const res = filas.map(() => null);
+    const usados = new Set();
+    function ronda(cands, minimo) {
+      const pares = [];
+      filas.forEach((f, k) => { if (res[k]) return; cands.forEach(i => { if (!usados.has(i.id)) pares.push({ k, i, p: puntaje(f, i) }); }); });
+      pares.sort((a, b) => b.p - a.p);
+      pares.forEach(({ k, i, p }) => { if (p >= minimo && !res[k] && !usados.has(i.id)) { res[k] = i; usados.add(i.id); } });
+    }
+    ronda(enCat, 1.2);   // coincidencia clara dentro de la categoría
+    ronda(enCat, 0.3);   // el resto, al más parecido de la categoría
+    ronda(otros, 2.2);   // si sobran filas: alguien de otra categoría que coincida bien
+    return res;
   }
 
   App.view('torneo-actual', {
@@ -249,7 +254,7 @@
               return h('tr', null,
                 h('td', { class: 'center pos' }, r.posicion == null ? '—' : String(r.posicion)),
                 h('td', null, h('span', { class: 'kart-no' }, r.kart || (i && i.nroKarting) || '—')),
-                h('td', null, i ? [App.fmt.nombre(i), i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null] : [r.nombre || 'Sin nombre', ' ', h('span', { class: 'pill pill-warn' }, 'No inscripto')]),
+                h('td', null, i ? [App.fmt.nombre(i), i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null] : (r.nombre || 'Sin nombre')),
                 h('td', { class: 'pts' }, r.puntos == null ? '—' : String(r.puntos)));
             })))),
           acts);
@@ -292,12 +297,8 @@
         const candidatos = delTorneo().slice().sort((a, b) => (catsDe(b).includes(cat) - catsDe(a).includes(cat)) || App.fmt.nombre(a).localeCompare(App.fmt.nombre(b), 'es'));
         let filas;
         if (lectura) {
-          const usados = new Set();
-          filas = lectura.filas.map(f => {
-            const i = asignar(f, candidatos.filter(c => catsDe(c).includes(cat)), candidatos, usados);
-            if (i) usados.add(i.id);
-            return Object.assign({}, f, { inscId: i ? i.id : null });
-          });
+          const asignados = asignarTodas(lectura.filas, candidatos.filter(c => catsDe(c).includes(cat)), candidatos.filter(c => !catsDe(c).includes(cat)));
+          filas = lectura.filas.map((f, k) => Object.assign({}, f, { inscId: asignados[k] ? asignados[k].id : null }));
         } else {
           filas = (filasGuardadas || []).map(f => Object.assign({}, f));
         }
@@ -308,7 +309,7 @@
         const enCat = candidatos.filter(c => catsDe(c).includes(cat)), otros = candidatos.filter(c => !catsDe(c).includes(cat));
         const etiqueta = (c) => (c.nroKarting ? '#' + c.nroKarting + ' · ' : '') + App.fmt.nombre(c) + (c.invitado ? ' (invitado)' : '');
         function opcionesInsc(sel) {
-          const s = h('select', { 'aria-label': 'Competidor' }, h('option', { value: '' }, '— No inscripto —'),
+          const s = h('select', { 'aria-label': 'Competidor' }, h('option', { value: '' }, '— Elegí el competidor —'),
             enCat.length ? h('optgroup', { label: cat }, enCat.map(c => h('option', { value: c.id }, etiqueta(c)))) : null,
             otros.length ? h('optgroup', { label: 'Otras categorías' }, otros.map(c => h('option', { value: c.id }, etiqueta(c)))) : null);
           s.value = sel || '';
@@ -336,7 +337,7 @@
         const distinta = tituloLeido && !norm(tituloLeido).split(' ').some(w => w.length > 3 && norm(cat).includes(w));
         const info = h('div', { class: 'ta-ed-info' },
           lectura ? h('span', null, 'Se leyeron ', h('strong', null, pl(lectura.filas.length, 'fila', 'filas')), ' y se asignaron ', h('strong', null, String(asignadas)), ' a competidores inscriptos.') : null,
-          lectura ? h('span', null, 'Revisá los puestos, los nombres y los puntos antes de guardar. Las filas marcadas en amarillo no tienen competidor asignado: se guardan con el nombre de la foto.') : h('span', null, 'Completá o corregí los resultados.'),
+          lectura ? h('span', null, 'Revisá que cada fila tenga el competidor correcto y los puntos antes de guardar. Si alguna quedó marcada, elegí el competidor de la lista.') : h('span', null, 'Completá o corregí los resultados.'),
           distinta ? h('span', { class: 'pill pill-warn' }, 'La foto dice «' + tituloLeido + '» y estás cargando ' + cat) : null);
 
         const cont = h('div', { class: 'ta-editor' },
@@ -358,6 +359,8 @@
                 posicion: r.pos.value === '' ? null : +r.pos.value, kart: r.kart.value.trim(), nombre: r.nom.value.trim(),
                 inscId: r.ins.value || null, puntos: r.pts.value === '' ? null : +r.pts.value,
               })).filter(f => f.nombre || f.inscId || f.puntos != null);
+              const sinAsignar = filasUI.filter(r => !r.ins.value && (r.nom.value.trim() || r.pts.value !== ''));
+              if (sinAsignar.length) { App.toast('Elegí el competidor de ' + pl(sinAsignar.length, 'la fila marcada', 'las filas marcadas') + ' antes de guardar.', 'error'); sinAsignar[0].ins.focus(); return; }
               const ids = datos.map(f => f.inscId).filter(Boolean);
               if (new Set(ids).size !== ids.length) { App.toast('Hay un competidor asignado a dos filas. Revisalo antes de guardar.', 'error'); return; }
               guardando = true;

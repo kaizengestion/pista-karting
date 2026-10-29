@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const DEMO_KEY = 'pista-karting-demo-v6'; // v6: resultados por puntos (foto por categoría)
+  const DEMO_KEY = 'pista-karting-demo-v7'; // v7: Escuela de la Fecha 7 con los pilotos de la foto de ejemplo
   const INIT_TIMEOUT_MS = 4000;
   const MB = 1024 * 1024;
   const MAX_IMG_SIN_REDUCIR = 2.5 * MB;
