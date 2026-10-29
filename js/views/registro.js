@@ -126,6 +126,7 @@
   };
 
   const CSS_EXTRA = `
+.v-registro .reg-logo { display: block; width: min(320px, 80%); height: auto; margin: 0 auto 8px; }
 .v-registro select { min-height: 50px; font-size: 1rem; padding: 12px 14px; }
 .v-registro input[type="date"] { min-height: 50px; font-size: 1rem; padding: 10px 14px; }
 .v-registro .opc { color: var(--ink-3); font-weight: 400; }
@@ -243,6 +244,8 @@
         head.hidden = false;
         const fs = App.fmt.fechasDe(t);
         head.replaceChildren(
+          // El competidor ve el logo grande arriba del formulario
+          App.vistaCompetidor ? h('img', { class: 'reg-logo', src: 'img/logo-rgk-400.png?v=11', alt: 'RGK Santafesino', width: '562', height: '400' }) : null,
           h('div', { class: 'row', style: { gap: '8px' } },
             h('span', { class: 'eyebrow' }, 'Inscripciones abiertas'),
             t.estado === 'actual' ? h('span', { class: 'pill pill-live' }, 'En curso') : null),
