@@ -172,15 +172,15 @@
     App.mode = info.mode;
     if (info.mode === 'demo') {
       document.getElementById('demo-banner-text').textContent = window.PK_FORZAR_DEMO
-        ? 'Versión de prueba. Los datos son de ejemplo y se guardan en este dispositivo: probá todo lo que quieras.'
+        ? 'Versión de prueba. Lo que cargues se guarda solo en este dispositivo y navegador.'
         : 'Modo demostración: los datos son de ejemplo y se guardan solo en este navegador.';
       const wrap = document.querySelector('#demo-banner .wrap');
       wrap.appendChild(h('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
-        const ok = await confirmDialog({ title: 'Volver a los datos de ejemplo', body: 'Se borran los cambios que hiciste en este dispositivo y se cargan otra vez los datos de ejemplo.', okLabel: 'Reiniciar', danger: true });
+        const ok = await confirmDialog({ title: 'Borrar todo', body: 'Se borran todos los torneos, competidores y resultados que cargaste en este dispositivo, y la página queda vacía para empezar de cero.', okLabel: 'Borrar todo', danger: true });
         if (!ok) return;
-        try { localStorage.removeItem('pista-karting-demo-v1'); localStorage.removeItem('pista-karting-demo-v2'); localStorage.removeItem('pista-karting-demo-v3'); localStorage.removeItem('pista-karting-demo-v4'); localStorage.removeItem('pista-karting-demo-v5'); localStorage.removeItem('pista-karting-demo-v6'); localStorage.removeItem('pista-karting-demo-v7'); localStorage.removeItem('pista-karting-demo-v8'); localStorage.removeItem('pista-karting-demo-v9'); localStorage.removeItem('pista-karting-demo-archivos'); } catch (e) {}
+        try { localStorage.removeItem('pista-karting-demo-v1'); localStorage.removeItem('pista-karting-demo-v2'); localStorage.removeItem('pista-karting-demo-v3'); localStorage.removeItem('pista-karting-demo-v4'); localStorage.removeItem('pista-karting-demo-v5'); localStorage.removeItem('pista-karting-demo-v6'); localStorage.removeItem('pista-karting-demo-v7'); localStorage.removeItem('pista-karting-demo-v8'); localStorage.removeItem('pista-karting-demo-v9'); localStorage.removeItem('pista-karting-demo-v10'); localStorage.removeItem('pista-karting-demo-archivos'); } catch (e) {}
         location.hash = 'inicio'; location.reload();
-      } }, 'Reiniciar prueba'));
+      } }, 'Borrar todo y empezar de cero'));
     }
     window.addEventListener('hashchange', render);
     render();

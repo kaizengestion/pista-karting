@@ -446,8 +446,8 @@
           type: 'button', role: 'tab', 'aria-selected': String(st.cat === val),
           onclick: () => { st.cat = val; dibujarTabs(alcance()); dibujarTabla(); },
         }, txt + ' ', h('span', { class: 'n tnum' }, '(' + n + ')'));
-        tabs.replaceChildren(mk('*', 'Todas', lista.length), nInv ? mk('__inv', 'Invitados', nInv) : null,
-          ...cs.map(c => mk(c, c, lista.filter(i => cats(i).includes(c)).length)));
+        tabs.replaceChildren(...[mk('*', 'Todas', lista.length), nInv ? mk('__inv', 'Invitados', nInv) : null,
+          ...cs.map(c => mk(c, c, lista.filter(i => cats(i).includes(c)).length))].filter(Boolean));
       }
 
       async function borrar(i) {

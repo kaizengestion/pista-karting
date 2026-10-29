@@ -128,7 +128,7 @@
             h('span', null, 'Creá el próximo torneo con sus fechas y categorías para que los competidores se puedan anotar.'),
             h('button', { type: 'button', class: 'btn btn-primary', onclick: () => editor(null) }, 'Nuevo torneo'));
 
-        root.replaceChildren(head, live, body);
+        root.replaceChildren(...[head, live, body].filter(Boolean));
       }
 
       function card(t) {

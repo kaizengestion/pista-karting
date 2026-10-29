@@ -249,7 +249,7 @@
         }
         head.hidden = false;
         const fs = App.fmt.fechasDe(t);
-        head.replaceChildren(
+        head.replaceChildren(...[
           // El competidor ve el logo grande arriba del formulario
           App.vistaCompetidor ? h('img', { class: 'reg-logo', src: 'img/logo-rgk-400.png?v=11', alt: 'RGK Santafesino', width: '562', height: '400' }) : null,
           h('div', { class: 'row', style: { gap: '8px' } },
@@ -260,7 +260,7 @@
             fs.length ? h('span', null, icon(ICONS.calendario), capital(D.dias(fs)) + ' de ' + fs[0].slice(0, 4)) : null,
             t.lugar ? h('span', null, icon(ICONS.lugar), t.lugar) : null,
             t.sentido ? h('span', { class: 'pill pill-sentido' }, (t.sentido === 'antihorario' ? '↪ ' : '↩ ') + 'Sentido ' + t.sentido) : null),
-          t.notas ? h('p', { class: 'reg-notas' }, t.notas) : null);
+          t.notas ? h('p', { class: 'reg-notas' }, t.notas) : null].filter(Boolean));
       }
 
       /* ---------- Decidir qué pantalla mostrar ---------- */

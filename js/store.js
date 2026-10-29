@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const DEMO_KEY = 'pista-karting-demo-v9'; // v9: la fecha 1 del torneo en curso recién terminó (foto de Escuela cargada)
+  const DEMO_KEY = 'pista-karting-demo-v10'; // v10: arranca vacía, para que el cliente la pruebe con sus datos
   const INIT_TIMEOUT_MS = 4000;
   const MB = 1024 * 1024;
   const MAX_IMG_SIN_REDUCIR = 2.5 * MB;

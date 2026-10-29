@@ -360,7 +360,7 @@
                 inscId: r.ins.value || null, puntos: r.pts.value === '' ? null : +r.pts.value,
               })).filter(f => f.nombre || f.inscId || f.puntos != null);
               const sinAsignar = filasUI.filter(r => !r.ins.value && (r.nom.value.trim() || r.pts.value !== ''));
-              if (sinAsignar.length) { App.toast('Elegí el competidor de ' + pl(sinAsignar.length, 'la fila marcada', 'las filas marcadas') + ' antes de guardar.', 'error'); sinAsignar[0].ins.focus(); return; }
+              if (sinAsignar.length) { App.toast(sinAsignar.length === 1 ? 'Elegí el competidor de la fila marcada antes de guardar.' : 'Elegí el competidor de las ' + sinAsignar.length + ' filas marcadas antes de guardar.', 'error'); sinAsignar[0].ins.focus(); return; }
               const ids = datos.map(f => f.inscId).filter(Boolean);
               if (new Set(ids).size !== ids.length) { App.toast('Hay un competidor asignado a dos filas. Revisalo antes de guardar.', 'error'); return; }
               guardando = true;
