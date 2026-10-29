@@ -444,34 +444,14 @@
       }
       const editar = (i) => editarCompetidor(i, torneos, { inscripciones: inscs });
 
-      async function cambiarInvitado(i, btn) {
-        const nuevo = !i.invitado;
-        btn.disabled = true;
-        try {
-          await S().actualizarInscripcion(i.id, { invitado: nuevo });
-          i.invitado = nuevo;
-          App.toast(App.fmt.nombre(i) + (nuevo ? ' ahora es invitado' : ' ya no es invitado'), 'ok');
-        } catch (e) {
-          App.toast('No se pudo cambiar: ' + errMsg(e), 'error');
-        } finally {
-          btn.disabled = false;
-        }
-      }
-
       function fila(i, conTorneo) {
         const t = torneoDe(i.torneoId);
         const e = D.edad(i.fechaNacimiento);
-        const inv = h('button', {
-          type: 'button', class: 'pill pill-btn' + (i.invitado ? ' pill-inv' : ''), 'aria-pressed': String(!!i.invitado),
-          title: i.invitado ? 'Tocá para marcarlo como piloto común' : 'Tocá para marcarlo como invitado',
-          onclick: () => cambiarInvitado(i, inv),
-        }, i.invitado ? 'Invitado' : 'No');
         return h('tr', { dataset: { id: i.id } },
           h('td', null, i.nroKarting ? h('span', { class: 'kart-no' }, i.nroKarting) : h('span', { class: 'muted' }, '—')),
           h('td', { class: 'name' }, h('button', { type: 'button', title: 'Ver ficha completa', onclick: () => verFicha(i, torneos, { inscripciones: inscs }) },
             h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : ''),
             i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
-          h('td', { class: 'center' }, inv),
           h('td', { class: 'tnum' }, i.dni || '—'),
           h('td', { class: 'tnum center' }, e != null ? String(e) : '—'),
           conTorneo ? h('td', { class: 'muted small' }, t ? t.nombre : '—') : null,
@@ -525,7 +505,7 @@
         tablaBox.replaceChildren(h('div', { class: 'table-wrap' },
           h('table', { class: 'tbl' },
             h('thead', null, h('tr', null,
-              h('th', null, 'Kart'), h('th', null, 'Apellido y nombre'), h('th', { class: 'center' }, 'Invitado'), h('th', null, 'DNI'), h('th', { class: 'center' }, 'Edad'),
+              h('th', null, 'Kart'), h('th', null, 'Apellido y nombre'), h('th', null, 'DNI'), h('th', { class: 'center' }, 'Edad'),
               conTorneo ? h('th', null, 'Torneo') : null,
               h('th', null, 'Categorías'), h('th', null, 'Localidad'), h('th', null, 'Teléfono'), h('th', { class: 'center' }, 'Grupo'),
               h('th', null, 'Emergencia'), h('th', null, 'Licencias'), h('th', null, h('span', { class: 'sr' }, 'Acciones')))),
