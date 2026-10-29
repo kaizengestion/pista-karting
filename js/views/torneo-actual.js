@@ -378,7 +378,7 @@
           h('div', { class: 'ta-stat' }, h('b', null, String(s.conOk), h('small', null, ' / ' + s.n)), h('span', null, 'Con Ok' + deFecha())));
       }
       function deFecha() {
-        return torneo && App.fmt.fechasDe(torneo).length > 1 ? ' · fecha ' + (nFecha || 1) : '';
+        return torneo && App.fmt.fechasDe(torneo).length > 1 ? ' · Fecha ' + (nFecha || 1) : '';
       }
 
       function posText(p) { return p == null ? '—' : String(p); }
@@ -465,7 +465,7 @@
           posTd,
           h('td', { class: 'kart' }, h('span', { class: 'kart-no' }, i.nroKarting || '—')),
           h('td', null, h('div', { class: 'ta-comp' }, nombre, i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
-            h('span', { class: 'ta-dni' }, (i.dni ? 'DNI ' + i.dni : 'Sin DNI') + (catsDe(i).length > 1 ? ' · también corre en ' + catsDe(i).filter(x => x !== c.nombre).join(', ') : ''))),
+            h('span', { class: 'ta-dni' }, (i.dni ? 'DNI ' + i.dni : 'Sin DNI') + (catsDe(i).length > 1 ? ' · También corre en ' + catsDe(i).filter(x => x !== c.nombre).join(', ') : ''))),
           h('td', null, h('div', { class: 't-cell' }, input, best)),
           h('td', { class: 'center ok' }, chk));
         rowRefs.set(f.inscId, { tr, pos, posTd, input, chk, best });
@@ -571,7 +571,7 @@
         if (sinOk > 0) avisos.push(pl(sinOk, 'competidor', 'competidores') + ' sin Ok.');
         const body = h('div', { class: 'v-torneo-actual-confirm stack' },
           nf > 1
-            ? h('p', null, 'Se guardarán las planillas de las ' + nf + ' fechas. En la fecha ' + nFecha + ' hay ' + pl(s.n, 'competidor', 'competidores') + ' y ' + pl(s.conT, 'tiempo', 'tiempos') + '.')
+            ? h('p', null, 'Se guardarán las planillas de las ' + nf + ' fechas. En la Fecha ' + nFecha + ' hay ' + pl(s.n, 'competidor', 'competidores') + ' y ' + pl(s.conT, 'tiempo', 'tiempos') + '.')
             : h('p', null, 'Se guardará la planilla con ' + pl(s.n, 'competidor', 'competidores') + ' y ' + pl(s.conT, 'tiempo', 'tiempos') + '.'),
           avisos.length ? h('ul', null, avisos.map(x => h('li', { class: 'ta-c-warn' }, x))) : h('p', { class: 'muted' }, 'Están todos los tiempos cargados y con Ok.'),
           h('p', { class: 'muted small' }, 'El torneo pasa a Torneos pasados con la planilla congelada.'));

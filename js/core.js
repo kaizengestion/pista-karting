@@ -94,7 +94,8 @@
       if (!iso) return '—';
       const d = new Date(iso.length === 10 ? iso + 'T12:00:00' : iso);
       if (isNaN(d)) return iso;
-      return d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const t = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      return t.charAt(0).toUpperCase() + t.slice(1);   // "Sábado, 24 de octubre de 2026"
     },
     tiempo(ms) {
       if (ms == null || ms === '' || isNaN(ms)) return '';
@@ -171,7 +172,7 @@
     App.mode = info.mode;
     if (info.mode === 'demo') {
       document.getElementById('demo-banner-text').textContent = window.PK_FORZAR_DEMO
-        ? 'Versión de prueba: los datos son de ejemplo y se guardan en este dispositivo. Probá todo lo que quieras.'
+        ? 'Versión de prueba. Los datos son de ejemplo y se guardan en este dispositivo: probá todo lo que quieras.'
         : 'Modo demostración: los datos son de ejemplo y se guardan solo en este navegador.';
       const wrap = document.querySelector('#demo-banner .wrap');
       wrap.appendChild(h('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {

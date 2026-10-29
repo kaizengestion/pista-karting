@@ -173,8 +173,8 @@
   const CAMPOS_SALUD = [
     { key: 'obraSocial', label: '¿Tenés obra social o prepaga?', opcional: true, full: true, autocapitalize: 'characters',
       hint: 'Si tenés, indicá cuál y tu número de afiliado. Ej.: OSDE – Afiliado N.º 123456789.' },
-    { key: 'emergenciaNombre', label: 'Contacto de emergencia: nombre y apellido', full: true, autocapitalize: 'words', msg: 'Completá el nombre del contacto de emergencia.' },
-    { key: 'emergenciaTelefono', label: 'Contacto de emergencia: teléfono', type: 'tel', msg: 'Completá el teléfono del contacto de emergencia.' },
+    { key: 'emergenciaNombre', label: 'Nombre y apellido del contacto de emergencia', full: true, autocapitalize: 'words', msg: 'Completá el nombre del contacto de emergencia.' },
+    { key: 'emergenciaTelefono', label: 'Teléfono del contacto de emergencia', type: 'tel', msg: 'Completá el teléfono del contacto de emergencia.' },
   ];
   const TODOS = CAMPOS.concat(CAMPOS_KART, CAMPOS_SALUD);
   const LICENCIAS = [
@@ -703,7 +703,7 @@
           seccion(3, 'Salud y emergencia',
             h('div', { class: 'form-grid' }, CAMPOS_SALUD.map(campo))),
           seccion(4, 'Licencias',
-            h('p', { class: 'hint' }, 'Opcional: si las tenés a mano, subí una foto o un PDF. Si no, podés seguir con la inscripción igual.'),
+            h('p', { class: 'hint' }, 'Son opcionales. Si las tenés a mano, subí una foto o un PDF; si no, podés seguir con la inscripción igual.'),
             h('div', { class: 'lic-grid' }, LICENCIAS.map(cajaLicencia))),
           seccion(5, 'Confirmación final',
             h('div', { class: 'reg-decl' },

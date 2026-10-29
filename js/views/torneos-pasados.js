@@ -202,7 +202,7 @@
               h('div', { class: 'pp-sub' },
                 h('span', null, App.fmt.fechasTexto(t) + (t.lugar ? ' · ' + t.lugar : '')),
                 h('span', { class: 'pill' }, pl(pilotos, 'piloto', 'pilotos')),
-                ns.length > 1 ? h('span', { class: 'pill' }, pl(ns.length, 'fecha', 'fechas') + ' · podio de la fecha ' + ultima) : null)),
+                ns.length > 1 ? h('span', { class: 'pill' }, pl(ns.length, 'fecha', 'fechas') + ' · Podio de la Fecha ' + ultima) : null)),
             cats.length ? h('div', { class: 'pp-podios' }, cats.map(c => {
               const conT = c.filas.filter(x => x.posicion != null);
               const p1 = conT[0];
