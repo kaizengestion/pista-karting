@@ -126,6 +126,8 @@
 .v-registro .reg-logo { display: block; width: min(320px, 80%); height: auto; margin: 0 auto 8px; }
 .v-registro select { min-height: 50px; font-size: 1rem; padding: 12px 14px; }
 .v-registro .reg-edad { color: var(--ink-2); }
+.v-registro .inv-box { display: flex; flex-direction: column; gap: 16px; border-left: 4px solid var(--inv-bg); padding: 4px 0 4px 14px; }
+.v-registro .inv-toggle input:checked + span { color: var(--inv-bg); }
 .v-registro .opc { color: var(--ink-3); font-weight: 400; }
 .v-registro .cat-multi { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
 .v-registro .cat-multi .cat-opt { min-height: 52px; padding: 10px 12px; }
@@ -168,6 +170,19 @@
     { key: 'emergenciaTelefono', label: 'Teléfono del contacto de emergencia', type: 'tel', msg: 'Completá el teléfono del contacto de emergencia.' },
   ];
   const TODOS = CAMPOS.concat(CAMPOS_KART, CAMPOS_SALUD);
+  /* Invitado que corre con el kart del competidor: sus datos personales, salud y emergencia (el kart es el mismo) */
+  const CAMPOS_INV = [
+    { key: 'inv_nombre', label: 'Nombre', autocapitalize: 'words', msg: 'Completá el nombre del invitado.' },
+    { key: 'inv_apellido', label: 'Apellido', autocapitalize: 'words', msg: 'Completá el apellido del invitado.' },
+    { key: 'inv_dni', label: 'DNI', inputmode: 'numeric', maxlength: 8, digits: true, msg: 'Completá el DNI del invitado.' },
+    { key: 'inv_fechaNacimiento', label: 'Fecha de nacimiento', type: 'fecha', msg: 'Completá la fecha de nacimiento del invitado.' },
+    { key: 'inv_telefono', label: 'Teléfono', type: 'tel', msg: 'Completá el teléfono del invitado.' },
+    { key: 'inv_localidad', label: 'Localidad', autocapitalize: 'words', msg: 'Completá la localidad del invitado.' },
+    { key: 'inv_grupoSanguineo', label: 'Grupo sanguíneo', type: 'select', opciones: D.GRUPOS, vacio: 'Elegí uno', msg: 'Elegí el grupo sanguíneo del invitado.' },
+    { key: 'inv_obraSocial', label: 'Obra social o prepaga', opcional: true, autocapitalize: 'characters' },
+    { key: 'inv_emergenciaNombre', label: 'Nombre y apellido del contacto de emergencia', full: true, autocapitalize: 'words', msg: 'Completá el contacto de emergencia del invitado.' },
+    { key: 'inv_emergenciaTelefono', label: 'Teléfono del contacto de emergencia', type: 'tel', msg: 'Completá el teléfono de emergencia del invitado.' },
+  ];
   const LICENCIAS = [
     { key: 'licenciaDeportiva', titulo: 'Licencia deportiva' },
     { key: 'licenciaMedica', titulo: 'Licencia médica' },
@@ -213,7 +228,8 @@
         subiendo: {},          // clave -> nombre del archivo que se está subiendo
         categorias: [],        // una o más
         catSig: '',
-        tipo: 'piloto',        // piloto | invitado (el organizador lo ve marcado en Competidores)
+        conInvitado: false,    // el competidor suma un invitado que corre con su kart
+        invCategorias: [],
       };
 
       const root = h('div', { class: 'v-registro' });
@@ -350,10 +366,12 @@
           h('p', { class: 'muted' }, 'Nos vemos en pista. 🏁'),
           h('dl', { class: 'reg-dl' },
             h('dt', null, 'Competidor'),
-            h('dd', null, [d.nombre, d.apellido].filter(Boolean).join(' '), d.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
+            h('dd', null, [d.nombre, d.apellido].filter(Boolean).join(' ')),
             h('dt', null, 'Torneo'), h('dd', null, st.torneo ? st.torneo.nombre : '—'),
             h('dt', null, 'Categorías'), h('dd', null, listaCats(d)),
-            h('dt', null, 'Kart nº'), h('dd', null, d.nroKarting ? h('span', { class: 'kart-no' }, d.nroKarting) : '—')),
+            h('dt', null, 'Kart nº'), h('dd', null, d.nroKarting ? h('span', { class: 'kart-no' }, d.nroKarting) : '—'),
+            d.invitadoNuevo ? [h('dt', null, 'Invitado'), h('dd', null, [d.invitadoNuevo.nombre, d.invitadoNuevo.apellido].filter(Boolean).join(' '), ' ',
+              h('span', { class: 'pill pill-inv' }, 'Invitado'), ' · ', listaCats(d.invitadoNuevo))] : null),
           faltan.length ? h('div', { class: 'aut-warn' }, icon(ICONS.alerta),
             h('span', null, 'No subiste la ' + faltan.join(' ni la ') + '. Podés subirla más tarde o presentarla en la acreditación.')) : null,
           App.isAdmin
@@ -368,7 +386,7 @@
 
       function nuevoForm() {
         st.dirty = false; st.editando = false; st.intentado = false; st.archivos = {}; st.subiendo = {};
-        st.categorias = []; st.catSig = ''; st.tipo = 'piloto';
+        st.categorias = []; st.catSig = ''; st.conInvitado = false; st.invCategorias = [];
         show('form');
         window.scrollTo(0, 0);
         const f = body.querySelector('#reg-nombre'); f && f.focus();
@@ -376,7 +394,7 @@
 
       /* ---------- Formulario ---------- */
       const refs = {};   // key -> { input, err, wrap, def }
-      let catList, catErr, catFieldset, closedEl, submitBtn, formEl, declTexto, declChk, declErr;
+      let catList, catErr, catFieldset, closedEl, submitBtn, formEl, declTexto, declChk, declErr, invCatList, invCatErr;
       const licBoxes = {};
 
       function campo(c) {
@@ -434,9 +452,10 @@
       }
 
       function setErr(key, msg) {
-        if (key === 'categoria') {
-          catErr.textContent = msg || ''; catErr.hidden = !msg;
-          catList.classList.toggle('invalid', !!msg);
+        if (key === 'categoria' || key === 'inv_categoria') {
+          const [lista, err] = key === 'categoria' ? [catList, catErr] : [invCatList, invCatErr];
+          err.textContent = msg || ''; err.hidden = !msg;
+          lista.classList.toggle('invalid', !!msg);
           return;
         }
         if (key === 'declaracion') {
@@ -455,14 +474,15 @@
           const cats = (st.torneo && st.torneo.categorias) || [];
           return cats.length && !st.categorias.length ? 'Marcá al menos una categoría.' : '';
         }
+        if (key === 'inv_categoria') return st.invCategorias.length ? '' : 'Marcá al menos una categoría para el invitado.';
         if (key === 'declaracion') return declChk.checked ? '' : 'Para inscribirte tenés que confirmar la declaración.';
         const r = refs[key];
         const v = r.input.value.trim();
         if (!v) return r.def.opcional ? '' : r.def.msg;
-        if ((key === 'dni' || key === 'dni2') && !/^\d{7,8}$/.test(v)) return 'El DNI tiene que tener 7 u 8 números, sin puntos ni espacios.';
-        if (key === 'dni2' && refs.dni && v === refs.dni.input.value.trim()) return 'El DNI del piloto 2 no puede ser igual al del piloto 1.';
+        if ((key === 'dni' || key === 'inv_dni') && !/^\d{7,8}$/.test(v)) return 'El DNI tiene que tener 7 u 8 números, sin puntos ni espacios.';
+        if (key === 'inv_dni' && refs.dni && v === refs.dni.input.value.trim()) return 'El DNI del invitado no puede ser igual al tuyo.';
         if (key === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return 'Revisá el email: tiene que ser del estilo nombre@dominio.com.';
-        if ((key === 'telefono' || key === 'emergenciaTelefono') && v.replace(/\D/g, '').length < 6) return 'Revisá el teléfono: parece incompleto.';
+        if (/[tT]elefono$/.test(key) && v.replace(/\D/g, '').length < 6) return 'Revisá el teléfono: parece incompleto.';
         if (r.def.type === 'fecha') {
           const e = D.edad(D.textoAIso(v));
           if (e == null) return 'Revisá la fecha: tiene que ser del estilo 14/05/2001.';
@@ -496,6 +516,25 @@
           return h('label', { class: 'cat-opt' + (sel ? ' is-sel' : ''), for: id }, chk, h('span', null, h('b', null, c.nombre)));
         }));
         if (st.intentado) validarCampo('categoria');
+        pintarCatsInvitado();
+      }
+
+      /* Categorías del invitado (arranca con las mismas que marcó el competidor) */
+      function pintarCatsInvitado() {
+        if (!invCatList) return;
+        const cats = ((st.torneo && st.torneo.categorias) || []).map(c => c.nombre);
+        st.invCategorias = st.invCategorias.filter(n => cats.includes(n));
+        invCatList.replaceChildren(...cats.map((n, i) => {
+          const id = 'reg-inv-categoria-' + i;
+          const chk = h('input', { type: 'checkbox', id, value: n, checked: st.invCategorias.includes(n) });
+          chk.addEventListener('change', () => {
+            st.invCategorias = cats.filter(x => x === n ? chk.checked : st.invCategorias.includes(x));
+            st.dirty = true;
+            chk.closest('.cat-opt').classList.toggle('is-sel', chk.checked);
+            if (st.intentado) validarCampo('inv_categoria');
+          });
+          return h('label', { class: 'cat-opt' + (chk.checked ? ' is-sel' : ''), for: id }, chk, h('span', null, h('b', null, n)));
+        }));
       }
 
       function actualizarCierre() {
@@ -578,7 +617,11 @@
         TODOS.forEach(c => { d[c.key] = valor(c.key); });
         LICENCIAS.forEach(l => { d[l.key] = archivoPlano(st.archivos[l.key]); });
         d.declaracion = { aceptada: true, fecha: new Date().toISOString(), texto: textoDeclaracion(st.torneo) };
-        d.invitado = st.tipo === 'invitado';
+        if (st.conInvitado && !st.editando) {
+          const inv = { categorias: st.invCategorias.slice(), categoria: st.invCategorias[0] || '' };
+          CAMPOS_INV.forEach(c => { inv[c.key.slice(4)] = valor(c.key); });
+          d.invitadoNuevo = inv;
+        }
         return d;
       }
 
@@ -587,10 +630,13 @@
         if (st.enviando) return;
         st.intentado = true;
         let primero = null;
-        const orden = CAMPOS.map(c => c.key).concat(['categoria'], CAMPOS_KART.map(c => c.key), CAMPOS_SALUD.map(c => c.key), ['declaracion']);
+        const conInv = st.conInvitado && !st.editando;
+        const orden = CAMPOS.map(c => c.key).concat(['categoria'], CAMPOS_KART.map(c => c.key), CAMPOS_SALUD.map(c => c.key),
+          conInv ? CAMPOS_INV.map(c => c.key).concat(['inv_categoria']) : [], ['declaracion']);
         orden.forEach(k => { const m = validarCampo(k); if (m && !primero) primero = k; });
         if (primero) {
-          const target = primero === 'categoria' ? catList.querySelector('input') : primero === 'declaracion' ? declChk : refs[primero].input;
+          const target = primero === 'categoria' ? catList.querySelector('input') : primero === 'inv_categoria' ? invCatList.querySelector('input')
+            : primero === 'declaracion' ? declChk : refs[primero].input;
           if (target) { target.focus(); target.scrollIntoView && target.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
           App.toast('Revisá los campos marcados en rojo.', 'error');
           return;
@@ -658,18 +704,25 @@
           'Las inscripciones se cerraron mientras completabas el formulario. Consultá con el organizador.');
         submitBtn = h('button', { type: 'submit', class: 'btn btn-primary btn-lg', id: 'reg-enviar' }, labelSubmit());
 
-        /* Tipo de inscripción: piloto o invitado. El formulario es el mismo; el invitado queda marcado para el organizador. */
-        st.tipo = prefill && prefill.invitado ? 'invitado' : 'piloto';
-        const tipoList = h('div', { class: 'cat-list tipo-list' });
-        const tipoField = h('fieldset', { class: 'field', id: 'reg-tipo' }, h('legend', null, '¿Cómo te anotás?'), tipoList);
-        tipoList.append(...[['piloto', 'Piloto'], ['invitado', 'Invitado']].map(([v, titulo]) => {
-          const radio = h('input', { type: 'radio', name: 'tipo', id: 'reg-tipo-' + v, value: v, checked: st.tipo === v });
-          radio.addEventListener('change', () => {
-            st.tipo = v; st.dirty = true;
-            tipoList.querySelectorAll('.cat-opt').forEach(o => o.classList.toggle('is-sel', o.querySelector('input').checked));
-          });
-          return h('label', { class: 'cat-opt' + (st.tipo === v ? ' is-sel' : ''), for: 'reg-tipo-' + v }, radio, h('span', null, h('b', null, titulo)));
-        }));
+        /* Invitado: el competidor puede sumar un invitado que corre con su mismo kart */
+        st.conInvitado = false;
+        st.invCategorias = [];
+        invCatList = h('div', { class: 'cat-list cat-multi' });
+        invCatErr = h('p', { class: 'error', hidden: true });
+        const invBox = h('div', { class: 'inv-box', hidden: true },
+          h('div', { class: 'form-grid' }, CAMPOS_INV.map(campo)),
+          h('fieldset', { class: 'field full' }, h('legend', null, 'Categorías en las que corre el invitado'), invCatList, invCatErr));
+        const invChk = h('input', { type: 'checkbox', id: 'reg-con-invitado' });
+        invChk.addEventListener('change', () => {
+          st.conInvitado = invChk.checked; st.dirty = true;
+          invBox.hidden = !invChk.checked;
+          if (invChk.checked && !st.invCategorias.length) { st.invCategorias = st.categorias.slice(); pintarCatsInvitado(); }
+          if (invChk.checked) { const f = invBox.querySelector('input'); f && f.focus(); }
+        });
+        const seccionInvitado = st.editando ? null : seccion(5, 'Invitado',
+          h('label', { class: 'reg-decl-chk inv-toggle', for: 'reg-con-invitado' }, invChk,
+            h('span', null, 'Agregar un invitado que corre con mi kart')),
+          invBox);
 
         /* Confirmación final */
         declTexto = h('p', { class: 'reg-decl-txt' }, textoDeclaracion(st.torneo));
@@ -682,7 +735,6 @@
           : null;
 
         formEl = h('form', { novalidate: true, autocomplete: 'on', onsubmit: enviar, 'aria-label': 'Formulario de inscripción' },
-          tipoField,
           seccion(1, 'Tus datos',
             h('div', { class: 'form-grid' }, CAMPOS.map(campo))),
           seccion(2, 'Categorías y kart',
@@ -693,7 +745,8 @@
           seccion(4, 'Licencias',
             h('p', { class: 'hint' }, 'Son opcionales. Si las tenés a mano, subí una foto o un PDF; si no, podés seguir con la inscripción igual.'),
             h('div', { class: 'lic-grid' }, LICENCIAS.map(cajaLicencia))),
-          seccion(5, 'Confirmación final',
+          seccionInvitado,
+          seccion(st.editando ? 5 : 6, 'Confirmación final',
             h('div', { class: 'reg-decl' },
               h('span', { class: 'reg-decl-tit' }, 'Declaración'),
               declTexto,

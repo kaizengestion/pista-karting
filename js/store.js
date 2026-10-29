@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const DEMO_KEY = 'pista-karting-demo-v4'; // v4: formulario nuevo del cliente (categorías múltiples, licencias, emergencia)
+  const DEMO_KEY = 'pista-karting-demo-v5'; // v5: el invitado lo suma un competidor (invitadoDe)
   const INIT_TIMEOUT_MS = 4000;
   const MB = 1024 * 1024;
   const MAX_IMG_SIN_REDUCIR = 2.5 * MB;
@@ -683,18 +683,16 @@
       return watchColeccion('inscripciones', 'inscripciones', ordenarInscripciones, () => [], cb);
     },
 
-    /* Con `datos.piloto2` ({ nombre, apellido, dni, fechaNacimiento }) se anotan dos invitados que comparten kart:
-       dos inscripciones con los mismos datos de contacto y de kart, unidas por `grupo`. */
+    /* Con `datos.invitadoNuevo` ({ nombre, apellido, dni, …, categorias }) el competidor suma un invitado que corre con su kart:
+       se crea una segunda inscripción marcada como invitado, con el mismo número de kart y `invitadoDe` = id del competidor. */
     async inscribir(datos) {
       await listo();
       const d = sinId(datos || {});
-      const p2 = esObjeto(d.piloto2) ? d.piloto2 : null;
-      delete d.piloto2;
-      if (p2) d.invitado = true;
+      const inv = esObjeto(d.invitadoNuevo) ? d.invitadoNuevo : null;
+      delete d.invitadoNuevo;
       const ahora = nowISO();
       d.creado = ahora;
       d.actualizado = ahora;
-      if (!('autorizacion' in d)) d.autorizacion = null;
       let id;
       if (esCompetidor()) {
         if (!ctx.uid) throw error('Tenés que iniciar sesión en claude.ai para inscribirte.', 'sin_sesion');
@@ -704,7 +702,6 @@
       } else {
         id = A.newId('inscripciones');
       }
-      if (p2) d.grupo = id;
       const escribir = async (path, doc) => {
         try {
           await A.set(path, doc);
@@ -715,13 +712,12 @@
         }
       };
       await escribir('inscripciones/' + id, d);
-      if (p2) {
-        const id2 = esCompetidor() ? id + '-2' : A.newId('inscripciones');
-        const d2 = Object.assign({}, d, {
-          nombre: String(p2.nombre || ''), apellido: String(p2.apellido || ''), dni: String(p2.dni || ''),
-          fechaNacimiento: String(p2.fechaNacimiento || ''),
-          // Las licencias son de cada piloto: el segundo las carga después (o el organizador)
+      if (inv) {
+        const id2 = esCompetidor() ? id + '-invitado' : A.newId('inscripciones');
+        const d2 = Object.assign({}, plano(inv), {
+          torneoId: d.torneoId, nroKarting: d.nroKarting, invitado: true, invitadoDe: id,
           licenciaDeportiva: null, licenciaMedica: null,
+          declaracion: d.declaracion || null, creado: ahora, actualizado: ahora,
         });
         await escribir('inscripciones/' + id2, d2);
       }

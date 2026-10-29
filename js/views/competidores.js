@@ -130,6 +130,11 @@
     });
   }
 
+  function nombreDe(id, opciones) {
+    const x = ((opciones && opciones.inscripciones) || []).find(y => y.id === id);
+    return x ? App.fmt.nombre(x) : '';
+  }
+
   /* ---------- Ficha completa (solo lectura) ---------- */
   function verFicha(i, torneos, opciones) {
     const t = (torneos || []).find(x => x.id === i.torneoId);
@@ -152,7 +157,10 @@
           fila('Email', i.email ? h('a', { href: 'mailto:' + i.email }, i.email) : ''),
           fila('Domicilio', i.direccion),
           fila('Localidad', [i.localidad, i.provincia].filter(Boolean).join(', ')),
-          fila('Torneo', t ? t.nombre : '')),
+          fila('Torneo', t ? t.nombre : ''),
+          // Invitados: con qué competidor corre (comparten kart) y, al revés, a quién trajo el competidor
+          i.invitadoDe ? fila('Corre con el kart de', nombreDe(i.invitadoDe, opciones)) : null,
+          ((opciones && opciones.inscripciones) || []).filter(x => x.invitadoDe === i.id).map(x => fila('Su invitado', App.fmt.nombre(x)))),
         h('h3', null, 'Salud y emergencia'),
         h('dl', null,
           fila('Grupo sanguíneo', i.grupoSanguineo),
@@ -455,7 +463,7 @@
           h('td', null, i.nroKarting ? h('span', { class: 'kart-no' }, i.nroKarting) : h('span', { class: 'muted' }, '—')),
           h('td', { class: 'name' }, h('button', { type: 'button', title: 'Ver ficha completa', onclick: () => verFicha(i, torneos, { inscripciones: inscs }) },
             h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : ''),
-            i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
+            i.invitado ? [' ', h('span', { class: 'pill pill-inv', title: i.invitadoDe ? 'Corre con el kart de ' + nombreDe(i.invitadoDe, { inscripciones: inscs }) : 'Invitado' }, 'Invitado')] : null),
           h('td', { class: 'tnum' }, i.dni || '—'),
           h('td', { class: 'tnum center' }, e != null ? String(e) : '—'),
           conTorneo ? h('td', { class: 'muted small' }, t ? t.nombre : '—') : null,

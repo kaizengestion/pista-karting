@@ -2993,8 +2993,7 @@ window.DEMO_DATA = {
    "creado": "2026-10-14T14:36:33.000Z",
    "actualizado": "2026-10-14T14:36:33.000Z",
    "ejemplo": true,
-   "invitado": true,
-   "grupo": "i-020",
+   "invitado": false,
    "categorias": [
     "125 Internacional"
    ],
@@ -3027,7 +3026,6 @@ window.DEMO_DATA = {
    "actualizado": "2026-10-15T12:49:48.000Z",
    "ejemplo": true,
    "invitado": true,
-   "grupo": "i-020",
    "categorias": [
     "125 Internacional"
    ],
@@ -3043,7 +3041,8 @@ window.DEMO_DATA = {
    "declaracion": {
     "aceptada": true,
     "fecha": "2026-10-15T12:49:48.000Z"
-   }
+   },
+   "invitadoDe": "i-020"
   },
   {
    "id": "i-022",
