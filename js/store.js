@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const DEMO_KEY = 'pista-karting-demo-v7'; // v7: Escuela de la Fecha 7 con los pilotos de la foto de ejemplo
+  const DEMO_KEY = 'pista-karting-demo-v9'; // v9: la fecha 1 del torneo en curso recién terminó (foto de Escuela cargada)
   const INIT_TIMEOUT_MS = 4000;
   const MB = 1024 * 1024;
   const MAX_IMG_SIN_REDUCIR = 2.5 * MB;
@@ -885,6 +885,7 @@
 
     urlArchivo(assetId) {
       if (!assetId || typeof assetId !== 'string') return '';
+      if (assetId === 'ejemplo-foto-resultados') return 'img/Resultados.jpeg';   // foto de muestra que mandó el cliente
       if (/^ejemplo/.test(assetId)) return SVG_EJEMPLO;
       if (ctx.mode !== 'db' || /^demo-/.test(assetId)) return archivosDemo.get(assetId) || '';
       return '/_blob/' + assetId;

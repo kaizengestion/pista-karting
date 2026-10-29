@@ -1622,14 +1622,14 @@ window.DEMO_DATA = {
    "ejemplo": true,
    "fechas": [
     "2026-10-24",
-    "2026-10-25"
+    "2026-11-22"
    ],
    "sentido": "horario"
   },
   {
    "id": "t-2026-f5",
    "nombre": "RGK Santafesino — Fecha 8",
-   "fecha": "2026-11-21",
+   "fecha": "2026-12-05",
    "lugar": "Autoclub Cañada de Gómez",
    "estado": "proximo",
    "categorias": [
@@ -1686,8 +1686,8 @@ window.DEMO_DATA = {
    "creado": "2026-10-06T15:20:00.000Z",
    "ejemplo": true,
    "fechas": [
-    "2026-11-21",
-    "2026-11-22"
+    "2026-12-05",
+    "2026-12-06"
    ],
    "sentido": "antihorario"
   },
@@ -2751,281 +2751,94 @@ window.DEMO_DATA = {
  ],
  "puntos": {
   "t-2026-f4": {
-   "f1__150-varillero": {
-    "fecha": 1,
-    "categoria": "150 Varillero",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "34",
-      "nombre": "Cabrera Sofía",
-      "puntos": 25,
-      "inscId": "i-013"
-     },
-     {
-      "posicion": 2,
-      "kart": "86",
-      "nombre": "Ojeda Nicolás",
-      "puntos": 20,
-      "inscId": "i-001"
-     }
-    ]
-   },
    "f1__110-escuela": {
     "fecha": 1,
     "categoria": "110 Escuela",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
     "filas": [
      {
       "posicion": 1,
-      "kart": "52",
-      "nombre": "Bresan Tomás",
-      "puntos": 25,
-      "inscId": "i-005"
-     },
-     {
-      "posicion": 2,
       "kart": "134",
       "nombre": "Patricelli Mateo",
-      "puntos": 20,
+      "puntos": 77,
       "inscId": "i-002"
      },
      {
-      "posicion": 3,
+      "posicion": 2,
       "kart": "45",
       "nombre": "Cortel Felipe",
-      "puntos": 16,
+      "puntos": 69,
       "inscId": "i-003"
      },
      {
-      "posicion": 4,
-      "kart": "16",
-      "nombre": "Carruba Lorenzo",
-      "puntos": 13,
-      "inscId": "i-011"
+      "posicion": 3,
+      "kart": "52",
+      "nombre": "Bresan Tomás",
+      "puntos": 62,
+      "inscId": "i-005"
      },
      {
-      "posicion": 5,
+      "posicion": 4,
       "kart": "111",
       "nombre": "López Cristóbal",
-      "puntos": 11,
+      "puntos": 54,
       "inscId": "i-007"
      },
      {
-      "posicion": 6,
-      "kart": "22",
-      "nombre": "Medina Francisco",
-      "puntos": 10,
-      "inscId": "i-016"
+      "posicion": 5,
+      "kart": "16",
+      "nombre": "Carruba Lorenzo",
+      "puntos": 50,
+      "inscId": "i-011"
      },
      {
-      "posicion": 7,
+      "posicion": 6,
       "kart": "40",
       "nombre": "Cinalli Facundo",
-      "puntos": 9,
+      "puntos": 37,
       "inscId": "i-015"
      },
      {
-      "posicion": 8,
-      "kart": "31",
-      "nombre": "Serra Constantino",
-      "puntos": 8,
-      "inscId": "i-022"
+      "posicion": 7,
+      "kart": "22",
+      "nombre": "Medina Francisco",
+      "puntos": 32,
+      "inscId": "i-016"
      },
      {
-      "posicion": 9,
+      "posicion": 8,
       "kart": "32",
       "nombre": "Deguardia Romeo",
-      "puntos": 7,
+      "puntos": 32,
       "inscId": "i-017"
      },
      {
+      "posicion": 9,
+      "kart": "31",
+      "nombre": "Serra Constantino",
+      "puntos": 31,
+      "inscId": "i-022"
+     },
+     {
       "posicion": 10,
-      "kart": "61",
-      "nombre": "Acuña Esteban",
-      "puntos": 6,
-      "inscId": "i-foto-2"
+      "kart": "29",
+      "nombre": "Russo Ámbar",
+      "puntos": 31,
+      "inscId": "i-foto-1"
      },
      {
       "posicion": 11,
-      "kart": "29",
-      "nombre": "Russo Ámbar",
-      "puntos": 5,
-      "inscId": "i-foto-1"
+      "kart": "61",
+      "nombre": "Acuña Esteban",
+      "puntos": 26,
+      "inscId": "i-foto-2"
      }
-    ]
-   },
-   "f1__150-multimarca": {
-    "fecha": 1,
-    "categoria": "150 Multimarca",
-    "foto": null,
+    ],
     "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "92",
-      "nombre": "Ríos Gonzalo",
-      "puntos": 25,
-      "inscId": "i-004"
-     },
-     {
-      "posicion": 2,
-      "kart": "30",
-      "nombre": "Peralta Matías",
-      "puntos": 20,
-      "inscId": "i-008"
-     }
-    ]
-   },
-   "f1__150-varillero-juvenil": {
-    "fecha": 1,
-    "categoria": "150 Varillero Juvenil",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "57",
-      "nombre": "Godoy Franco",
-      "puntos": 25,
-      "inscId": "i-006"
-     },
-     {
-      "posicion": 2,
-      "kart": "74",
-      "nombre": "Castro Agustín",
-      "puntos": 20,
-      "inscId": "i-014"
-     },
-     {
-      "posicion": 3,
-      "kart": "23",
-      "nombre": "Rojas Camila",
-      "puntos": 16,
-      "inscId": "i-018"
-     }
-    ]
-   },
-   "f1__150-multi-senior": {
-    "fecha": 1,
-    "categoria": "150 Multi.Senior",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "57",
-      "nombre": "Godoy Franco",
-      "puntos": 25,
-      "inscId": "i-006"
-     },
-     {
-      "posicion": 2,
-      "kart": "74",
-      "nombre": "Castro Agustín",
-      "puntos": 20,
-      "inscId": "i-014"
-     },
-     {
-      "posicion": 3,
-      "kart": "23",
-      "nombre": "Rojas Camila",
-      "puntos": 16,
-      "inscId": "i-018"
-     }
-    ]
-   },
-   "f1__125-internacional": {
-    "fecha": 1,
-    "categoria": "125 Internacional",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "96",
-      "nombre": "Correa Pablo",
-      "puntos": 25,
-      "inscId": "i-021"
-     },
-     {
-      "posicion": 2,
-      "kart": "96",
-      "nombre": "Moreno Ezequiel",
-      "puntos": 20,
-      "inscId": "i-020"
-     },
-     {
-      "posicion": 3,
-      "kart": "20",
-      "nombre": "Luna Sebastián",
-      "puntos": 16,
-      "inscId": "i-009"
-     }
-    ]
-   },
-   "f1__125-promocional": {
-    "fecha": 1,
-    "categoria": "125 Promocional",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "41",
-      "nombre": "Villalba Carla",
-      "puntos": 25,
-      "inscId": "i-010"
-     }
-    ]
-   },
-   "f1__125-inter-master": {
-    "fecha": 1,
-    "categoria": "125 Inter.Master",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "41",
-      "nombre": "Villalba Carla",
-      "puntos": 25,
-      "inscId": "i-010"
-     }
-    ]
-   },
-   "f1__125-inter-juvenil": {
-    "fecha": 1,
-    "categoria": "125 Inter.Juvenil",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "16",
-      "nombre": "Bustos Rodrigo",
-      "puntos": 25,
-      "inscId": "i-012"
-     }
-    ]
-   },
-   "f1__150-cadenero": {
-    "fecha": 1,
-    "categoria": "150 Cadenero",
-    "foto": null,
-    "actualizado": "2026-10-24T20:00:00.000Z",
-    "filas": [
-     {
-      "posicion": 1,
-      "kart": "52",
-      "nombre": "Ruiz Facundo",
-      "puntos": 25,
-      "inscId": "i-019"
-     }
-    ]
+    "foto": {
+     "assetId": "ejemplo-foto-resultados",
+     "nombre": "Resultados.jpeg",
+     "tipo": "image/jpeg"
+    }
    }
   }
  }
