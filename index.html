@@ -34,8 +34,8 @@
   --warn-bg: #3a2c10;
   --danger: #ff8a80;
   --danger-bg: #3d1a17;
-  --inv: #ffd166;
-  --inv-bg: #3b3011;
+  --inv: #04232e;           /* invitados: celeste del logo */
+  --inv-bg: #5ec8ea;
   --bar: #000000;
   --bar-ink: #f3f3f2;
   --shadow: 0 1px 2px rgba(0,0,0,.5), 0 6px 20px rgba(0,0,0,.45);
@@ -160,7 +160,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .92rem; }
 .pill-ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
 .pill-warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
 .pill-danger { background: var(--danger-bg); color: var(--danger); border-color: transparent; }
-.pill-inv { background: var(--inv-bg); color: var(--inv); border-color: transparent; }
+.pill-inv { background: var(--inv-bg); color: var(--inv); border-color: transparent; font-weight: 700; }
 .pill-live { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .pill-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: blink 1.4s infinite; }
 @keyframes blink { 50% { opacity: .2; } }
@@ -216,16 +216,16 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: .92rem; }
 
 <!-- Al publicar cambios en js/, subir el número de ?v= para que los navegadores no usen la versión guardada -->
 <script>window.PK_FORZAR_DEMO = true; window.PK_URL = location.origin + location.pathname.replace(/inscripcion\.html$/, '');</script>
-<script src="js/core.js?v=13"></script>
-<script src="js/demo-data.js?v=13"></script>
-<script src="js/store.js?v=13"></script>
-<script src="js/views/inicio.js?v=13"></script>
-<script src="js/views/competidores.js?v=13"></script>
-<script src="js/views/buscar.js?v=13"></script>
-<script src="js/views/registro.js?v=13"></script>
-<script src="js/views/torneo-actual.js?v=13"></script>
-<script src="js/views/proximos-torneos.js?v=13"></script>
-<script src="js/views/torneos-pasados.js?v=13"></script>
+<script src="js/core.js?v=15"></script>
+<script src="js/demo-data.js?v=15"></script>
+<script src="js/store.js?v=15"></script>
+<script src="js/views/inicio.js?v=15"></script>
+<script src="js/views/competidores.js?v=15"></script>
+<script src="js/views/buscar.js?v=15"></script>
+<script src="js/views/registro.js?v=15"></script>
+<script src="js/views/torneo-actual.js?v=15"></script>
+<script src="js/views/proximos-torneos.js?v=15"></script>
+<script src="js/views/torneos-pasados.js?v=15"></script>
 <script>App.start();</script>
 </body>
 </html>

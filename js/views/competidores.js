@@ -10,7 +10,8 @@
 .v-competidores .head-counts .warn { color: var(--warn); font-weight: 600; }
 .v-competidores .toolbar { display: grid; gap: 12px 16px; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); align-items: end; }
 .v-competidores .tbl td { white-space: nowrap; }
-.v-competidores .tbl td.name { white-space: normal; min-width: 170px; }
+.v-competidores .tbl td.name { white-space: nowrap; min-width: 170px; }
+.v-competidores .tbl td.name .pill-inv { margin-left: 6px; vertical-align: 1px; }
 .v-competidores .tbl td.name strong { font-weight: 600; }
 .v-competidores .tbl td.name button { all: unset; cursor: pointer; }
 .v-competidores .tbl td.name button:hover strong, .v-competidores .tbl td.name button:focus-visible strong { text-decoration: underline; text-decoration-color: var(--accent); }
@@ -468,7 +469,8 @@
         return h('tr', { dataset: { id: i.id } },
           h('td', null, i.nroKarting ? h('span', { class: 'kart-no' }, i.nroKarting) : h('span', { class: 'muted' }, '—')),
           h('td', { class: 'name' }, h('button', { type: 'button', title: 'Ver ficha completa', onclick: () => verFicha(i, torneos, { inscripciones: inscs }) },
-            h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : '')),
+            h('strong', null, i.apellido || ''), i.nombre ? ', ' + i.nombre : ''),
+            i.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
           h('td', { class: 'center' }, inv),
           h('td', { class: 'tnum' }, i.dni || '—'),
           h('td', { class: 'tnum center' }, e != null ? String(e) : '—'),
