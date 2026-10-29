@@ -660,8 +660,7 @@
         if (prefill || st.editando) st.tipo = 'piloto';
         const p1Sub = h('p', { class: 'p-sub' }, 'Piloto 1');
         const p2Box = h('div', { class: 'p2-box' }, h('p', { class: 'p-sub' }, 'Piloto 2'),
-          h('div', { class: 'form-grid' }, CAMPOS_P2.map(campo)),
-          h('p', { class: 'hint' }, 'El resto de los datos es el mismo para los dos.'));
+          h('div', { class: 'form-grid' }, CAMPOS_P2.map(campo)));
         const sec1Title = h('span');
         const tipoList = h('div', { class: 'cat-list tipo-list' });
         const tipoField = h('fieldset', { class: 'field', id: 'reg-tipo' }, h('legend', null, '¿Cómo te anotás?'), tipoList);
@@ -675,7 +674,7 @@
           if (!inv) CAMPOS_P2.forEach(c => setErr(c.key, ''));
         }
         tipoList.append(...[
-          ['piloto', 'Piloto', 'Un piloto con su propio kart.'],
+          ['piloto', 'Piloto', ''],
           ['invitados', 'Invitados', ''],
         ].map(([v, titulo, sub]) => {
           const radio = h('input', { type: 'radio', name: 'tipo', id: 'reg-tipo-' + v, value: v, checked: st.tipo === v });
