@@ -251,7 +251,7 @@
     // Invitado: lo decide el organizador (los invitados corren de a dos con el mismo kart)
     const chkInv = h('input', { type: 'checkbox', id: 'kf-invitado', checked: !!(insc && insc.invitado) });
     const invField = h('label', { class: 'inv-check', for: 'kf-invitado' }, chkInv,
-      h('span', null, h('strong', null, 'Competidor invitado'), h('span', { class: 'small muted' }, 'Corre con el kart de otro piloto invitado.')));
+      h('span', null, h('strong', null, 'Competidor invitado')));
 
     const sinTorneos = !elegibles.length && !torneoIni;
     const form = h('form', { class: 'kart-form stack', novalidate: true, onsubmit: (e) => { e.preventDefault(); guardar(); } },
@@ -345,7 +345,7 @@
       const btnAdd = h('button', {
         type: 'button', class: 'btn btn-primary', onclick: () => editarCompetidor(null, torneos || [], {
           torneoId: st.torneo && st.torneo !== '*' ? st.torneo : null,
-          categoria: st.cat !== '*' ? st.cat : null,
+          categoria: st.cat !== '*' && st.cat !== '__inv' ? st.cat : null,
           inscripciones: inscs || [],
         }),
       }, 'Agregar competidor');
@@ -421,12 +421,14 @@
       function dibujarTabs(lista) {
         // Solo las categorías con anotados (con 12 categorías, las vacías no aportan)
         const cs = categorias(lista).filter(c => lista.some(i => cats(i).includes(c)));
-        if (st.cat !== '*' && !cs.includes(st.cat)) st.cat = '*';
+        const nInv = lista.filter(i => i.invitado).length;
+        if (st.cat !== '*' && !(st.cat === '__inv' ? nInv : cs.includes(st.cat))) st.cat = '*';
         const mk = (val, txt, n) => h('button', {
           type: 'button', role: 'tab', 'aria-selected': String(st.cat === val),
           onclick: () => { st.cat = val; dibujarTabs(alcance()); dibujarTabla(); },
         }, txt + ' ', h('span', { class: 'n tnum' }, '(' + n + ')'));
-        tabs.replaceChildren(mk('*', 'Todas', lista.length), ...cs.map(c => mk(c, c, lista.filter(i => cats(i).includes(c)).length)));
+        tabs.replaceChildren(mk('*', 'Todas', lista.length), nInv ? mk('__inv', 'Invitados', nInv) : null,
+          ...cs.map(c => mk(c, c, lista.filter(i => cats(i).includes(c)).length)));
       }
 
       async function borrar(i) {
@@ -502,7 +504,7 @@
         }
         const lista = alcance();
         const terms = App.fmt.norm(st.q).trim().split(/\s+/).filter(Boolean);
-        const filas = lista.filter(i => (st.cat === '*' || cats(i).includes(st.cat)) && coincide(i, terms));
+        const filas = lista.filter(i => (st.cat === '*' || (st.cat === '__inv' ? i.invitado : cats(i).includes(st.cat))) && coincide(i, terms));
         if (!filas.length) {
           if (terms.length) {
             tablaBox.replaceChildren(h('div', { class: 'empty' },
@@ -510,7 +512,7 @@
               h('button', { type: 'button', class: 'btn btn-sm', onclick: () => { q.value = ''; st.q = ''; dibujarTabla(); q.focus(); } }, 'Limpiar filtro')));
           } else {
             tablaBox.replaceChildren(h('div', { class: 'empty' },
-              h('strong', null, st.cat === '*' ? 'Todavía no hay anotados.' : 'No hay anotados en ' + st.cat + '.'),
+              h('strong', null, st.cat === '*' ? 'Todavía no hay anotados.' : st.cat === '__inv' ? 'No hay invitados.' : 'No hay anotados en ' + st.cat + '.'),
               h('span', null, 'Compartí el link de inscripción desde Inicio o agregalos a mano.'),
               h('div', { class: 'row', style: { justifyContent: 'center' } },
                 h('a', { class: 'btn btn-sm', href: '#inicio' }, 'Ver link de inscripción'))));
