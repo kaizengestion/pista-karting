@@ -239,8 +239,8 @@
             h('span', { class: 'sub' }, hl(t.nombre, terms), ' · ', hl(cat, terms), ' · ', n ? 'Fecha ' + n + ' (' + App.fmt.fecha(App.fmt.fechasDe(t)[n - 1]) + ')' : App.fmt.fecha(t.fecha)),
             extra.length ? h('span', { class: 'extra' }, extra.map(([k, v], n) => [n ? ' · ' : '', h('b', null, k + ': '), hl(v, terms)])) : null),
           h('span', { class: 'side' },
-            r.posicion ? h('span', { class: 'pos' }, r.posicion + 'º') : h('span', { class: 'pill' }, 'Sin tiempo'),
-            r.tiempo != null ? h('span', { class: 'mono small muted' }, App.fmt.tiempo(r.tiempo)) : null),
+            r.posicion ? h('span', { class: 'pos' }, r.posicion + 'º') : h('span', { class: 'pill' }, 'Sin puesto'),
+            r.puntos != null ? h('span', { class: 'mono small muted' }, r.puntos + ' pts') : null),
           chev());
       }
 

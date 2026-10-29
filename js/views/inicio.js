@@ -196,7 +196,7 @@
           : plural(inscs.length, 'competidor', 'competidores') + ' en total';
         return [
           tile('#competidores', 'users', 'Competidores', subComp),
-          tile('#torneo-actual', 'timer', 'Torneo actual', actual ? 'Cargar tiempos y finalizar' : 'No hay torneo en curso', true),
+          tile('#torneo-actual', 'timer', 'Torneo actual', actual ? 'Cargar resultados y finalizar' : 'No hay torneo en curso', true),
           tile('#proximos-torneos', 'calendar', 'Próximos torneos', nProx ? plural(nProx, 'programado', 'programados') : 'Ninguno programado'),
           tile('#torneos-pasados', 'trophy', 'Torneos pasados', nPas ? plural(nPas, 'finalizado', 'finalizados') : 'Todavía ninguno'),
           tile('#buscar', 'search', 'Buscar datos', 'Competidores y torneos'),
@@ -235,7 +235,7 @@
       // Mientras cargan los datos, los accesos ya se pueden usar
       board.replaceChildren(
         tile('#competidores', 'users', 'Competidores', 'Cargando…'),
-        tile('#torneo-actual', 'timer', 'Torneo actual', 'Cargar tiempos y finalizar', true),
+        tile('#torneo-actual', 'timer', 'Torneo actual', 'Cargar resultados y finalizar', true),
         tile('#proximos-torneos', 'calendar', 'Próximos torneos', 'Cargando…'),
         tile('#torneos-pasados', 'trophy', 'Torneos pasados', 'Cargando…'),
         tile('#buscar', 'search', 'Buscar datos', 'Competidores y torneos'));

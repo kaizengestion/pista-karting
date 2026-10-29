@@ -1,0 +1,2 @@
+Tesseract.js 5.1.1 (Apache-2.0) y datos en español (tessdata, Apache-2.0).
+Se usan solo en el panel, para leer la foto de resultados. Se cargan recién al subir una foto.

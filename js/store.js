@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const DEMO_KEY = 'pista-karting-demo-v5'; // v5: el invitado lo suma un competidor (invitadoDe)
+  const DEMO_KEY = 'pista-karting-demo-v6'; // v6: resultados por puntos (foto por categoría)
   const INIT_TIMEOUT_MS = 4000;
   const MB = 1024 * 1024;
   const MAX_IMG_SIN_REDUCIR = 2.5 * MB;
@@ -159,6 +159,28 @@
       });
     });
     Object.keys(res).forEach((k) => { res[k] = posiciones(res[k]); });
+    return res;
+  }
+
+  /* Planillas de puntos: un documento por fecha y categoría, 'torneos/<id>/puntos/f<n>__<categoría>'
+     = { fecha, categoria, filas: [{ posicion, kart, nombre, puntos, inscId }], foto }. */
+  function clavePuntos(n, cat) { return 'f' + n + '__' + slug(cat); }
+  function resultadosPorPuntos(torneo, inscs, puntos, n) {
+    const res = {};
+    (torneo.categorias || []).forEach((c) => {
+      const doc = puntos[clavePuntos(n, c.nombre)];
+      if (!doc || !Array.isArray(doc.filas)) return;
+      res[c.nombre] = doc.filas.map((f) => {
+        const i = f.inscId ? inscs.find((x) => x.id === f.inscId) : null;
+        return {
+          inscId: f.inscId || null,
+          nombre: i ? i.nombre || '' : '', apellido: i ? i.apellido || '' : String(f.nombre || ''),
+          dni: i ? i.dni || '' : '', nroKarting: String(f.kart || (i && i.nroKarting) || ''),
+          invitado: !!(i && i.invitado), puntos: f.puntos == null || f.puntos === '' ? null : +f.puntos,
+          posicion: f.posicion == null || f.posicion === '' ? null : +f.posicion,
+        };
+      }).sort((a, b) => (a.posicion == null) - (b.posicion == null) || (a.posicion || 0) - (b.posicion || 0));
+    });
     return res;
   }
 
@@ -320,6 +342,9 @@
     if (!demo) return docs;
     (demo.torneos || []).forEach((t) => { docs['torneos/' + t.id] = sinId(t); });
     (demo.inscripciones || []).forEach((i) => { docs['inscripciones/' + i.id] = sinId(i); });
+    Object.keys(demo.puntos || {}).forEach((tid) => {
+      Object.keys(demo.puntos[tid] || {}).forEach((k) => { docs['torneos/' + tid + '/puntos/' + k] = plano(demo.puntos[tid][k]); });
+    });
     Object.keys(demo.tiempos || {}).forEach((tid) => {
       Object.keys(demo.tiempos[tid] || {}).forEach((iid) => { docs['torneos/' + tid + '/tiempos/' + iid] = plano(demo.tiempos[tid][iid]); });
     });
@@ -633,6 +658,8 @@
       exigirId(id, 'del torneo');
       const tiempos = await A.list('torneos/' + id + '/tiempos');
       await enLotes(tiempos, (t) => A.del('torneos/' + id + '/tiempos/' + t.id));
+      const puntos = await A.list('torneos/' + id + '/puntos');
+      await enLotes(puntos, (t) => A.del('torneos/' + id + '/puntos/' + t.id));
       const inscs = await A.list('inscripciones', ['torneoId', '==', id]);
       await enLotes(inscs, (i) => A.del('inscripciones/' + i.id));
       await A.del('resultados/' + id);
@@ -656,20 +683,25 @@
     async finalizarTorneo(id) {
       await listo();
       const t = await leerTorneo(id);
-      const [inscs, lista] = await Promise.all([
+      const [inscs, lista, listaPuntos] = await Promise.all([
         A.list('inscripciones', ['torneoId', '==', id]),
         A.list('torneos/' + id + '/tiempos'),
+        A.list('torneos/' + id + '/puntos'),
       ]);
       const tiempos = {};
       lista.forEach((x) => { tiempos[x.id] = x; });
+      const puntos = {};
+      listaPuntos.forEach((x) => { puntos[x.id] = x; });
       const datos = sinId(t);
       delete datos.resultados;
       delete datos.resultadosFechas;
-      const planilla = { resultados: armarResultados(t, inscs, tiempos, 1) };
+      // Con planillas de puntos (fotos de resultados) se usan esas; si no, los tiempos (torneos viejos)
+      const armar = listaPuntos.length ? (n) => resultadosPorPuntos(t, inscs, puntos, n) : (n) => armarResultados(t, inscs, tiempos, n);
+      const planilla = { resultados: armar(1) };
       const nFechas = fechasDe(t).length;
       if (nFechas > 1) {
         planilla.resultadosFechas = {};
-        for (let n = 1; n <= nFechas; n++) planilla.resultadosFechas[n] = armarResultados(t, inscs, tiempos, n);
+        for (let n = 1; n <= nFechas; n++) planilla.resultadosFechas[n] = armar(n);
       }
       if (t.ejemplo) planilla.ejemplo = true;
       await A.set('resultados/' + id, planilla);
@@ -793,6 +825,37 @@
       if ('ok' in v) datos.ok = !!v.ok;
       if (n === 1) Object.assign(doc, datos); else doc['f' + n] = datos;
       await A.set(path, doc);
+    },
+
+    /* ---------- Puntos (resultados por foto) */
+    clavePuntos,
+    watchPuntos(torneoId, cb) {
+      if (!idValido(torneoId)) {
+        if (typeof cb === 'function') microtarea(() => cb({}));
+        return function unsubscribe() {};
+      }
+      return watchColeccion('puntos:' + torneoId, 'torneos/' + torneoId + '/puntos', (docs) => {
+        const o = {};
+        docs.forEach((x) => { o[x.id] = x; });
+        return o;
+      }, () => ({}), cb);
+    },
+    async guardarPuntos(torneoId, n, categoria, planilla) {
+      await listo();
+      exigirId(torneoId, 'del torneo');
+      const filas = (planilla.filas || []).map((f) => ({
+        posicion: f.posicion == null || f.posicion === '' ? null : Math.round(+f.posicion),
+        kart: String(f.kart || ''), nombre: String(f.nombre || ''),
+        puntos: f.puntos == null || f.puntos === '' ? null : +f.puntos,
+        inscId: f.inscId || null,
+      }));
+      await A.set('torneos/' + torneoId + '/puntos/' + clavePuntos(n, categoria),
+        { fecha: n, categoria, filas, foto: planilla.foto || null, actualizado: nowISO() });
+    },
+    async borrarPuntos(torneoId, n, categoria) {
+      await listo();
+      exigirId(torneoId, 'del torneo');
+      await A.del('torneos/' + torneoId + '/puntos/' + clavePuntos(n, categoria));
     },
 
     /* ---------- Archivos */

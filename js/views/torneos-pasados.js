@@ -39,6 +39,7 @@
 .v-pasados .pp-section { display: flex; flex-direction: column; gap: 10px; }
 .v-pasados .pp-tbl { min-width: 640px; }
 .v-pasados .pp-tbl td.pos { width: 60px; }
+.v-pasados .pp-tbl td.pts { font: 800 1.1rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
 .v-pasados .pp-tbl td.tiempo { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .v-pasados .pp-tbl td.dif { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; font-size: .85rem; }
 .v-pasados .pp-tbl td.dni, .v-pasados .pp-tbl td.motor { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
@@ -209,8 +210,8 @@
               return h('div', { class: 'pp-cat' },
                 h('span', { class: 'eyebrow' }, c.nombre),
                 p1
-                  ? h('div', { class: 'pp-win' }, badge(1), h('span', { class: 'pp-name' }, App.fmt.nombre(p1) || 'Sin nombre'), h('span', { class: 'mono' }, App.fmt.tiempo(p1.tiempo)))
-                  : h('span', { class: 'muted small' }, c.filas.length ? 'Sin tiempos registrados' : 'Sin competidores'),
+                  ? h('div', { class: 'pp-win' }, badge(1), h('span', { class: 'pp-name' }, App.fmt.nombre(p1) || 'Sin nombre'), h('span', { class: 'mono' }, p1.puntos == null ? '' : p1.puntos + ' pts'))
+                  : h('span', { class: 'muted small' }, c.filas.length ? 'Sin resultados' : 'Sin competidores'),
                 conT.length > 1 ? h('div', { class: 'pp-rest' }, conT.slice(1, 3).map(x => h('span', null, 'P' + x.posicion + ' ' + App.fmt.nombre(x)))) : null);
             })) : null));
       }
@@ -249,14 +250,14 @@
 
         const bloques = ns.map((n, k) => {
           const cats = todas[k];
-          const conTiempo = cats.reduce((s2, c) => s2 + c.filas.filter(f => f.tiempo != null).length, 0);
+          const conTiempo = cats.reduce((s2, c) => s2 + c.filas.length, 0);
           const ganadores = cats.map(c => { const p1 = c.filas.find(f => f.posicion === 1); return p1 ? h('span', { class: 'pp-fw' }, h('b', null, c.nombre), ' ', App.fmt.nombre(p1)) : null; });
           const det = h('details', { class: 'pp-fblk', open: abiertas.has(n) },
             h('summary', null,
               h('span', { class: 'pp-fblk-top' },
                 h('span', { class: 'pp-fblk-n' }, 'Fecha ' + n),
                 fs[n - 1] ? h('span', { class: 'pp-fblk-dia' }, App.fmt.fechaLarga(fs[n - 1])) : null,
-                h('span', { class: 'pill' }, pl(conTiempo, 'tiempo', 'tiempos')),
+                h('span', { class: 'pill' }, pl(conTiempo, 'piloto', 'pilotos')),
                 h('span', { class: 'spacer' }),
                 h('span', { class: 'pp-fblk-chev', 'aria-hidden': 'true' }, '▾')),
               h('span', { class: 'pp-fblk-gan' }, ganadores)),
@@ -280,20 +281,16 @@
               h('th', { scope: 'col' }, 'Kart'),
               h('th', { scope: 'col' }, 'Competidor'),
               h('th', { scope: 'col' }, 'DNI'),
-              h('th', { class: 'num', scope: 'col' }, 'Tiempo'),
-              h('th', { class: 'num', scope: 'col' }, 'Dif.'),
-              h('th', { class: 'center', scope: 'col' }, 'Ok'))),
+              h('th', { class: 'num', scope: 'col' }, 'Puntos'))),
             h('tbody', null, c.filas.map(f => {
               const p = f.posicion;
-              const cls = [p != null && p <= 3 ? 'podio p' + p : '', f.tiempo == null ? 'sin-tiempo' : ''].filter(Boolean).join(' ');
+              const cls = p != null && p <= 3 ? 'podio p' + p : '';
               return h('tr', { class: cls || null },
                 h('td', { class: 'center pos' }, badge(p)),
                 h('td', null, h('span', { class: 'kart-no' }, f.nroKarting || '—')),
                 h('td', { class: 'comp' }, App.fmt.nombre(f) || 'Sin nombre', f.invitado ? [' ', h('span', { class: 'pill pill-inv' }, 'Invitado')] : null),
                 h('td', { class: 'dni' }, f.dni || '—'),
-                h('td', { class: 'num tiempo' }, f.tiempo == null ? 'Sin tiempo' : App.fmt.tiempo(f.tiempo)),
-                h('td', { class: 'num dif' }, dif(f.tiempo, c.best, p)),
-                h('td', { class: 'center' }, f.ok ? h('span', { class: 'pill pill-ok' }, 'Ok') : h('span', { class: 'pill' }, '—')));
+                h('td', { class: 'num pts' }, f.puntos == null ? '—' : String(f.puntos)));
             }))));
       }
 

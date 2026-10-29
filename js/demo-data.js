@@ -1,7 +1,7 @@
 /* Datos de ejemplo (todos con ejemplo: true). Generados para una "hoy" = 2026-10-28. Categorías y lugares del RGK Santafesino. Inscripciones con el formulario del cliente
-   (categorías múltiples, licencias opcionales, emergencia; sin cupos). Tiempos por categoría: '<inscId>__<categoría>'.
+   (categorías múltiples, licencias opcionales, emergencia; sin cupos). Resultados por puntos: planillas por fecha y categoría en `puntos`.
    Cada torneo tiene de 1 a 10 fechas (`fechas`); los finalizados guardan una planilla por fecha en `resultadosFechas`
-   (`resultados` = fecha 1, para compatibilidad). En el torneo en curso, los tiempos de la fecha 2 y 3 van en f2 / f3.
+   (`resultados` = fecha 1, para compatibilidad).
    Se usan en modo demostración y como semilla de la base (seed/seed.json). */
 window.DEMO_DATA = {
  "torneos": [
@@ -37,10 +37,8 @@ window.DEMO_DATA = {
       "apellido": "Medina",
       "dni": "50112382",
       "nroKarting": "27",
-      "nroMotor": "Rotax Mini Max #3F1335",
-      "tiempo": 53396,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-ver-f1-1346",
@@ -48,10 +46,8 @@ window.DEMO_DATA = {
       "apellido": "Ferreyra",
       "dni": "51001346",
       "nroKarting": "18",
-      "nroMotor": "Rotax Mini Max #6C5511",
-      "tiempo": 53555,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-ver-f1-6302",
@@ -59,10 +55,8 @@ window.DEMO_DATA = {
       "apellido": "Aguirre",
       "dni": "50016302",
       "nroKarting": "58",
-      "nroMotor": "IAME Puma #91648",
-      "tiempo": 54382,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-ver-f1-1946",
@@ -70,32 +64,8 @@ window.DEMO_DATA = {
       "apellido": "Benítez",
       "dni": "52301946",
       "nroKarting": "15",
-      "nroMotor": "IAME Puma #59784",
-      "tiempo": 54864,
-      "ok": true,
-      "posicion": 4
-     },
-     {
-      "inscId": "r-ver-f1-8050",
-      "nombre": "Martina",
-      "apellido": "Acosta",
-      "dni": "51898050",
-      "nroKarting": "66",
-      "nroMotor": "Rotax Mini Max #3F8697",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
-     },
-     {
-      "inscId": "r-ver-f1-4695",
-      "nombre": "Santino",
-      "apellido": "Herrera",
-      "dni": "52224695",
-      "nroKarting": "97",
-      "nroMotor": "IAME Puma #33126",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
+      "posicion": 4,
+      "puntos": 13
      }
     ],
     "150 Varillero": [
@@ -105,10 +75,8 @@ window.DEMO_DATA = {
       "apellido": "Rojas",
       "dni": "49889715",
       "nroKarting": "23",
-      "nroMotor": "Rotax #5A7765",
-      "tiempo": 50005,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-ver-f1-4151",
@@ -116,10 +84,8 @@ window.DEMO_DATA = {
       "apellido": "Godoy",
       "dni": "38884151",
       "nroKarting": "57",
-      "nroMotor": "Rotax #9G8068",
-      "tiempo": 50578,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-ver-f1-1634",
@@ -127,10 +93,8 @@ window.DEMO_DATA = {
       "apellido": "Ojeda",
       "dni": "41431634",
       "nroKarting": "86",
-      "nroMotor": "IAME X30 #49982",
-      "tiempo": 51300,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-ver-f1-7403",
@@ -138,10 +102,8 @@ window.DEMO_DATA = {
       "apellido": "Ríos",
       "dni": "24337403",
       "nroKarting": "92",
-      "nroMotor": "Rotax #5C6654",
-      "tiempo": 51323,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-ver-f1-8799",
@@ -149,21 +111,8 @@ window.DEMO_DATA = {
       "apellido": "Ruiz",
       "dni": "41898799",
       "nroKarting": "52",
-      "nroMotor": "IAME X30 #32806",
-      "tiempo": 51727,
-      "ok": true,
-      "posicion": 5
-     },
-     {
-      "inscId": "r-ver-f1-9637",
-      "nombre": "Tomás",
-      "apellido": "Molina",
-      "dni": "50629637",
-      "nroKarting": "26",
-      "nroMotor": "Rotax #6G2628",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
+      "posicion": 5,
+      "puntos": 11
      }
     ],
     "125 Internacional": [
@@ -173,10 +122,8 @@ window.DEMO_DATA = {
       "apellido": "Vázquez",
       "dni": "23721839",
       "nroKarting": "29",
-      "nroMotor": "Rotax #5G8010",
-      "tiempo": 46717,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-ver-f1-3485",
@@ -184,10 +131,8 @@ window.DEMO_DATA = {
       "apellido": "Fernández",
       "dni": "24683485",
       "nroKarting": "98",
-      "nroMotor": "IAME X30 #43894",
-      "tiempo": 47336,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-ver-f1-0877",
@@ -195,10 +140,8 @@ window.DEMO_DATA = {
       "apellido": "Correa",
       "dni": "43180877",
       "nroKarting": "63",
-      "nroMotor": "Rotax #1B3640",
-      "tiempo": 47943,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-ver-f1-7799",
@@ -206,10 +149,8 @@ window.DEMO_DATA = {
       "apellido": "Bustos",
       "dni": "32907799",
       "nroKarting": "16",
-      "nroMotor": "Rotax #9C5769",
-      "tiempo": 48268,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-ver-f1-8614",
@@ -217,10 +158,8 @@ window.DEMO_DATA = {
       "apellido": "Álvarez",
       "dni": "30018614",
       "nroKarting": "61",
-      "nroMotor": "Rotax #3B8140",
-      "tiempo": 48427,
-      "ok": true,
-      "posicion": 5
+      "posicion": 5,
+      "puntos": 11
      },
      {
       "inscId": "r-ver-f1-2951",
@@ -228,10 +167,8 @@ window.DEMO_DATA = {
       "apellido": "Maidana",
       "dni": "31222951",
       "nroKarting": "55",
-      "nroMotor": "Rotax #7B7879",
-      "tiempo": 49037,
-      "ok": true,
-      "posicion": 6
+      "posicion": 6,
+      "puntos": 10
      }
     ]
    }
@@ -273,10 +210,8 @@ window.DEMO_DATA = {
        "apellido": "Paz",
        "dni": "31602829",
        "nroKarting": "2",
-       "nroMotor": "IAME Puma #19539",
-       "tiempo": 52973,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-inv-f1-4626",
@@ -284,10 +219,8 @@ window.DEMO_DATA = {
        "apellido": "Ledesma",
        "dni": "43864626",
        "nroKarting": "33",
-       "nroMotor": "Rotax Mini Max #9H3664",
-       "tiempo": 53205,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-inv-f1-0128",
@@ -295,10 +228,8 @@ window.DEMO_DATA = {
        "apellido": "Sosa",
        "dni": "52790128",
        "nroKarting": "99",
-       "nroMotor": "Rotax Mini Max #7C7705",
-       "tiempo": 53563,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-inv-f1-8050",
@@ -306,10 +237,8 @@ window.DEMO_DATA = {
        "apellido": "Acosta",
        "dni": "51898050",
        "nroKarting": "66",
-       "nroMotor": "Rotax Mini Max #3F8697",
-       "tiempo": 54188,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-inv-f1-1829",
@@ -317,10 +246,8 @@ window.DEMO_DATA = {
        "apellido": "Domínguez",
        "dni": "50451829",
        "nroKarting": "82",
-       "nroMotor": "Rotax Mini Max #8F7960",
-       "tiempo": 54536,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-inv-f1-6302",
@@ -328,21 +255,8 @@ window.DEMO_DATA = {
        "apellido": "Aguirre",
        "dni": "50016302",
        "nroKarting": "58",
-       "nroMotor": "IAME Puma #91648",
-       "tiempo": 54919,
-       "ok": true,
-       "posicion": 6
-      },
-      {
-       "inscId": "r-inv-f1-2382",
-       "nombre": "Catalina",
-       "apellido": "Medina",
-       "dni": "50112382",
-       "nroKarting": "27",
-       "nroMotor": "Rotax Mini Max #3F1335",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 6,
+       "puntos": 10
       }
      ],
      "150 Varillero": [
@@ -352,10 +266,8 @@ window.DEMO_DATA = {
        "apellido": "Godoy",
        "dni": "38884151",
        "nroKarting": "57",
-       "nroMotor": "Rotax #9G8068",
-       "tiempo": 49730,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-inv-f1-7403",
@@ -363,10 +275,8 @@ window.DEMO_DATA = {
        "apellido": "Ríos",
        "dni": "24337403",
        "nroKarting": "92",
-       "nroMotor": "Rotax #5C6654",
-       "tiempo": 49940,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-inv-f1-6716",
@@ -374,10 +284,8 @@ window.DEMO_DATA = {
        "apellido": "Castro",
        "dni": "26346716",
        "nroKarting": "74",
-       "nroMotor": "IAME X30 #76596",
-       "tiempo": 50082,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-inv-f1-6213",
@@ -385,10 +293,8 @@ window.DEMO_DATA = {
        "apellido": "Peralta",
        "dni": "41806213",
        "nroKarting": "30",
-       "nroMotor": "Rotax #7E6544",
-       "tiempo": 51374,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-inv-f1-3724",
@@ -396,10 +302,8 @@ window.DEMO_DATA = {
        "apellido": "Cabrera",
        "dni": "51493724",
        "nroKarting": "34",
-       "nroMotor": "Rotax #6H2317",
-       "tiempo": 51519,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-inv-f1-1634",
@@ -407,10 +311,8 @@ window.DEMO_DATA = {
        "apellido": "Ojeda",
        "dni": "41431634",
        "nroKarting": "86",
-       "nroMotor": "IAME X30 #49982",
-       "tiempo": 51553,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-inv-f1-8799",
@@ -418,10 +320,8 @@ window.DEMO_DATA = {
        "apellido": "Ruiz",
        "dni": "41898799",
        "nroKarting": "52",
-       "nroMotor": "IAME X30 #32806",
-       "tiempo": 51924,
-       "ok": true,
-       "posicion": 7
+       "posicion": 7,
+       "puntos": 9
       }
      ],
      "125 Internacional": [
@@ -431,10 +331,8 @@ window.DEMO_DATA = {
        "apellido": "Luna",
        "dni": "38562874",
        "nroKarting": "20",
-       "nroMotor": "IAME X30 #28642",
-       "tiempo": 47469,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-inv-f1-0231",
@@ -442,10 +340,8 @@ window.DEMO_DATA = {
        "apellido": "Suárez",
        "dni": "42380231",
        "nroKarting": "80",
-       "nroMotor": "IAME X30 #27975",
-       "tiempo": 47529,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-inv-f1-1839",
@@ -453,10 +349,8 @@ window.DEMO_DATA = {
        "apellido": "Vázquez",
        "dni": "23721839",
        "nroKarting": "29",
-       "nroMotor": "Rotax #5G8010",
-       "tiempo": 47728,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-inv-f1-0877",
@@ -464,10 +358,8 @@ window.DEMO_DATA = {
        "apellido": "Correa",
        "dni": "43180877",
        "nroKarting": "63",
-       "nroMotor": "Rotax #1B3640",
-       "tiempo": 47763,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-inv-f1-2951",
@@ -475,10 +367,8 @@ window.DEMO_DATA = {
        "apellido": "Maidana",
        "dni": "31222951",
        "nroKarting": "55",
-       "nroMotor": "Rotax #7B7879",
-       "tiempo": 48381,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-inv-f1-3485",
@@ -486,21 +376,8 @@ window.DEMO_DATA = {
        "apellido": "Fernández",
        "dni": "24683485",
        "nroKarting": "98",
-       "nroMotor": "IAME X30 #43894",
-       "tiempo": 49092,
-       "ok": true,
-       "posicion": 6
-      },
-      {
-       "inscId": "r-inv-f1-8614",
-       "nombre": "Diego",
-       "apellido": "Álvarez",
-       "dni": "30018614",
-       "nroKarting": "61",
-       "nroMotor": "Rotax #3B8140",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 6,
+       "puntos": 10
       }
      ]
     },
@@ -512,10 +389,8 @@ window.DEMO_DATA = {
        "apellido": "Ferreyra",
        "dni": "51001346",
        "nroKarting": "18",
-       "nroMotor": "Rotax Mini Max #6C5511",
-       "tiempo": 53149,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-inv-f2-1946",
@@ -523,10 +398,8 @@ window.DEMO_DATA = {
        "apellido": "Benítez",
        "dni": "52301946",
        "nroKarting": "15",
-       "nroMotor": "IAME Puma #59784",
-       "tiempo": 53227,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-inv-f2-2382",
@@ -534,10 +407,8 @@ window.DEMO_DATA = {
        "apellido": "Medina",
        "dni": "50112382",
        "nroKarting": "27",
-       "nroMotor": "Rotax Mini Max #3F1335",
-       "tiempo": 54482,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-inv-f2-8050",
@@ -545,10 +416,8 @@ window.DEMO_DATA = {
        "apellido": "Acosta",
        "dni": "51898050",
        "nroKarting": "66",
-       "nroMotor": "Rotax Mini Max #3F8697",
-       "tiempo": 54597,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-inv-f2-0128",
@@ -556,10 +425,8 @@ window.DEMO_DATA = {
        "apellido": "Sosa",
        "dni": "52790128",
        "nroKarting": "99",
-       "nroMotor": "Rotax Mini Max #7C7705",
-       "tiempo": 54763,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-inv-f2-4626",
@@ -567,21 +434,8 @@ window.DEMO_DATA = {
        "apellido": "Ledesma",
        "dni": "43864626",
        "nroKarting": "33",
-       "nroMotor": "Rotax Mini Max #9H3664",
-       "tiempo": 54780,
-       "ok": true,
-       "posicion": 6
-      },
-      {
-       "inscId": "r-inv-f2-1714",
-       "nombre": "Felipe",
-       "apellido": "Quiroga",
-       "dni": "51481714",
-       "nroKarting": "21",
-       "nroMotor": "Rotax Mini Max #1B1436",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 6,
+       "puntos": 10
       }
      ],
      "150 Varillero": [
@@ -591,10 +445,8 @@ window.DEMO_DATA = {
        "apellido": "Peralta",
        "dni": "41806213",
        "nroKarting": "30",
-       "nroMotor": "Rotax #7E6544",
-       "tiempo": 49525,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-inv-f2-6716",
@@ -602,10 +454,8 @@ window.DEMO_DATA = {
        "apellido": "Castro",
        "dni": "26346716",
        "nroKarting": "74",
-       "nroMotor": "IAME X30 #76596",
-       "tiempo": 49541,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-inv-f2-4151",
@@ -613,10 +463,8 @@ window.DEMO_DATA = {
        "apellido": "Godoy",
        "dni": "38884151",
        "nroKarting": "57",
-       "nroMotor": "Rotax #9G8068",
-       "tiempo": 50585,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-inv-f2-9715",
@@ -624,10 +472,8 @@ window.DEMO_DATA = {
        "apellido": "Rojas",
        "dni": "49889715",
        "nroKarting": "23",
-       "nroMotor": "Rotax #5A7765",
-       "tiempo": 50713,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-inv-f2-3724",
@@ -635,10 +481,8 @@ window.DEMO_DATA = {
        "apellido": "Cabrera",
        "dni": "51493724",
        "nroKarting": "34",
-       "nroMotor": "Rotax #6H2317",
-       "tiempo": 51260,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-inv-f2-7403",
@@ -646,21 +490,8 @@ window.DEMO_DATA = {
        "apellido": "Ríos",
        "dni": "24337403",
        "nroKarting": "92",
-       "nroMotor": "Rotax #5C6654",
-       "tiempo": 51702,
-       "ok": true,
-       "posicion": 6
-      },
-      {
-       "inscId": "r-inv-f2-9637",
-       "nombre": "Tomás",
-       "apellido": "Molina",
-       "dni": "50629637",
-       "nroKarting": "26",
-       "nroMotor": "Rotax #6G2628",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 6,
+       "puntos": 10
       }
      ],
      "125 Internacional": [
@@ -670,10 +501,8 @@ window.DEMO_DATA = {
        "apellido": "Álvarez",
        "dni": "30018614",
        "nroKarting": "61",
-       "nroMotor": "Rotax #3B8140",
-       "tiempo": 46590,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-inv-f2-0877",
@@ -681,10 +510,8 @@ window.DEMO_DATA = {
        "apellido": "Correa",
        "dni": "43180877",
        "nroKarting": "63",
-       "nroMotor": "Rotax #1B3640",
-       "tiempo": 46802,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-inv-f2-1839",
@@ -692,10 +519,8 @@ window.DEMO_DATA = {
        "apellido": "Vázquez",
        "dni": "23721839",
        "nroKarting": "29",
-       "nroMotor": "Rotax #5G8010",
-       "tiempo": 46853,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-inv-f2-3689",
@@ -703,10 +528,8 @@ window.DEMO_DATA = {
        "apellido": "Moreno",
        "dni": "39613689",
        "nroKarting": "96",
-       "nroMotor": "Rotax #3D9647",
-       "tiempo": 46904,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-inv-f2-7799",
@@ -714,10 +537,8 @@ window.DEMO_DATA = {
        "apellido": "Bustos",
        "dni": "32907799",
        "nroKarting": "16",
-       "nroMotor": "Rotax #9C5769",
-       "tiempo": 46971,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-inv-f2-8153",
@@ -725,10 +546,8 @@ window.DEMO_DATA = {
        "apellido": "Villalba",
        "dni": "35948153",
        "nroKarting": "41",
-       "nroMotor": "IAME X30 #81680",
-       "tiempo": 47081,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-inv-f2-2874",
@@ -736,10 +555,8 @@ window.DEMO_DATA = {
        "apellido": "Luna",
        "dni": "38562874",
        "nroKarting": "20",
-       "nroMotor": "IAME X30 #28642",
-       "tiempo": 47837,
-       "ok": true,
-       "posicion": 7
+       "posicion": 7,
+       "puntos": 9
       }
      ]
     }
@@ -752,10 +569,8 @@ window.DEMO_DATA = {
       "apellido": "Paz",
       "dni": "31602829",
       "nroKarting": "2",
-      "nroMotor": "IAME Puma #19539",
-      "tiempo": 52973,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-inv-f1-4626",
@@ -763,10 +578,8 @@ window.DEMO_DATA = {
       "apellido": "Ledesma",
       "dni": "43864626",
       "nroKarting": "33",
-      "nroMotor": "Rotax Mini Max #9H3664",
-      "tiempo": 53205,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-inv-f1-0128",
@@ -774,10 +587,8 @@ window.DEMO_DATA = {
       "apellido": "Sosa",
       "dni": "52790128",
       "nroKarting": "99",
-      "nroMotor": "Rotax Mini Max #7C7705",
-      "tiempo": 53563,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-inv-f1-8050",
@@ -785,10 +596,8 @@ window.DEMO_DATA = {
       "apellido": "Acosta",
       "dni": "51898050",
       "nroKarting": "66",
-      "nroMotor": "Rotax Mini Max #3F8697",
-      "tiempo": 54188,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-inv-f1-1829",
@@ -796,10 +605,8 @@ window.DEMO_DATA = {
       "apellido": "Domínguez",
       "dni": "50451829",
       "nroKarting": "82",
-      "nroMotor": "Rotax Mini Max #8F7960",
-      "tiempo": 54536,
-      "ok": true,
-      "posicion": 5
+      "posicion": 5,
+      "puntos": 11
      },
      {
       "inscId": "r-inv-f1-6302",
@@ -807,21 +614,8 @@ window.DEMO_DATA = {
       "apellido": "Aguirre",
       "dni": "50016302",
       "nroKarting": "58",
-      "nroMotor": "IAME Puma #91648",
-      "tiempo": 54919,
-      "ok": true,
-      "posicion": 6
-     },
-     {
-      "inscId": "r-inv-f1-2382",
-      "nombre": "Catalina",
-      "apellido": "Medina",
-      "dni": "50112382",
-      "nroKarting": "27",
-      "nroMotor": "Rotax Mini Max #3F1335",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
+      "posicion": 6,
+      "puntos": 10
      }
     ],
     "150 Varillero": [
@@ -831,10 +625,8 @@ window.DEMO_DATA = {
       "apellido": "Godoy",
       "dni": "38884151",
       "nroKarting": "57",
-      "nroMotor": "Rotax #9G8068",
-      "tiempo": 49730,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-inv-f1-7403",
@@ -842,10 +634,8 @@ window.DEMO_DATA = {
       "apellido": "Ríos",
       "dni": "24337403",
       "nroKarting": "92",
-      "nroMotor": "Rotax #5C6654",
-      "tiempo": 49940,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-inv-f1-6716",
@@ -853,10 +643,8 @@ window.DEMO_DATA = {
       "apellido": "Castro",
       "dni": "26346716",
       "nroKarting": "74",
-      "nroMotor": "IAME X30 #76596",
-      "tiempo": 50082,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-inv-f1-6213",
@@ -864,10 +652,8 @@ window.DEMO_DATA = {
       "apellido": "Peralta",
       "dni": "41806213",
       "nroKarting": "30",
-      "nroMotor": "Rotax #7E6544",
-      "tiempo": 51374,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-inv-f1-3724",
@@ -875,10 +661,8 @@ window.DEMO_DATA = {
       "apellido": "Cabrera",
       "dni": "51493724",
       "nroKarting": "34",
-      "nroMotor": "Rotax #6H2317",
-      "tiempo": 51519,
-      "ok": true,
-      "posicion": 5
+      "posicion": 5,
+      "puntos": 11
      },
      {
       "inscId": "r-inv-f1-1634",
@@ -886,10 +670,8 @@ window.DEMO_DATA = {
       "apellido": "Ojeda",
       "dni": "41431634",
       "nroKarting": "86",
-      "nroMotor": "IAME X30 #49982",
-      "tiempo": 51553,
-      "ok": true,
-      "posicion": 6
+      "posicion": 6,
+      "puntos": 10
      },
      {
       "inscId": "r-inv-f1-8799",
@@ -897,10 +679,8 @@ window.DEMO_DATA = {
       "apellido": "Ruiz",
       "dni": "41898799",
       "nroKarting": "52",
-      "nroMotor": "IAME X30 #32806",
-      "tiempo": 51924,
-      "ok": true,
-      "posicion": 7
+      "posicion": 7,
+      "puntos": 9
      }
     ],
     "125 Internacional": [
@@ -910,10 +690,8 @@ window.DEMO_DATA = {
       "apellido": "Luna",
       "dni": "38562874",
       "nroKarting": "20",
-      "nroMotor": "IAME X30 #28642",
-      "tiempo": 47469,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-inv-f1-0231",
@@ -921,10 +699,8 @@ window.DEMO_DATA = {
       "apellido": "Suárez",
       "dni": "42380231",
       "nroKarting": "80",
-      "nroMotor": "IAME X30 #27975",
-      "tiempo": 47529,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-inv-f1-1839",
@@ -932,10 +708,8 @@ window.DEMO_DATA = {
       "apellido": "Vázquez",
       "dni": "23721839",
       "nroKarting": "29",
-      "nroMotor": "Rotax #5G8010",
-      "tiempo": 47728,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-inv-f1-0877",
@@ -943,10 +717,8 @@ window.DEMO_DATA = {
       "apellido": "Correa",
       "dni": "43180877",
       "nroKarting": "63",
-      "nroMotor": "Rotax #1B3640",
-      "tiempo": 47763,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-inv-f1-2951",
@@ -954,10 +726,8 @@ window.DEMO_DATA = {
       "apellido": "Maidana",
       "dni": "31222951",
       "nroKarting": "55",
-      "nroMotor": "Rotax #7B7879",
-      "tiempo": 48381,
-      "ok": true,
-      "posicion": 5
+      "posicion": 5,
+      "puntos": 11
      },
      {
       "inscId": "r-inv-f1-3485",
@@ -965,21 +735,8 @@ window.DEMO_DATA = {
       "apellido": "Fernández",
       "dni": "24683485",
       "nroKarting": "98",
-      "nroMotor": "IAME X30 #43894",
-      "tiempo": 49092,
-      "ok": true,
-      "posicion": 6
-     },
-     {
-      "inscId": "r-inv-f1-8614",
-      "nombre": "Diego",
-      "apellido": "Álvarez",
-      "dni": "30018614",
-      "nroKarting": "61",
-      "nroMotor": "Rotax #3B8140",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
+      "posicion": 6,
+      "puntos": 10
      }
     ]
    }
@@ -1020,10 +777,8 @@ window.DEMO_DATA = {
       "apellido": "Paz",
       "dni": "31602829",
       "nroKarting": "2",
-      "nroMotor": "IAME Puma #19539",
-      "tiempo": 52595,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-f1-09",
@@ -1031,10 +786,8 @@ window.DEMO_DATA = {
       "apellido": "Aguirre",
       "dni": "50016302",
       "nroKarting": "58",
-      "nroMotor": "IAME Puma #91648",
-      "tiempo": 52847,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-f1-06",
@@ -1042,10 +795,8 @@ window.DEMO_DATA = {
       "apellido": "Benítez",
       "dni": "52301946",
       "nroKarting": "15",
-      "nroMotor": "IAME Puma #59784",
-      "tiempo": 53460,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-f1-01",
@@ -1053,10 +804,8 @@ window.DEMO_DATA = {
       "apellido": "Ferreyra",
       "dni": "51001346",
       "nroKarting": "18",
-      "nroMotor": "Rotax Mini Max #6C5511",
-      "tiempo": 53604,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-f1-10",
@@ -1064,10 +813,8 @@ window.DEMO_DATA = {
       "apellido": "Domínguez",
       "dni": "50451829",
       "nroKarting": "82",
-      "nroMotor": "Rotax Mini Max #8F7960",
-      "tiempo": 53716,
-      "ok": true,
-      "posicion": 5
+      "posicion": 5,
+      "puntos": 11
      },
      {
       "inscId": "r-f1-11",
@@ -1075,10 +822,8 @@ window.DEMO_DATA = {
       "apellido": "Quiroga",
       "dni": "51481714",
       "nroKarting": "21",
-      "nroMotor": "Rotax Mini Max #1B1436",
-      "tiempo": 54099,
-      "ok": true,
-      "posicion": 6
+      "posicion": 6,
+      "puntos": 10
      },
      {
       "inscId": "r-f1-12",
@@ -1086,10 +831,8 @@ window.DEMO_DATA = {
       "apellido": "Ledesma",
       "dni": "43864626",
       "nroKarting": "33",
-      "nroMotor": "Rotax Mini Max #9H3664",
-      "tiempo": 54375,
-      "ok": true,
-      "posicion": 7
+      "posicion": 7,
+      "puntos": 9
      },
      {
       "inscId": "r-f1-03",
@@ -1097,21 +840,8 @@ window.DEMO_DATA = {
       "apellido": "Giménez",
       "dni": "51386584",
       "nroKarting": "59",
-      "nroMotor": "Rotax Mini Max #3D8173",
-      "tiempo": 54418,
-      "ok": true,
-      "posicion": 8
-     },
-     {
-      "inscId": "r-f1-04",
-      "nombre": "Martina",
-      "apellido": "Acosta",
-      "dni": "51898050",
-      "nroKarting": "66",
-      "nroMotor": "Rotax Mini Max #3F8697",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
+      "posicion": 8,
+      "puntos": 8
      }
     ],
     "150 Varillero": [
@@ -1121,10 +851,8 @@ window.DEMO_DATA = {
       "apellido": "Molina",
       "dni": "50629637",
       "nroKarting": "26",
-      "nroMotor": "Rotax #6G2628",
-      "tiempo": 49441,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-f1-15",
@@ -1132,10 +860,8 @@ window.DEMO_DATA = {
       "apellido": "Castro",
       "dni": "26346716",
       "nroKarting": "74",
-      "nroMotor": "IAME X30 #76596",
-      "tiempo": 49659,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-f1-18",
@@ -1143,10 +869,8 @@ window.DEMO_DATA = {
       "apellido": "Ojeda",
       "dni": "41431634",
       "nroKarting": "86",
-      "nroMotor": "IAME X30 #49982",
-      "tiempo": 49965,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-f1-24",
@@ -1154,10 +878,8 @@ window.DEMO_DATA = {
       "apellido": "Cabrera",
       "dni": "51493724",
       "nroKarting": "34",
-      "nroMotor": "Rotax #6H2317",
-      "tiempo": 50193,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-f1-22",
@@ -1165,10 +887,8 @@ window.DEMO_DATA = {
       "apellido": "Peralta",
       "dni": "41806213",
       "nroKarting": "30",
-      "nroMotor": "Rotax #7E6544",
-      "tiempo": 50820,
-      "ok": true,
-      "posicion": 5
+      "posicion": 5,
+      "puntos": 11
      },
      {
       "inscId": "r-f1-16",
@@ -1176,21 +896,8 @@ window.DEMO_DATA = {
       "apellido": "Rojas",
       "dni": "49889715",
       "nroKarting": "23",
-      "nroMotor": "Rotax #5A7765",
-      "tiempo": 51268,
-      "ok": true,
-      "posicion": 6
-     },
-     {
-      "inscId": "r-f1-23",
-      "nombre": "Gonzalo",
-      "apellido": "Ríos",
-      "dni": "24337403",
-      "nroKarting": "92",
-      "nroMotor": "Rotax #5C6654",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
+      "posicion": 6,
+      "puntos": 10
      }
     ],
     "125 Internacional": [
@@ -1200,10 +907,8 @@ window.DEMO_DATA = {
       "apellido": "Maidana",
       "dni": "31222951",
       "nroKarting": "55",
-      "nroMotor": "Rotax #7B7879",
-      "tiempo": 46498,
-      "ok": true,
-      "posicion": 1
+      "posicion": 1,
+      "puntos": 25
      },
      {
       "inscId": "r-f1-28",
@@ -1211,10 +916,8 @@ window.DEMO_DATA = {
       "apellido": "Correa",
       "dni": "43180877",
       "nroKarting": "63",
-      "nroMotor": "Rotax #1B3640",
-      "tiempo": 46602,
-      "ok": true,
-      "posicion": 2
+      "posicion": 2,
+      "puntos": 20
      },
      {
       "inscId": "r-f1-32",
@@ -1222,10 +925,8 @@ window.DEMO_DATA = {
       "apellido": "Bustos",
       "dni": "32907799",
       "nroKarting": "16",
-      "nroMotor": "Rotax #9C5769",
-      "tiempo": 46884,
-      "ok": true,
-      "posicion": 3
+      "posicion": 3,
+      "puntos": 16
      },
      {
       "inscId": "r-f1-27",
@@ -1233,10 +934,8 @@ window.DEMO_DATA = {
       "apellido": "Suárez",
       "dni": "42380231",
       "nroKarting": "80",
-      "nroMotor": "IAME X30 #27975",
-      "tiempo": 47410,
-      "ok": true,
-      "posicion": 4
+      "posicion": 4,
+      "puntos": 13
      },
      {
       "inscId": "r-f1-29",
@@ -1244,10 +943,8 @@ window.DEMO_DATA = {
       "apellido": "Luna",
       "dni": "38562874",
       "nroKarting": "20",
-      "nroMotor": "IAME X30 #28642",
-      "tiempo": 47670,
-      "ok": true,
-      "posicion": 5
+      "posicion": 5,
+      "puntos": 11
      },
      {
       "inscId": "r-f1-34",
@@ -1255,10 +952,8 @@ window.DEMO_DATA = {
       "apellido": "Villalba",
       "dni": "35948153",
       "nroKarting": "41",
-      "nroMotor": "IAME X30 #81680",
-      "tiempo": 47852,
-      "ok": true,
-      "posicion": 6
+      "posicion": 6,
+      "puntos": 10
      },
      {
       "inscId": "r-f1-26",
@@ -1266,21 +961,8 @@ window.DEMO_DATA = {
       "apellido": "Álvarez",
       "dni": "30018614",
       "nroKarting": "61",
-      "nroMotor": "Rotax #3B8140",
-      "tiempo": 47954,
-      "ok": true,
-      "posicion": 7
-     },
-     {
-      "inscId": "r-f1-33",
-      "nombre": "Emiliano",
-      "apellido": "Ortiz",
-      "dni": "40764201",
-      "nroKarting": "60",
-      "nroMotor": "IAME X30 #84568",
-      "tiempo": null,
-      "ok": false,
-      "posicion": null
+      "posicion": 7,
+      "puntos": 9
      }
     ]
    },
@@ -1293,10 +975,8 @@ window.DEMO_DATA = {
        "apellido": "Paz",
        "dni": "31602829",
        "nroKarting": "2",
-       "nroMotor": "IAME Puma #19539",
-       "tiempo": 52595,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f1-09",
@@ -1304,10 +984,8 @@ window.DEMO_DATA = {
        "apellido": "Aguirre",
        "dni": "50016302",
        "nroKarting": "58",
-       "nroMotor": "IAME Puma #91648",
-       "tiempo": 52847,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f1-06",
@@ -1315,10 +993,8 @@ window.DEMO_DATA = {
        "apellido": "Benítez",
        "dni": "52301946",
        "nroKarting": "15",
-       "nroMotor": "IAME Puma #59784",
-       "tiempo": 53460,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f1-01",
@@ -1326,10 +1002,8 @@ window.DEMO_DATA = {
        "apellido": "Ferreyra",
        "dni": "51001346",
        "nroKarting": "18",
-       "nroMotor": "Rotax Mini Max #6C5511",
-       "tiempo": 53604,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f1-10",
@@ -1337,10 +1011,8 @@ window.DEMO_DATA = {
        "apellido": "Domínguez",
        "dni": "50451829",
        "nroKarting": "82",
-       "nroMotor": "Rotax Mini Max #8F7960",
-       "tiempo": 53716,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f1-11",
@@ -1348,10 +1020,8 @@ window.DEMO_DATA = {
        "apellido": "Quiroga",
        "dni": "51481714",
        "nroKarting": "21",
-       "nroMotor": "Rotax Mini Max #1B1436",
-       "tiempo": 54099,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-f1-12",
@@ -1359,10 +1029,8 @@ window.DEMO_DATA = {
        "apellido": "Ledesma",
        "dni": "43864626",
        "nroKarting": "33",
-       "nroMotor": "Rotax Mini Max #9H3664",
-       "tiempo": 54375,
-       "ok": true,
-       "posicion": 7
+       "posicion": 7,
+       "puntos": 9
       },
       {
        "inscId": "r-f1-03",
@@ -1370,21 +1038,8 @@ window.DEMO_DATA = {
        "apellido": "Giménez",
        "dni": "51386584",
        "nroKarting": "59",
-       "nroMotor": "Rotax Mini Max #3D8173",
-       "tiempo": 54418,
-       "ok": true,
-       "posicion": 8
-      },
-      {
-       "inscId": "r-f1-04",
-       "nombre": "Martina",
-       "apellido": "Acosta",
-       "dni": "51898050",
-       "nroKarting": "66",
-       "nroMotor": "Rotax Mini Max #3F8697",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 8,
+       "puntos": 8
       }
      ],
      "150 Varillero": [
@@ -1394,10 +1049,8 @@ window.DEMO_DATA = {
        "apellido": "Molina",
        "dni": "50629637",
        "nroKarting": "26",
-       "nroMotor": "Rotax #6G2628",
-       "tiempo": 49441,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f1-15",
@@ -1405,10 +1058,8 @@ window.DEMO_DATA = {
        "apellido": "Castro",
        "dni": "26346716",
        "nroKarting": "74",
-       "nroMotor": "IAME X30 #76596",
-       "tiempo": 49659,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f1-18",
@@ -1416,10 +1067,8 @@ window.DEMO_DATA = {
        "apellido": "Ojeda",
        "dni": "41431634",
        "nroKarting": "86",
-       "nroMotor": "IAME X30 #49982",
-       "tiempo": 49965,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f1-24",
@@ -1427,10 +1076,8 @@ window.DEMO_DATA = {
        "apellido": "Cabrera",
        "dni": "51493724",
        "nroKarting": "34",
-       "nroMotor": "Rotax #6H2317",
-       "tiempo": 50193,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f1-22",
@@ -1438,10 +1085,8 @@ window.DEMO_DATA = {
        "apellido": "Peralta",
        "dni": "41806213",
        "nroKarting": "30",
-       "nroMotor": "Rotax #7E6544",
-       "tiempo": 50820,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f1-16",
@@ -1449,21 +1094,8 @@ window.DEMO_DATA = {
        "apellido": "Rojas",
        "dni": "49889715",
        "nroKarting": "23",
-       "nroMotor": "Rotax #5A7765",
-       "tiempo": 51268,
-       "ok": true,
-       "posicion": 6
-      },
-      {
-       "inscId": "r-f1-23",
-       "nombre": "Gonzalo",
-       "apellido": "Ríos",
-       "dni": "24337403",
-       "nroKarting": "92",
-       "nroMotor": "Rotax #5C6654",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 6,
+       "puntos": 10
       }
      ],
      "125 Internacional": [
@@ -1473,10 +1105,8 @@ window.DEMO_DATA = {
        "apellido": "Maidana",
        "dni": "31222951",
        "nroKarting": "55",
-       "nroMotor": "Rotax #7B7879",
-       "tiempo": 46498,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f1-28",
@@ -1484,10 +1114,8 @@ window.DEMO_DATA = {
        "apellido": "Correa",
        "dni": "43180877",
        "nroKarting": "63",
-       "nroMotor": "Rotax #1B3640",
-       "tiempo": 46602,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f1-32",
@@ -1495,10 +1123,8 @@ window.DEMO_DATA = {
        "apellido": "Bustos",
        "dni": "32907799",
        "nroKarting": "16",
-       "nroMotor": "Rotax #9C5769",
-       "tiempo": 46884,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f1-27",
@@ -1506,10 +1132,8 @@ window.DEMO_DATA = {
        "apellido": "Suárez",
        "dni": "42380231",
        "nroKarting": "80",
-       "nroMotor": "IAME X30 #27975",
-       "tiempo": 47410,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f1-29",
@@ -1517,10 +1141,8 @@ window.DEMO_DATA = {
        "apellido": "Luna",
        "dni": "38562874",
        "nroKarting": "20",
-       "nroMotor": "IAME X30 #28642",
-       "tiempo": 47670,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f1-34",
@@ -1528,10 +1150,8 @@ window.DEMO_DATA = {
        "apellido": "Villalba",
        "dni": "35948153",
        "nroKarting": "41",
-       "nroMotor": "IAME X30 #81680",
-       "tiempo": 47852,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-f1-26",
@@ -1539,21 +1159,8 @@ window.DEMO_DATA = {
        "apellido": "Álvarez",
        "dni": "30018614",
        "nroKarting": "61",
-       "nroMotor": "Rotax #3B8140",
-       "tiempo": 47954,
-       "ok": true,
-       "posicion": 7
-      },
-      {
-       "inscId": "r-f1-33",
-       "nombre": "Emiliano",
-       "apellido": "Ortiz",
-       "dni": "40764201",
-       "nroKarting": "60",
-       "nroMotor": "IAME X30 #84568",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 7,
+       "puntos": 9
       }
      ]
     },
@@ -1565,10 +1172,8 @@ window.DEMO_DATA = {
        "apellido": "Paz",
        "dni": "31602829",
        "nroKarting": "2",
-       "nroMotor": "IAME Puma #19539",
-       "tiempo": 52825,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f2-06",
@@ -1576,10 +1181,8 @@ window.DEMO_DATA = {
        "apellido": "Benítez",
        "dni": "52301946",
        "nroKarting": "15",
-       "nroMotor": "IAME Puma #59784",
-       "tiempo": 52866,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f2-07",
@@ -1587,10 +1190,8 @@ window.DEMO_DATA = {
        "apellido": "Medina",
        "dni": "50112382",
        "nroKarting": "27",
-       "nroMotor": "Rotax Mini Max #3F1335",
-       "tiempo": 52980,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f2-08",
@@ -1598,10 +1199,8 @@ window.DEMO_DATA = {
        "apellido": "Herrera",
        "dni": "52224695",
        "nroKarting": "97",
-       "nroMotor": "IAME Puma #33126",
-       "tiempo": 53464,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f2-04",
@@ -1609,10 +1208,8 @@ window.DEMO_DATA = {
        "apellido": "Acosta",
        "dni": "51898050",
        "nroKarting": "66",
-       "nroMotor": "Rotax Mini Max #3F8697",
-       "tiempo": 53952,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f2-03",
@@ -1620,10 +1217,8 @@ window.DEMO_DATA = {
        "apellido": "Giménez",
        "dni": "51386584",
        "nroKarting": "59",
-       "nroMotor": "Rotax Mini Max #3D8173",
-       "tiempo": 54859,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-f2-02",
@@ -1631,21 +1226,8 @@ window.DEMO_DATA = {
        "apellido": "Sosa",
        "dni": "52790128",
        "nroKarting": "99",
-       "nroMotor": "Rotax Mini Max #7C7705",
-       "tiempo": 55247,
-       "ok": true,
-       "posicion": 7
-      },
-      {
-       "inscId": "r-f2-01",
-       "nombre": "Benjamín",
-       "apellido": "Ferreyra",
-       "dni": "51001346",
-       "nroKarting": "18",
-       "nroMotor": "Rotax Mini Max #6C5511",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 7,
+       "puntos": 9
       }
      ],
      "150 Varillero": [
@@ -1655,10 +1237,8 @@ window.DEMO_DATA = {
        "apellido": "Godoy",
        "dni": "38884151",
        "nroKarting": "57",
-       "nroMotor": "Rotax #9G8068",
-       "tiempo": 49541,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f2-15",
@@ -1666,10 +1246,8 @@ window.DEMO_DATA = {
        "apellido": "Castro",
        "dni": "26346716",
        "nroKarting": "74",
-       "nroMotor": "IAME X30 #76596",
-       "tiempo": 49893,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f2-18",
@@ -1677,10 +1255,8 @@ window.DEMO_DATA = {
        "apellido": "Ojeda",
        "dni": "41431634",
        "nroKarting": "86",
-       "nroMotor": "IAME X30 #49982",
-       "tiempo": 50114,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f2-21",
@@ -1688,10 +1264,8 @@ window.DEMO_DATA = {
        "apellido": "Navarro",
        "dni": "41851270",
        "nroKarting": "53",
-       "nroMotor": "Rotax #7H6278",
-       "tiempo": 50228,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f2-24",
@@ -1699,10 +1273,8 @@ window.DEMO_DATA = {
        "apellido": "Cabrera",
        "dni": "51493724",
        "nroKarting": "34",
-       "nroMotor": "Rotax #6H2317",
-       "tiempo": 50481,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f2-22",
@@ -1710,10 +1282,8 @@ window.DEMO_DATA = {
        "apellido": "Peralta",
        "dni": "41806213",
        "nroKarting": "30",
-       "nroMotor": "Rotax #7E6544",
-       "tiempo": 50660,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-f2-16",
@@ -1721,10 +1291,8 @@ window.DEMO_DATA = {
        "apellido": "Rojas",
        "dni": "49889715",
        "nroKarting": "23",
-       "nroMotor": "Rotax #5A7765",
-       "tiempo": 50666,
-       "ok": true,
-       "posicion": 7
+       "posicion": 7,
+       "puntos": 9
       },
       {
        "inscId": "r-f2-17",
@@ -1732,10 +1300,8 @@ window.DEMO_DATA = {
        "apellido": "Ruiz",
        "dni": "41898799",
        "nroKarting": "52",
-       "nroMotor": "IAME X30 #32806",
-       "tiempo": 50789,
-       "ok": true,
-       "posicion": 8
+       "posicion": 8,
+       "puntos": 8
       },
       {
        "inscId": "r-f2-23",
@@ -1743,10 +1309,8 @@ window.DEMO_DATA = {
        "apellido": "Ríos",
        "dni": "24337403",
        "nroKarting": "92",
-       "nroMotor": "Rotax #5C6654",
-       "tiempo": 51435,
-       "ok": true,
-       "posicion": 9
+       "posicion": 9,
+       "puntos": 7
       }
      ],
      "125 Internacional": [
@@ -1756,10 +1320,8 @@ window.DEMO_DATA = {
        "apellido": "Maidana",
        "dni": "31222951",
        "nroKarting": "55",
-       "nroMotor": "Rotax #7B7879",
-       "tiempo": 46310,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f2-31",
@@ -1767,10 +1329,8 @@ window.DEMO_DATA = {
        "apellido": "Vázquez",
        "dni": "23721839",
        "nroKarting": "29",
-       "nroMotor": "Rotax #5G8010",
-       "tiempo": 46984,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f2-27",
@@ -1778,10 +1338,8 @@ window.DEMO_DATA = {
        "apellido": "Suárez",
        "dni": "42380231",
        "nroKarting": "80",
-       "nroMotor": "IAME X30 #27975",
-       "tiempo": 47630,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f2-34",
@@ -1789,10 +1347,8 @@ window.DEMO_DATA = {
        "apellido": "Villalba",
        "dni": "35948153",
        "nroKarting": "41",
-       "nroMotor": "IAME X30 #81680",
-       "tiempo": 47906,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f2-33",
@@ -1800,21 +1356,8 @@ window.DEMO_DATA = {
        "apellido": "Ortiz",
        "dni": "40764201",
        "nroKarting": "60",
-       "nroMotor": "IAME X30 #84568",
-       "tiempo": 47948,
-       "ok": true,
-       "posicion": 5
-      },
-      {
-       "inscId": "r-f2-29",
-       "nombre": "Sebastián",
-       "apellido": "Luna",
-       "dni": "38562874",
-       "nroKarting": "20",
-       "nroMotor": "IAME X30 #28642",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 5,
+       "puntos": 11
       }
      ]
     },
@@ -1826,10 +1369,8 @@ window.DEMO_DATA = {
        "apellido": "Medina",
        "dni": "50112382",
        "nroKarting": "27",
-       "nroMotor": "Rotax Mini Max #3F1335",
-       "tiempo": 52653,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f3-08",
@@ -1837,10 +1378,8 @@ window.DEMO_DATA = {
        "apellido": "Herrera",
        "dni": "52224695",
        "nroKarting": "97",
-       "nroMotor": "IAME Puma #33126",
-       "tiempo": 53899,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f3-11",
@@ -1848,10 +1387,8 @@ window.DEMO_DATA = {
        "apellido": "Quiroga",
        "dni": "51481714",
        "nroKarting": "21",
-       "nroMotor": "Rotax Mini Max #1B1436",
-       "tiempo": 54094,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f3-10",
@@ -1859,10 +1396,8 @@ window.DEMO_DATA = {
        "apellido": "Domínguez",
        "dni": "50451829",
        "nroKarting": "82",
-       "nroMotor": "Rotax Mini Max #8F7960",
-       "tiempo": 54199,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f3-12",
@@ -1870,10 +1405,8 @@ window.DEMO_DATA = {
        "apellido": "Ledesma",
        "dni": "43864626",
        "nroKarting": "33",
-       "nroMotor": "Rotax Mini Max #9H3664",
-       "tiempo": 54322,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f3-03",
@@ -1881,21 +1414,8 @@ window.DEMO_DATA = {
        "apellido": "Giménez",
        "dni": "51386584",
        "nroKarting": "59",
-       "nroMotor": "Rotax Mini Max #3D8173",
-       "tiempo": 54522,
-       "ok": true,
-       "posicion": 6
-      },
-      {
-       "inscId": "r-f3-04",
-       "nombre": "Martina",
-       "apellido": "Acosta",
-       "dni": "51898050",
-       "nroKarting": "66",
-       "nroMotor": "Rotax Mini Max #3F8697",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 6,
+       "puntos": 10
       }
      ],
      "150 Varillero": [
@@ -1905,10 +1425,8 @@ window.DEMO_DATA = {
        "apellido": "Molina",
        "dni": "50629637",
        "nroKarting": "26",
-       "nroMotor": "Rotax #6G2628",
-       "tiempo": 49470,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f3-20",
@@ -1916,10 +1434,8 @@ window.DEMO_DATA = {
        "apellido": "Godoy",
        "dni": "38884151",
        "nroKarting": "57",
-       "nroMotor": "Rotax #9G8068",
-       "tiempo": 49883,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f3-18",
@@ -1927,10 +1443,8 @@ window.DEMO_DATA = {
        "apellido": "Ojeda",
        "dni": "41431634",
        "nroKarting": "86",
-       "nroMotor": "IAME X30 #49982",
-       "tiempo": 50189,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f3-21",
@@ -1938,10 +1452,8 @@ window.DEMO_DATA = {
        "apellido": "Navarro",
        "dni": "41851270",
        "nroKarting": "53",
-       "nroMotor": "Rotax #7H6278",
-       "tiempo": 50303,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f3-24",
@@ -1949,10 +1461,8 @@ window.DEMO_DATA = {
        "apellido": "Cabrera",
        "dni": "51493724",
        "nroKarting": "34",
-       "nroMotor": "Rotax #6H2317",
-       "tiempo": 50351,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f3-22",
@@ -1960,10 +1470,8 @@ window.DEMO_DATA = {
        "apellido": "Peralta",
        "dni": "41806213",
        "nroKarting": "30",
-       "nroMotor": "Rotax #7E6544",
-       "tiempo": 51001,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-f3-17",
@@ -1971,21 +1479,8 @@ window.DEMO_DATA = {
        "apellido": "Ruiz",
        "dni": "41898799",
        "nroKarting": "52",
-       "nroMotor": "IAME X30 #32806",
-       "tiempo": 51070,
-       "ok": true,
-       "posicion": 7
-      },
-      {
-       "inscId": "r-f3-15",
-       "nombre": "Agustín",
-       "apellido": "Castro",
-       "dni": "26346716",
-       "nroKarting": "74",
-       "nroMotor": "IAME X30 #76596",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 7,
+       "puntos": 9
       }
      ],
      "125 Internacional": [
@@ -1995,10 +1490,8 @@ window.DEMO_DATA = {
        "apellido": "Vázquez",
        "dni": "23721839",
        "nroKarting": "29",
-       "nroMotor": "Rotax #5G8010",
-       "tiempo": 46490,
-       "ok": true,
-       "posicion": 1
+       "posicion": 1,
+       "puntos": 25
       },
       {
        "inscId": "r-f3-28",
@@ -2006,10 +1499,8 @@ window.DEMO_DATA = {
        "apellido": "Correa",
        "dni": "43180877",
        "nroKarting": "63",
-       "nroMotor": "Rotax #1B3640",
-       "tiempo": 46551,
-       "ok": true,
-       "posicion": 2
+       "posicion": 2,
+       "puntos": 20
       },
       {
        "inscId": "r-f3-29",
@@ -2017,10 +1508,8 @@ window.DEMO_DATA = {
        "apellido": "Luna",
        "dni": "38562874",
        "nroKarting": "20",
-       "nroMotor": "IAME X30 #28642",
-       "tiempo": 47252,
-       "ok": true,
-       "posicion": 3
+       "posicion": 3,
+       "puntos": 16
       },
       {
        "inscId": "r-f3-27",
@@ -2028,10 +1517,8 @@ window.DEMO_DATA = {
        "apellido": "Suárez",
        "dni": "42380231",
        "nroKarting": "80",
-       "nroMotor": "IAME X30 #27975",
-       "tiempo": 47505,
-       "ok": true,
-       "posicion": 4
+       "posicion": 4,
+       "puntos": 13
       },
       {
        "inscId": "r-f3-34",
@@ -2039,10 +1526,8 @@ window.DEMO_DATA = {
        "apellido": "Villalba",
        "dni": "35948153",
        "nroKarting": "41",
-       "nroMotor": "IAME X30 #81680",
-       "tiempo": 47925,
-       "ok": true,
-       "posicion": 5
+       "posicion": 5,
+       "puntos": 11
       },
       {
        "inscId": "r-f3-33",
@@ -2050,10 +1535,8 @@ window.DEMO_DATA = {
        "apellido": "Ortiz",
        "dni": "40764201",
        "nroKarting": "60",
-       "nroMotor": "IAME X30 #84568",
-       "tiempo": 47949,
-       "ok": true,
-       "posicion": 6
+       "posicion": 6,
+       "puntos": 10
       },
       {
        "inscId": "r-f3-35",
@@ -2061,10 +1544,8 @@ window.DEMO_DATA = {
        "apellido": "Moreno",
        "dni": "39613689",
        "nroKarting": "96",
-       "nroMotor": "Rotax #3D9647",
-       "tiempo": 48044,
-       "ok": true,
-       "posicion": 7
+       "posicion": 7,
+       "puntos": 9
       },
       {
        "inscId": "r-f3-25",
@@ -2072,21 +1553,8 @@ window.DEMO_DATA = {
        "apellido": "Fernández",
        "dni": "24683485",
        "nroKarting": "98",
-       "nroMotor": "IAME X30 #43894",
-       "tiempo": 48571,
-       "ok": true,
-       "posicion": 8
-      },
-      {
-       "inscId": "r-f3-30",
-       "nombre": "Hernán",
-       "apellido": "Maidana",
-       "dni": "31222951",
-       "nroKarting": "55",
-       "nroMotor": "Rotax #7B7879",
-       "tiempo": null,
-       "ok": false,
-       "posicion": null
+       "posicion": 8,
+       "puntos": 8
       }
      ]
     }
@@ -3199,215 +2667,269 @@ window.DEMO_DATA = {
    }
   }
  ],
- "tiempos": {
+ "puntos": {
   "t-2026-f4": {
-   "i-001": {
-    "tiempo": 51378,
-    "ok": true,
-    "f2": {
-     "tiempo": 51478,
-     "ok": false
-    }
+   "f1__150-varillero": {
+    "fecha": 1,
+    "categoria": "150 Varillero",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "34",
+      "nombre": "Cabrera Sofía",
+      "puntos": 25,
+      "inscId": "i-013"
+     },
+     {
+      "posicion": 2,
+      "kart": "86",
+      "nombre": "Ojeda Nicolás",
+      "puntos": 20,
+      "inscId": "i-001"
+     }
+    ]
    },
-   "i-002": {
-    "tiempo": 54878,
-    "ok": true,
-    "f2": {
-     "tiempo": 55077,
-     "ok": true
-    }
+   "f1__110-escuela": {
+    "fecha": 1,
+    "categoria": "110 Escuela",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "27",
+      "nombre": "Medina Catalina",
+      "puntos": 25,
+      "inscId": "i-017"
+     },
+     {
+      "posicion": 2,
+      "kart": "66",
+      "nombre": "Acosta Martina",
+      "puntos": 20,
+      "inscId": "i-003"
+     },
+     {
+      "posicion": 3,
+      "kart": "97",
+      "nombre": "Herrera Santino",
+      "puntos": 16,
+      "inscId": "i-016"
+     },
+     {
+      "posicion": 4,
+      "kart": "2",
+      "nombre": "Paz Gustavo",
+      "puntos": 13,
+      "inscId": "i-005"
+     },
+     {
+      "posicion": 5,
+      "kart": "21",
+      "nombre": "Quiroga Felipe",
+      "puntos": 11,
+      "inscId": "i-011"
+     },
+     {
+      "posicion": 6,
+      "kart": "59",
+      "nombre": "Giménez Thiago",
+      "puntos": 10,
+      "inscId": "i-022"
+     },
+     {
+      "posicion": 7,
+      "kart": "15",
+      "nombre": "Benítez Lautaro",
+      "puntos": 9,
+      "inscId": "i-007"
+     },
+     {
+      "posicion": 8,
+      "kart": "99",
+      "nombre": "Sosa Valentina",
+      "puntos": 8,
+      "inscId": "i-002"
+     },
+     {
+      "posicion": 9,
+      "kart": "4",
+      "nombre": "Romero Bautista",
+      "puntos": 7,
+      "inscId": "i-015"
+     }
+    ]
    },
-   "i-003": {
-    "tiempo": 53147,
-    "ok": true,
-    "f2": {
-     "tiempo": 53283,
-     "ok": true
-    }
+   "f1__150-multimarca": {
+    "fecha": 1,
+    "categoria": "150 Multimarca",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "92",
+      "nombre": "Ríos Gonzalo",
+      "puntos": 25,
+      "inscId": "i-004"
+     },
+     {
+      "posicion": 2,
+      "kart": "30",
+      "nombre": "Peralta Matías",
+      "puntos": 20,
+      "inscId": "i-008"
+     }
+    ]
    },
-   "i-004": {
-    "tiempo": 50507,
-    "ok": true,
-    "f2": {
-     "tiempo": 50436,
-     "ok": true
-    }
+   "f1__150-varillero-juvenil": {
+    "fecha": 1,
+    "categoria": "150 Varillero Juvenil",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "57",
+      "nombre": "Godoy Franco",
+      "puntos": 25,
+      "inscId": "i-006"
+     },
+     {
+      "posicion": 2,
+      "kart": "74",
+      "nombre": "Castro Agustín",
+      "puntos": 20,
+      "inscId": "i-014"
+     },
+     {
+      "posicion": 3,
+      "kart": "23",
+      "nombre": "Rojas Camila",
+      "puntos": 16,
+      "inscId": "i-018"
+     }
+    ]
    },
-   "i-005": {
-    "tiempo": 53283,
-    "ok": true,
-    "f2": {
-     "tiempo": 53300,
-     "ok": true
-    }
+   "f1__150-multi-senior": {
+    "fecha": 1,
+    "categoria": "150 Multi.Senior",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "57",
+      "nombre": "Godoy Franco",
+      "puntos": 25,
+      "inscId": "i-006"
+     },
+     {
+      "posicion": 2,
+      "kart": "74",
+      "nombre": "Castro Agustín",
+      "puntos": 20,
+      "inscId": "i-014"
+     },
+     {
+      "posicion": 3,
+      "kart": "23",
+      "nombre": "Rojas Camila",
+      "puntos": 16,
+      "inscId": "i-018"
+     }
+    ]
    },
-   "i-006": {
-    "tiempo": 49766,
-    "ok": true,
-    "f2": {
-     "tiempo": 49495,
-     "ok": true
-    }
+   "f1__125-internacional": {
+    "fecha": 1,
+    "categoria": "125 Internacional",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "96",
+      "nombre": "Correa Pablo",
+      "puntos": 25,
+      "inscId": "i-021"
+     },
+     {
+      "posicion": 2,
+      "kart": "96",
+      "nombre": "Moreno Ezequiel",
+      "puntos": 20,
+      "inscId": "i-020"
+     },
+     {
+      "posicion": 3,
+      "kart": "20",
+      "nombre": "Luna Sebastián",
+      "puntos": 16,
+      "inscId": "i-009"
+     }
+    ]
    },
-   "i-007": {
-    "tiempo": 54832,
-    "ok": true,
-    "f2": {
-     "tiempo": 54756,
-     "ok": false
-    }
+   "f1__125-promocional": {
+    "fecha": 1,
+    "categoria": "125 Promocional",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "41",
+      "nombre": "Villalba Carla",
+      "puntos": 25,
+      "inscId": "i-010"
+     }
+    ]
    },
-   "i-008": {
-    "tiempo": 51290,
-    "ok": true,
-    "f2": {
-     "tiempo": 51626,
-     "ok": true
-    }
+   "f1__125-inter-master": {
+    "fecha": 1,
+    "categoria": "125 Inter.Master",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "41",
+      "nombre": "Villalba Carla",
+      "puntos": 25,
+      "inscId": "i-010"
+     }
+    ]
    },
-   "i-009": {
-    "tiempo": 48486,
-    "ok": true,
-    "f2": {
-     "tiempo": 48274,
-     "ok": true
-    }
+   "f1__125-inter-juvenil": {
+    "fecha": 1,
+    "categoria": "125 Inter.Juvenil",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "16",
+      "nombre": "Bustos Rodrigo",
+      "puntos": 25,
+      "inscId": "i-012"
+     }
+    ]
    },
-   "i-010": {
-    "tiempo": 48980,
-    "ok": true,
-    "f2": {
-     "tiempo": 49194,
-     "ok": false
-    }
-   },
-   "i-011": {
-    "tiempo": 54464,
-    "ok": true,
-    "f2": {
-     "tiempo": 54038,
-     "ok": true
-    }
-   },
-   "i-012": {
-    "tiempo": 47396,
-    "ok": true,
-    "f2": {
-     "tiempo": 47209,
-     "ok": true
-    }
-   },
-   "i-013": {
-    "tiempo": 50469,
-    "ok": true,
-    "f2": {
-     "tiempo": 50551,
-     "ok": true
-    }
-   },
-   "i-014": {
-    "tiempo": 49865,
-    "ok": true,
-    "f2": {
-     "tiempo": 49451,
-     "ok": true
-    }
-   },
-   "i-015": {
-    "tiempo": 54904,
-    "ok": true,
-    "f2": {
-     "tiempo": 54743,
-     "ok": true
-    }
-   },
-   "i-016": {
-    "tiempo": 53278,
-    "ok": true,
-    "f2": {
-     "tiempo": 53682,
-     "ok": false
-    }
-   },
-   "i-017": {
-    "tiempo": 53132,
-    "ok": true,
-    "f2": {
-     "tiempo": null,
-     "ok": false
-    }
-   },
-   "i-018": {
-    "tiempo": 51030,
-    "ok": true,
-    "f2": {
-     "tiempo": 51378,
-     "ok": false
-    }
-   },
-   "i-019": {
-    "tiempo": 50902,
-    "ok": true,
-    "f2": {
-     "tiempo": 50990,
-     "ok": true
-    }
-   },
-   "i-020": {
-    "tiempo": 47993,
-    "ok": true,
-    "f2": {
-     "tiempo": null,
-     "ok": false
-    }
-   },
-   "i-021": {
-    "tiempo": 46801,
-    "ok": true,
-    "f2": {
-     "tiempo": 46607,
-     "ok": true
-    }
-   },
-   "i-022": {
-    "tiempo": 54667,
-    "ok": true,
-    "f2": {
-     "tiempo": 54683,
-     "ok": true
-    }
-   },
-   "i-006__150-multi-senior": {
-    "tiempo": 50280,
-    "ok": true,
-    "f2": {
-     "tiempo": 50044,
-     "ok": true
-    }
-   },
-   "i-010__125-inter-master": {
-    "tiempo": 49798,
-    "ok": true,
-    "f2": {
-     "tiempo": 49714,
-     "ok": false
-    }
-   },
-   "i-014__150-multi-senior": {
-    "tiempo": 50716,
-    "ok": true,
-    "f2": {
-     "tiempo": 50491,
-     "ok": true
-    }
-   },
-   "i-018__150-multi-senior": {
-    "tiempo": 51330,
-    "ok": true,
-    "f2": {
-     "tiempo": 51338,
-     "ok": true
-    }
+   "f1__150-cadenero": {
+    "fecha": 1,
+    "categoria": "150 Cadenero",
+    "foto": null,
+    "actualizado": "2026-10-24T20:00:00.000Z",
+    "filas": [
+     {
+      "posicion": 1,
+      "kart": "52",
+      "nombre": "Ruiz Facundo",
+      "puntos": 25,
+      "inscId": "i-019"
+     }
+    ]
    }
   }
  }
