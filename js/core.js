@@ -118,11 +118,33 @@
       if (window.Store && window.Store.fechasDe) return window.Store.fechasDe(t);
       return t && t.fecha ? [t.fecha] : [];
     },
-    /* Una fecha: "sábado, 24 de octubre de 2026" (largo) o "24 oct 2026". Varias: "Fecha 1: 24 oct 2026 · Fecha 2: …" */
+    /* Fechas del torneo con su número y sus días: [{ n, numero, dias, desde, hasta }] */
+    fechasInfo(t) {
+      if (window.Store && window.Store.fechasInfo) return window.Store.fechasInfo(t);
+      return t && t.fecha ? [{ n: 1, numero: 1, dias: [t.fecha], desde: t.fecha, hasta: t.fecha }] : [];
+    },
+    /* Días de una fecha: "Sábado 14 y domingo 15 de noviembre" (largo) o "14 y 15 nov" */
+    diasTexto(dias, largo) {
+      const ds = (dias || []).map(d => new Date(d + 'T12:00:00')).filter(d => !isNaN(d));
+      if (!ds.length) return '—';
+      if (ds.length === 1) return largo ? fmt.fechaLarga(dias[0]) : fmt.fecha(dias[0]);
+      const mismoMes = ds.every(d => d.getMonth() === ds[0].getMonth());
+      const unir = (xs) => xs.slice(0, -1).join(', ') + ' y ' + xs[xs.length - 1];
+      const anio = ' de ' + ds[ds.length - 1].getFullYear();
+      if (largo) {
+        const partes = ds.map(d => d.toLocaleDateString('es-AR', { weekday: 'long' }) + ' ' + d.getDate() + (mismoMes ? '' : ' de ' + d.toLocaleDateString('es-AR', { month: 'long' })));
+        const t = unir(partes) + (mismoMes ? ' de ' + ds[0].toLocaleDateString('es-AR', { month: 'long' }) : '') + anio;
+        return t.charAt(0).toUpperCase() + t.slice(1);
+      }
+      const mes = (d) => d.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '');
+      return mismoMes ? unir(ds.map(d => String(d.getDate()))) + ' ' + mes(ds[0]) : unir(ds.map(d => d.getDate() + ' ' + mes(d)));
+    },
+    /* Todo el calendario del torneo en una línea: "Fecha 7: 14 y 15 nov · Fecha 8: 5 y 6 dic" (una sola fecha, más largo) */
     fechasTexto(t, largo) {
-      const fs = fmt.fechasDe(t);
-      if (fs.length <= 1) return largo ? fmt.fechaLarga(fs[0]) : fmt.fecha(fs[0]);
-      return fs.map((f, i) => 'Fecha ' + (i + 1) + ': ' + fmt.fecha(f)).join(' · ');
+      const fs = fmt.fechasInfo(t);
+      if (!fs.length) return '—';
+      if (fs.length === 1) return 'Fecha ' + fs[0].numero + ' · ' + fmt.diasTexto(fs[0].dias, largo);
+      return fs.map(f => 'Fecha ' + f.numero + ': ' + fmt.diasTexto(f.dias)).join(' · ');
     },
     nombre(i) { return [i.apellido, i.nombre].filter(Boolean).join(', '); },
     norm(s) { return String(s == null ? '' : s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); },

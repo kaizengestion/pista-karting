@@ -168,15 +168,15 @@
           cats.length ? h('div', { class: 'cats' }, cats) : h('p', { class: 'muted small' }, 'Todavía no hay anotados.'));
       }
 
-      /* "Fecha 2 de 3" en un torneo de varias fechas: la última que ya llegó (o la 1 si ninguna) */
+      /* Fecha del campeonato que se está corriendo: la última que ya empezó (o la primera si ninguna) */
       function etiquetaFecha(t) {
-        const fs = App.fmt.fechasDe(t);
-        if (fs.length < 2) return null;
+        const fs = App.fmt.fechasInfo(t);
+        if (!fs.length) return null;
         const d = new Date();
         const hoy = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        let n = 1;
-        fs.forEach((f, k) => { if (f <= hoy) n = k + 1; });
-        return h('span', { class: 'pill' }, 'Fecha ' + n + ' de ' + fs.length);
+        let f = fs[0];
+        fs.forEach(x => { if (x.desde <= hoy) f = x; });
+        return h('span', { class: 'pill' }, 'Fecha ' + f.numero + ' · ' + App.fmt.diasTexto(f.dias));
       }
 
       function tile(href, ico, title, sub, hot) {

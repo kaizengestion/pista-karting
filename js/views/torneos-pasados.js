@@ -177,12 +177,12 @@
       /* Cada torneo de la lista: tarjeta con link al detalle y, si tiene varias fechas, accesos a cada una */
       function item(t) {
         const ns = fechasConPlanilla(t);
-        const fs = App.fmt.fechasDe(t);
+        const fs = App.fmt.fechasInfo(t);
         const card = tarjeta(t);
         if (ns.length < 2) return card;
         card.querySelector('.pp-body').appendChild(h('div', { class: 'pp-chips' }, ns.map(n =>
           h('a', { class: 'pp-chip', href: '#torneos-pasados~' + encodeURIComponent(t.id) + '@' + n, onclick: (e) => e.stopPropagation() },
-            'Fecha ' + n, fs[n - 1] ? h('small', null, App.fmt.fecha(fs[n - 1])) : null))));
+            'Fecha ' + (fs[n - 1] ? fs[n - 1].numero : n), fs[n - 1] ? h('small', null, App.fmt.diasTexto(fs[n - 1].dias)) : null))));
         return card;
       }
 
@@ -230,7 +230,7 @@
         /* Un bloque por fecha; adentro, las categorías con su planilla. Se abre la fecha pedida (o la 1). */
         const ns = fechasConPlanilla(t);
         if (!abiertas) abiertas = new Set([fechaSel != null && ns.includes(fechaSel) ? fechaSel : ns[0]]);
-        const fs = App.fmt.fechasDe(t);
+        const fs = App.fmt.fechasInfo(t);
         const todas = ns.map(n => categoriasDe(t, n));
         const pilotos = new Set();
         todas.forEach(cs => cs.forEach(c => c.filas.forEach(f => pilotos.add(f.dni || f.inscId))));
@@ -255,8 +255,8 @@
           const det = h('details', { class: 'pp-fblk', open: abiertas.has(n) },
             h('summary', null,
               h('span', { class: 'pp-fblk-top' },
-                h('span', { class: 'pp-fblk-n' }, 'Fecha ' + n),
-                fs[n - 1] ? h('span', { class: 'pp-fblk-dia' }, App.fmt.fechaLarga(fs[n - 1])) : null,
+                h('span', { class: 'pp-fblk-n' }, 'Fecha ' + (fs[n - 1] ? fs[n - 1].numero : n)),
+                fs[n - 1] ? h('span', { class: 'pp-fblk-dia' }, App.fmt.diasTexto(fs[n - 1].dias, true)) : null,
                 h('span', { class: 'pill' }, pl(conTiempo, 'piloto', 'pilotos')),
                 h('span', { class: 'spacer' }),
                 h('span', { class: 'pp-fblk-chev', 'aria-hidden': 'true' }, '▾')),

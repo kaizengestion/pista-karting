@@ -142,9 +142,9 @@
         return (torneo.categorias || []).map(c => c.nombre).filter(c => inscDeCat(c).length || planilla(n, c));
       }
       function fechaInicial(t) {
-        const fs = App.fmt.fechasDe(t), hoy = hoyISO();
+        const fs = App.fmt.fechasInfo(t), hoy = hoyISO();
         let n = 1;
-        fs.forEach((f, k) => { if (f <= hoy) n = k + 1; });
+        fs.forEach((f, k) => { if (f.desde <= hoy) n = k + 1; });
         return n;
       }
 
@@ -183,23 +183,24 @@
       }
 
       /* ---------- Fechas ---------- */
+      const numeroDe = (n) => { const f = App.fmt.fechasInfo(torneo)[n - 1]; return f ? f.numero : n; };
       const filasOrdenadas = (p) => (p.filas || []).slice().sort((a, b) => (a.posicion == null) - (b.posicion == null) || (a.posicion || 0) - (b.posicion || 0));
 
       function bloquesFechas() {
-        const fs = App.fmt.fechasDe(torneo);
-        const lista = fs.length ? fs : [''];
+        const fs = App.fmt.fechasInfo(torneo);
+        const lista = fs.length ? fs : [{ n: 1, numero: 1, dias: [], desde: '' }];
         if (nFecha == null || nFecha > lista.length) nFecha = 1;
         const hoy = hoyISO();
-        return lista.map((f, k) => {
-          const n = k + 1, activa = n === nFecha;
+        return lista.map((fi, k) => {
+          const n = k + 1, activa = n === nFecha, f = fi.desde;
           const cats = categoriasFecha(n);
           const conRes = cats.filter(c => planilla(n, c)).length;
           const estado = conRes
             ? h('span', { class: 'pill ' + (conRes === cats.length ? 'pill-ok' : 'pill-warn') }, conRes + ' de ' + cats.length + ' categorías con resultados')
             : f && f > hoy ? h('span', { class: 'pill' }, 'Próxima') : h('span', { class: 'pill' }, 'Sin resultados');
           const cab = h('div', { class: 'ta-fblk-head' },
-            h('span', { class: 'ta-fblk-n' }, 'Fecha ' + n),
-            f ? h('span', { class: 'ta-fblk-dia' }, App.fmt.fechaLarga(f)) : null,
+            h('span', { class: 'ta-fblk-n' }, 'Fecha ' + fi.numero),
+            fi.dias.length ? h('span', { class: 'ta-fblk-dia' }, App.fmt.diasTexto(fi.dias, true)) : null,
             estado,
             h('span', { class: 'spacer' }),
             activa ? null : h('button', { type: 'button', class: 'btn btn-sm btn-dark', onclick: () => {
@@ -207,7 +208,7 @@
               setTimeout(() => { const b = root.querySelector('.ta-fblk.activa'); b && b.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
             } }, conRes ? 'Ver y editar resultados' : 'Cargar resultados'));
           if (activa) {
-            return h('section', { class: 'ta-fblk activa', 'aria-label': 'Fecha ' + n }, cab,
+            return h('section', { class: 'ta-fblk activa', 'aria-label': 'Fecha ' + fi.numero }, cab,
               cats.length ? h('div', { class: 'ta-cats' }, cats.map(c => tarjetaCategoria(n, c)))
                 : h('div', { class: 'empty' }, h('strong', null, 'Todavía no hay competidores anotados'), h('span', null, 'Compartí el link de inscripción o agregalos desde Competidores.')));
           }
@@ -219,7 +220,7 @@
                   h('span', { class: 'ta-fblk-nom' }, r.inscId ? nombreInsc(r.inscId) || r.nombre : r.nombre),
                   h('span', { class: 'mono small' }, r.puntos == null ? '—' : r.puntos + ' pts'))))))
             : h('p', { class: 'muted small' }, f && f > hoy ? 'Todavía no se corrió.' : 'No hay resultados cargados en esta fecha.');
-          return h('section', { class: 'ta-fblk', 'aria-label': 'Fecha ' + n }, cab, cuerpo);
+          return h('section', { class: 'ta-fblk', 'aria-label': 'Fecha ' + fi.numero }, cab, cuerpo);
         });
       }
 
@@ -265,7 +266,7 @@
       }
 
       async function borrar(n, cat) {
-        const ok = await App.confirm({ title: 'Borrar resultados', body: 'Se borran los resultados de ' + cat + ' en la fecha ' + n + '. Después podés volver a subir la foto.', okLabel: 'Borrar', danger: true });
+        const ok = await App.confirm({ title: 'Borrar resultados', body: 'Se borran los resultados de ' + cat + ' en la Fecha ' + numeroDe(n) + '. Después podés volver a subir la foto.', okLabel: 'Borrar', danger: true });
         if (!ok) return;
         try { await S.borrarPuntos(torneo.id, n, cat); App.toast('Resultados borrados', 'ok'); }
         catch (e) { App.toast('No se pudo borrar: ' + (e && e.message || e), 'error'); }
@@ -349,7 +350,7 @@
 
         let guardando = false;
         App.modal({
-          title: cat + ' · Fecha ' + n,
+          title: cat + ' · Fecha ' + numeroDe(n),
           content: cont,
           actions: [
             { label: 'Cancelar', kind: 'ghost' },
@@ -379,12 +380,12 @@
       /* ---------- Finalizar ---------- */
       async function finalizar(btn) {
         const t = torneo;
-        const fs = App.fmt.fechasDe(t);
+        const fs = App.fmt.fechasInfo(t);
         const avisos = [];
-        (fs.length ? fs : ['']).forEach((f, k) => {
+        (fs.length ? fs : [{ numero: 1 }]).forEach((fi, k) => {
           const n = k + 1, cats = categoriasFecha(n);
           const faltan = cats.filter(c => !planilla(n, c));
-          if (faltan.length) avisos.push('Fecha ' + n + ': ' + pl(faltan.length, 'categoría', 'categorías') + ' sin resultados (' + faltan.join(', ') + ').');
+          if (faltan.length) avisos.push('Fecha ' + fi.numero + ': ' + pl(faltan.length, 'categoría', 'categorías') + ' sin resultados (' + faltan.join(', ') + ').');
         });
         const body = h('div', { class: 'v-torneo-actual-confirm stack' },
           h('p', null, 'El torneo pasa a Torneos pasados con los resultados de cada fecha.'),

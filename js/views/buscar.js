@@ -236,7 +236,7 @@
         return h('a', { class: 'res', href: '#torneos-pasados~' + encodeURIComponent(t.id) },
           h('span', { class: 'main' },
             h('span', { class: 't' }, nombre.length > 1 ? [hl(r.apellido, terms), ', ', hl(r.nombre, terms)] : hl(nombre[0] || 'Sin nombre', terms)),
-            h('span', { class: 'sub' }, hl(t.nombre, terms), ' · ', hl(cat, terms), ' · ', n ? 'Fecha ' + n + ' (' + App.fmt.fecha(App.fmt.fechasDe(t)[n - 1]) + ')' : App.fmt.fecha(t.fecha)),
+            h('span', { class: 'sub' }, hl(t.nombre, terms), ' · ', hl(cat, terms), ' · ', n ? (f => f ? 'Fecha ' + f.numero + ' (' + App.fmt.diasTexto(f.dias) + ')' : 'Fecha ' + n)(App.fmt.fechasInfo(t)[n - 1]) : App.fmt.fecha(t.fecha)),
             extra.length ? h('span', { class: 'extra' }, extra.map(([k, v], n) => [n ? ' · ' : '', h('b', null, k + ': '), hl(v, terms)])) : null),
           h('span', { class: 'side' },
             r.posicion ? h('span', { class: 'pos' }, r.posicion + 'º') : h('span', { class: 'pill' }, 'Sin puesto'),

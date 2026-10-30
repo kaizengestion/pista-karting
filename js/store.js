@@ -99,12 +99,20 @@
 
   /* Un torneo tiene de 1 a 10 fechas (`fechas`). Los torneos viejos solo tienen `fecha`. */
   const MAX_FECHAS = 10;
-  function fechasDe(t) {
+  /* Cada fecha del torneo tiene su número en el campeonato (Fecha 1, 2… 7) y uno o más días (sábado y domingo):
+     t.fechas = [{ numero: 7, dias: ['2026-11-14', '2026-11-15'] }, …]. Los torneos viejos guardaban un día por fecha (texto)
+     o solo `fecha`; en ese caso el número es el orden. */
+  function fechasInfo(t) {
     if (!t) return [];
-    const lista = Array.isArray(t.fechas) ? t.fechas.filter((f) => typeof f === 'string' && f) : [];
-    if (lista.length) return lista.slice(0, MAX_FECHAS);
-    return t.fecha ? [t.fecha] : [];
+    const crudas = Array.isArray(t.fechas) && t.fechas.length ? t.fechas : (t.fecha ? [t.fecha] : []);
+    return crudas.slice(0, MAX_FECHAS).map((f, k) => {
+      const o = typeof f === 'string' ? { numero: k + 1, dias: [f] } : (f || {});
+      const dias = (Array.isArray(o.dias) ? o.dias : []).filter((d) => typeof d === 'string' && d).sort();
+      return { n: k + 1, numero: +o.numero || k + 1, dias, desde: dias[0] || '', hasta: dias[dias.length - 1] || '' };
+    }).filter((f) => f.dias.length);
   }
+  /* Primer día de cada fecha (para ordenar y para lo que necesita un solo día por fecha) */
+  function fechasDe(t) { return fechasInfo(t).map((f) => f.desde); }
   /* Tiempos: la fecha 1 vive en { tiempo, ok } (como siempre); las fechas 2 y 3 en f2 / f3. */
   function tiempoDeFecha(doc, n) {
     const x = !doc ? null : (n > 1 ? doc['f' + n] : doc);
@@ -139,7 +147,7 @@
     const proximos = (torneos || []).filter((t) => t && t.estado === 'proximo')
       .sort((a, b) => String(a.fecha || '').localeCompare(String(b.fecha || '')));
     const hoy = hoyISO();
-    return proximos.find((t) => String(fechasDe(t).slice(-1)[0] || '') >= hoy) || proximos[0] || null;
+    return proximos.find((t) => String((fechasInfo(t).slice(-1)[0] || {}).hasta || '') >= hoy) || proximos[0] || null;
   }
 
   function armarResultados(torneo, inscs, tiempos, n) {
@@ -622,6 +630,7 @@
     torneoActual,
     torneoInscripcion,
     fechasDe,
+    fechasInfo,
     MAX_FECHAS,
     categoriasDe,
     claveTiempo,
@@ -634,8 +643,8 @@
       delete datos.resultados;
       delete datos.resultadosFechas;
       if (Array.isArray(datos.fechas)) {
-        datos.fechas = datos.fechas.filter((f) => typeof f === 'string' && f).slice(0, MAX_FECHAS);
-        if (datos.fechas.length) datos.fecha = datos.fechas[0];
+        datos.fechas = fechasInfo({ fechas: datos.fechas }).map((f) => ({ numero: f.numero, dias: f.dias }));
+        if (datos.fechas.length) datos.fecha = datos.fechas[0].dias[0];
       }
       if (id) {
         exigirId(id, 'del torneo');

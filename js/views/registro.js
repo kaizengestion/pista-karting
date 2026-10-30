@@ -199,13 +199,22 @@
   function errMsg(e, def) { return (e && e.message) ? e.message : def; }
   function archivoPlano(a) { return a && a.assetId ? { assetId: a.assetId, nombre: a.nombre, tipo: a.tipo, tamano: a.tamano } : null; }
 
-  /* Texto de la declaración final, armado con los datos del torneo */
+  /* La fecha a la que se anota el competidor: la próxima que todavía no terminó (o la última) */
+  function fechaInscripcion(t) {
+    const fs = App.fmt.fechasInfo(t);
+    const d = new Date();
+    const hoy = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    return fs.find(f => f.hasta >= hoy) || fs[fs.length - 1] || null;
+  }
+
+  /* Texto de la declaración final: "…confirmo mi participación en la Fecha 7 del RGK Santafesino, a realizarse los días 14 y 15 de noviembre en el Autoclub…" */
   function textoDeclaracion(t) {
     if (!t) return '';
-    const fs = App.fmt.fechasDe(t);
-    const dias = D.dias(fs);
+    const f = fechaInscripcion(t);
+    const dias = f ? D.dias(f.dias) : '';
     return 'Declaro que la información proporcionada es correcta y se encuentra actualizada, y confirmo mi participación en ' +
-      (t.nombre || 'el torneo') + (dias ? ', a realizarse ' + (fs.length > 1 ? 'los días ' : 'el día ') + dias : '') +
+      (f ? 'la Fecha ' + f.numero + ' del ' : '') + (t.nombre || 'torneo') +
+      (dias ? ', a realizarse ' + (f.dias.length > 1 ? 'los días ' : 'el día ') + dias : '') +
       (t.lugar ? ' en el ' + t.lugar.replace(/^(el|en el)\s+/i, '') : '') + '.';
   }
 
@@ -248,7 +257,7 @@
           return;
         }
         head.hidden = false;
-        const fs = App.fmt.fechasDe(t);
+        const fi = fechaInscripcion(t);
         head.replaceChildren(...[
           // El competidor ve el logo grande arriba del formulario
           App.vistaCompetidor ? h('img', { class: 'reg-logo', src: 'img/logo-rgk-400.png?v=11', alt: 'RGK Santafesino', width: '562', height: '400' }) : null,
@@ -257,7 +266,7 @@
             t.estado === 'actual' ? h('span', { class: 'pill pill-live' }, 'En curso') : null),
           h('h1', null, t.nombre || 'Torneo'),
           h('div', { class: 'reg-meta' },
-            fs.length ? h('span', null, icon(ICONS.calendario), capital(D.dias(fs)) + ' de ' + fs[0].slice(0, 4)) : null,
+            fi ? h('span', null, icon(ICONS.calendario), 'Fecha ' + fi.numero + ' · ' + App.fmt.diasTexto(fi.dias, true)) : null,
             t.lugar ? h('span', null, icon(ICONS.lugar), t.lugar) : null,
             t.sentido ? h('span', { class: 'pill pill-sentido' }, (t.sentido === 'antihorario' ? '↪ ' : '↩ ') + 'Sentido ' + t.sentido) : null),
           t.notas ? h('p', { class: 'reg-notas' }, t.notas) : null].filter(Boolean));
@@ -743,7 +752,7 @@
           seccion(3, 'Salud y emergencia',
             h('div', { class: 'form-grid' }, CAMPOS_SALUD.map(campo))),
           seccion(4, 'Licencias',
-            h('p', { class: 'hint' }, 'Son opcionales. Si las tenés a mano, subí una foto o un PDF; si no, podés seguir con la inscripción igual.'),
+            h('p', { class: 'hint' }, 'Para quienes ya tengan las licencias, por favor subir aquí.'),
             h('div', { class: 'lic-grid' }, LICENCIAS.map(cajaLicencia))),
           seccionInvitado,
           seccion(st.editando ? 5 : 6, 'Confirmación final',

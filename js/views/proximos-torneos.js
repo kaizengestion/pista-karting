@@ -42,8 +42,11 @@
 .v-proximos-modal .pr-cat-head span:last-child { visibility: hidden; }
 .v-proximos-modal .pr-cat-row input[type="number"] { font-variant-numeric: tabular-nums; }
 .v-proximos-modal .pr-fecha-rows { display: flex; flex-direction: column; gap: 8px; }
-.v-proximos-modal .pr-fecha-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
-.v-proximos-modal .pr-fecha-row .pr-fecha-n { font: 700 .95rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+.v-proximos-modal .pr-fecha-row { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 10px 12px; background: var(--surface-2); }
+.v-proximos-modal .pr-fecha-top { display: flex; gap: 8px; align-items: center; }
+.v-proximos-modal .pr-fecha-top select { width: auto; font: 700 1rem/1 var(--font-display); text-transform: uppercase; letter-spacing: .04em; }
+.v-proximos-modal .pr-dias { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.v-proximos-modal .pr-dia { display: flex; gap: 4px; align-items: center; }
 .v-proximos-modal .pr-fecha-row .btn[hidden] { display: inline-flex !important; visibility: hidden; }
 .v-proximos-modal .pr-err { color: var(--danger); font-size: .88rem; font-weight: 600; }
 .v-proximos-modal textarea { resize: vertical; min-height: 72px; }
@@ -142,11 +145,10 @@
           h('div', { class: 'pr-body' },
             h('div', { class: 'stack', style: { gap: '4px' } },
               h('h2', null, t.nombre || 'Torneo sin nombre'),
-              h('p', { class: 'pr-meta' }, (App.fmt.fechasDe(t).length > 1 ? (t.lugar || '') : App.fmt.fechasTexto(t, true) + (t.lugar ? ' · ' + t.lugar : '')) +
-                (t.sentido ? ' · Sentido ' + t.sentido : ''))),
+              h('p', { class: 'pr-meta' }, [t.lugar, t.sentido ? 'Sentido ' + t.sentido : ''].filter(Boolean).join(' · '))),
             /* Fechas del torneo: cada una corre con las mismas categorías */
-            App.fmt.fechasDe(t).length > 1 ? h('div', { class: 'pr-fechas' }, App.fmt.fechasDe(t).map((f, k) => h('div', { class: 'pr-fecha' },
-              h('b', null, 'Fecha ' + (k + 1)), h('span', null, App.fmt.fechaLarga(f))))) : null,
+            h('div', { class: 'pr-fechas' }, App.fmt.fechasInfo(t).map(f => h('div', { class: 'pr-fecha' },
+              h('b', null, 'Fecha ' + f.numero), h('span', null, App.fmt.diasTexto(f.dias, true))))),
             cats.length
               ? h('div', { class: 'pr-cats' }, cats.map(c => {
                 const n = porCat[c.nombre] || 0;
@@ -200,35 +202,64 @@
         const inscDe = (cat) => editing ? inscs.filter(i => i.torneoId === t.id && S.categoriasDe(i).includes(cat)) : [];
 
         const fNombre = h('input', { type: 'text', id: 'pr-f-nombre', value: t ? t.nombre || '' : '', placeholder: 'Copa Primavera — Fecha 4', autocomplete: 'off' });
-        /* Fechas del torneo: de 1 a 3 */
-        const MAXF = S.MAX_FECHAS || 3;
+        /* Fechas del torneo: cada una con su número en el campeonato (Fecha 7) y uno o más días (sábado y domingo) */
+        const MAXF = S.MAX_FECHAS || 10, MAXD = 4;
         const fechaRows = [];
         const fechasEl = h('div', { class: 'pr-fecha-rows' });
-        const btnAddFecha = h('button', { type: 'button', class: 'btn btn-sm', onclick: () => addFecha('', true) }, '+ Agregar fecha');
+        const btnAddFecha = h('button', { type: 'button', class: 'btn btn-sm', onclick: () => {
+          const ult = fechaRows[fechaRows.length - 1];
+          addFecha({ numero: ult ? +ult.num.value + 1 : 1, dias: [''] }, true);
+        } }, '+ Agregar otra fecha');
         function pintarFechas() {
           fechaRows.forEach((r, k) => {
-            r.n.textContent = 'Fecha ' + (k + 1);
-            r.input.setAttribute('aria-label', 'Fecha ' + (k + 1));
-            r.input.id = k === 0 ? 'pr-f-fecha' : 'pr-f-fecha-' + (k + 1);
-            r.quitar.hidden = k === 0;
+            r.quitar.hidden = fechaRows.length === 1;
+            r.addDia.hidden = r.dias.length >= MAXD;
+            r.dias.forEach((d, j) => { d.quitar.hidden = r.dias.length === 1; d.input.setAttribute('aria-label', 'Día ' + (j + 1) + ' de la fecha ' + r.num.value); });
+            if (k === 0) r.dias[0].input.id = 'pr-f-fecha';
           });
           btnAddFecha.hidden = fechaRows.length >= MAXF;
         }
-        function addFecha(valor, focus) {
+        function addDia(r, valor, focus) {
+          if (r.dias.length >= MAXD) return;
+          const d = { input: h('input', { type: 'date', value: valor || '' }) };
+          d.quitar = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', 'aria-label': 'Quitar día', onclick: () => {
+            if (r.dias.length < 2) return;
+            r.dias.splice(r.dias.indexOf(d), 1); d.el.remove(); pintarFechas();
+          } }, '✕');
+          d.el = h('div', { class: 'pr-dia' }, d.input, d.quitar);
+          r.dias.push(d);
+          r.diasEl.appendChild(d.el);
+          pintarFechas();
+          if (focus) d.input.focus();
+        }
+        function addFecha(f, focus) {
           if (fechaRows.length >= MAXF) return;
-          const r = { n: h('span', { class: 'pr-fecha-n' }), input: h('input', { type: 'date', value: valor || '' }) };
+          const r = { dias: [], diasEl: h('div', { class: 'pr-dias' }) };
+          r.num = h('select', { 'aria-label': 'Número de fecha' }, Array.from({ length: 30 }, (_, i) => h('option', { value: String(i + 1) }, 'Fecha ' + (i + 1))));
+          r.num.value = String(Math.min(30, Math.max(1, +f.numero || 1)));
+          r.num.addEventListener('change', pintarFechas);
+          r.addDia = h('button', { type: 'button', class: 'btn btn-sm btn-ghost', onclick: () => {
+            const ultimo = r.dias[r.dias.length - 1].input.value;
+            let sig = '';
+            if (ultimo) { const d = new Date(ultimo + 'T12:00:00'); d.setDate(d.getDate() + 1); sig = d.toISOString().slice(0, 10); }
+            addDia(r, sig, true);
+          } }, '+ Agregar día');
           r.quitar = h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: () => {
-            const k = fechaRows.indexOf(r);
-            if (k > 0) { fechaRows.splice(k, 1); r.el.remove(); pintarFechas(); }
-          } }, 'Quitar');
-          r.el = h('div', { class: 'pr-fecha-row' }, r.n, r.input, r.quitar);
+            if (fechaRows.length < 2) return;
+            fechaRows.splice(fechaRows.indexOf(r), 1); r.el.remove(); pintarFechas();
+          } }, 'Quitar fecha');
+          r.el = h('div', { class: 'pr-fecha-row' },
+            h('div', { class: 'pr-fecha-top' }, r.num, h('span', { class: 'spacer' }), r.quitar),
+            h('span', { class: 'hint' }, 'Días en que se corre (por ejemplo, sábado y domingo):'),
+            r.diasEl, h('div', null, r.addDia));
           fechaRows.push(r);
           fechasEl.appendChild(r.el);
+          (f.dias && f.dias.length ? f.dias : ['']).forEach(d => addDia(r, d));
           pintarFechas();
-          if (focus) r.input.focus();
+          if (focus) r.num.focus();
         }
-        const fechasIni = t ? App.fmt.fechasDe(t) : [];
-        (fechasIni.length ? fechasIni : ['']).forEach(f => addFecha(f));
+        const fechasIni = t ? App.fmt.fechasInfo(t) : [];
+        (fechasIni.length ? fechasIni : [{ numero: 1, dias: [''] }]).forEach(f => addFecha(f));
         const fLugar = h('input', { type: 'text', id: 'pr-f-lugar', value: t ? t.lugar || '' : '', placeholder: 'Autoclub Cañada de Gómez', autocomplete: 'off' });
         const fSentido = h('select', { id: 'pr-f-sentido' },
           h('option', { value: '' }, 'Sin indicar'), h('option', { value: 'horario' }, 'Horario'), h('option', { value: 'antihorario' }, 'Antihorario'));
@@ -267,10 +298,10 @@
           h('div', { class: 'form-grid' },
             h('div', { class: 'field full' }, h('label', { for: 'pr-f-nombre' }, 'Nombre del torneo'), fNombre),
             h('div', { class: 'field full' },
-              h('span', { class: 'label' }, 'Fechas del torneo'),
+              h('span', { class: 'label' }, 'Fechas'),
               fechasEl,
               h('div', null, btnAddFecha),
-              h('span', { class: 'hint' }, 'Un torneo puede tener hasta ' + MAXF + ' fechas. En cada fecha se cargan tiempos aparte.')),
+              h('span', { class: 'hint' }, 'Elegí el número de fecha del campeonato y los días en que se corre. En cada fecha se cargan los resultados aparte.')),
             h('div', { class: 'field' }, h('label', { for: 'pr-f-lugar' }, 'Lugar'), fLugar),
             h('div', { class: 'field' }, h('label', { for: 'pr-f-sentido' }, 'Sentido del circuito'), fSentido),
             h('div', { class: 'field full' }, h('label', { for: 'pr-f-notas' }, 'Notas'), fNotas)),
@@ -305,13 +336,24 @@
           const nombre = fNombre.value.trim();
           if (!nombre) return fail('Poné un nombre para el torneo.', fNombre);
           const fechas = [];
-          for (const [k, r] of fechaRows.entries()) {
-            const v = r.input.value;
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return fail(k === 0 ? 'Elegí la fecha del torneo.' : 'Elegí el día de la fecha ' + (k + 1) + ' o quitala.', r.input);
-            if (fechas.length && v <= fechas[fechas.length - 1]) return fail('La fecha ' + (k + 1) + ' tiene que ser posterior a la fecha ' + k + '.', r.input);
-            fechas.push(v);
+          const numeros = new Set();
+          for (const r of fechaRows) {
+            const numero = +r.num.value;
+            if (numeros.has(numero)) return fail('La Fecha ' + numero + ' está repetida.', r.num);
+            numeros.add(numero);
+            const dias = [];
+            for (const d of r.dias) {
+              const v = d.input.value;
+              if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return fail('Completá los días de la Fecha ' + numero + ' (o quitá el que sobra).', d.input);
+              if (dias.includes(v)) return fail('Un día de la Fecha ' + numero + ' está repetido.', d.input);
+              dias.push(v);
+            }
+            dias.sort();
+            const ant = fechas[fechas.length - 1];
+            if (ant && dias[0] <= ant.dias[ant.dias.length - 1]) return fail('La Fecha ' + numero + ' tiene que correrse después de la Fecha ' + ant.numero + '.', r.dias[0].input);
+            fechas.push({ numero, dias });
           }
-          const fecha = fechas[0];
+          const fecha = fechas[0].dias[0];
           const categorias = [];
           const vistos = new Set();
           const renombres = [];
