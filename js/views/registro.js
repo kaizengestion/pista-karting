@@ -207,13 +207,17 @@
     return fs.find(f => f.hasta >= hoy) || fs[fs.length - 1] || null;
   }
 
-  /* Texto de la declaración final: "…confirmo mi participación en la Fecha 7 del RGK Santafesino, a realizarse los días 14 y 15 de noviembre en el Autoclub…" */
+  /* ¿El nombre del torneo ya dice la fecha? (ej. "Campeonato Regular Fecha 7"): entonces no se repite */
+  function nombreDiceFecha(t, f) { return !!f && new RegExp('\\bfecha\\s*' + f.numero + '\\b', 'i').test(t.nombre || ''); }
+
+  /* Texto de la declaración final: "…confirmo mi participación en la Fecha 7 del RGK Santafesino, a realizarse los días 14 y 15 de noviembre en el Autoclub…"
+     Si el nombre ya trae la fecha: "…en el Campeonato Regular Fecha 7, a realizarse…" */
   function textoDeclaracion(t) {
     if (!t) return '';
     const f = fechaInscripcion(t);
     const dias = f ? D.dias(f.dias) : '';
     return 'Declaro que la información proporcionada es correcta y se encuentra actualizada, y confirmo mi participación en ' +
-      (f ? 'la Fecha ' + f.numero + ' del ' : '') + (t.nombre || 'torneo') +
+      (f && !nombreDiceFecha(t, f) ? 'la Fecha ' + f.numero + ' del ' : 'el ') + (t.nombre || 'torneo') +
       (dias ? ', a realizarse ' + (f.dias.length > 1 ? 'los días ' : 'el día ') + dias : '') +
       (t.lugar ? ' en el ' + t.lugar.replace(/^(el|en el)\s+/i, '') : '') + '.';
   }
@@ -266,7 +270,7 @@
             t.estado === 'actual' ? h('span', { class: 'pill pill-live' }, 'En curso') : null),
           h('h1', null, t.nombre || 'Torneo'),
           h('div', { class: 'reg-meta' },
-            fi ? h('span', null, icon(ICONS.calendario), 'Fecha ' + fi.numero + ' · ' + App.fmt.diasTexto(fi.dias, true)) : null,
+            fi ? h('span', null, icon(ICONS.calendario), (nombreDiceFecha(t, fi) ? '' : 'Fecha ' + fi.numero + ' · ') + App.fmt.diasTexto(fi.dias, true)) : null,
             t.lugar ? h('span', null, icon(ICONS.lugar), t.lugar) : null,
             t.sentido ? h('span', { class: 'pill pill-sentido' }, (t.sentido === 'antihorario' ? '↪ ' : '↩ ') + 'Sentido ' + t.sentido) : null),
           t.notas ? h('p', { class: 'reg-notas' }, t.notas) : null].filter(Boolean));
