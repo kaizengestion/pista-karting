@@ -181,14 +181,20 @@
       // Título de la categoría: una línea en mayúsculas antes de las filas (ej. "110CC ESCUELA")
       if (!filas.length && /^[0-9A-ZÁÉÍÓÚÑ .]{6,}$/.test(l) && /[A-Z]{4,}/.test(l) && !/CAMPEONATO/.test(l)) titulo = l;
     });
-    // La planilla viene ordenada: un puesto que no se pudo leer (o quedó fuera de orden) es el anterior + 1
+    /* La planilla viene ordenada y sin saltos: puesto = número de fila + un desplazamiento (la foto puede arrancar en el puesto 12).
+       El desplazamiento sale de lo que dicen la mayoría de los puestos leídos cerca de cada fila; así un puesto mal leído
+       (o una fila cortada en el borde de la foto) no arrastra a los demás. */
+    const desp = filas.map((f, i) => (f.posicion != null && f.posicion >= 1 && f.posicion <= 150 ? f.posicion - i : null));
+    const moda = (xs) => { const c = {}; let m = null; xs.forEach(x => { if (x == null) return; c[x] = (c[x] || 0) + 1; if (m == null || c[x] > c[m]) m = x; }); return m; };
+    const general = moda(desp);
     filas.forEach((f, i) => {
-      const ant = i ? filas[i - 1].posicion : 0;
-      if (f.posicion == null || f.posicion <= ant || f.posicion > ant + 3) {
-        // con un solo número adelante, ese número era el puesto y no el kart
-        if (f.posicion == null && +f.kart === ant + 1 && filas.length > 3) f.kart = '';
-        f.posicion = ant + 1;
-      }
+      const cerca = moda(desp.slice(Math.max(0, i - 2), i + 3));
+      const votosCerca = desp.slice(Math.max(0, i - 2), i + 3).filter(x => x === cerca).length;
+      const d = cerca != null && votosCerca >= 2 ? cerca : general != null ? general : 1;
+      const nueva = Math.max(1, i + d);
+      // con un solo número adelante, ese número era el puesto y no el kart
+      if (f.posicion == null && +f.kart === nueva && filas.length > 3) f.kart = '';
+      f.posicion = nueva;
     });
     return { titulo, filas };
   }

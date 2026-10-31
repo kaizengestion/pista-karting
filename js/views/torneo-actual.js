@@ -36,6 +36,8 @@
 
 .ta-editor { display: flex; flex-direction: column; gap: 14px; }
 .ta-editor .ta-ed-top { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.v-torneo-actual .ta-fotos { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.ta-editor .ta-ed-fotos { display: flex; gap: 8px; flex-wrap: wrap; max-width: 100%; }
 .ta-editor .ta-ed-top img { width: 120px; max-height: 200px; object-fit: contain; border-radius: 4px; border: 1px solid var(--line); background: #000; cursor: zoom-in; }
 .ta-editor .ta-ed-info { flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; font-size: .92rem; color: var(--ink-2); }
 .ta-editor table { width: 100%; border-collapse: collapse; }
@@ -93,8 +95,9 @@
     return ape * 2 + nom + (mismoKart(fila, i) ? 1.5 : 0);
   }
   function asignarTodas(filas, enCat, otros) {
-    const res = filas.map(() => null);
-    const usados = new Set();
+    // Las filas que ya tienen competidor (de fotos anteriores) lo conservan
+    const res = filas.map(f => (f.inscId ? enCat.concat(otros).find(i => i.id === f.inscId) || null : null));
+    const usados = new Set(res.filter(Boolean).map(i => i.id));
     function ronda(cands, minimo) {
       const pares = [];
       filas.forEach((f, k) => { if (res[k]) return; cands.forEach(i => { if (!usados.has(i.id)) pares.push({ k, i, p: puntaje(f, i) }); }); });
@@ -229,18 +232,19 @@
       function tarjetaCategoria(n, cat) {
         const p = planilla(n, cat);
         const anotados = inscDeCat(cat);
-        const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, 'aria-label': 'Foto de resultados de ' + cat });
-        fileIn.addEventListener('change', () => { const f = fileIn.files && fileIn.files[0]; fileIn.value = ''; if (f) leerFoto(n, cat, f); });
-        const btnFoto = h('button', { type: 'button', class: 'btn btn-sm ' + (p ? '' : 'btn-primary'), onclick: () => fileIn.click() }, p ? 'Cambiar foto' : 'Subir foto de resultados');
-        const urlFoto = p && p.foto && p.foto.assetId ? S.urlArchivo(p.foto.assetId) : '';
+        // Se pueden elegir varias fotos a la vez (cada una con una parte de la tabla) y sumar más después
+        const fileIn = h('input', { type: 'file', accept: 'image/*', multiple: true, hidden: true, 'aria-label': 'Fotos de resultados de ' + cat });
+        fileIn.addEventListener('change', () => { const fs = Array.from(fileIn.files || []); fileIn.value = ''; if (fs.length) leerFotos(n, cat, fs, p); });
+        const btnFoto = h('button', { type: 'button', class: 'btn btn-sm ' + (p ? '' : 'btn-primary'), onclick: () => fileIn.click() }, p ? 'Agregar más fotos' : 'Subir fotos de resultados');
+        const fotos = fotosDe(p);
         const cab = h('div', { class: 'ta-cat-head' },
           h('h2', null, cat),
           h('span', { class: 'muted' }, pl(anotados.length, 'anotado', 'anotados')),
           p ? h('span', { class: 'pill pill-ok' }, 'Con resultados') : h('span', { class: 'pill' }, 'Sin resultados'),
           h('span', { class: 'spacer' }),
-          urlFoto ? h('img', { class: 'ta-foto', src: urlFoto, alt: 'Foto de resultados de ' + cat, title: 'Ver foto', onclick: () => verFoto(urlFoto, cat) }) : null);
+          fotos.length ? h('span', { class: 'ta-fotos' }, fotos.map((f, k) => { const u = S.urlArchivo(f.assetId); return h('img', { class: 'ta-foto', src: u, alt: 'Foto ' + (k + 1) + ' de resultados de ' + cat, title: 'Ver foto ' + (k + 1), onclick: () => verFoto(u, cat) }); })) : null);
         const acts = h('div', { class: 'ta-cat-acts' }, btnFoto, fileIn,
-          h('button', { type: 'button', class: 'btn btn-sm btn-ghost', onclick: () => editor(n, cat, p ? p.filas : null, p ? p.foto : null, null) }, p ? 'Editar' : 'Cargar a mano'),
+          h('button', { type: 'button', class: 'btn btn-sm btn-ghost', onclick: () => editor(n, cat, p ? p.filas : null, fotos, null) }, p ? 'Editar' : 'Cargar a mano'),
           p ? h('button', { type: 'button', class: 'btn btn-sm btn-danger', onclick: () => borrar(n, cat) }, 'Borrar resultados') : null);
         if (!p) {
           return h('section', { class: 'ta-cat', 'aria-label': cat }, cab,
@@ -262,6 +266,8 @@
           acts);
       }
 
+      function fotosDe(p) { return p ? (p.fotos && p.fotos.length ? p.fotos : (p.foto ? [p.foto] : [])).filter(f => f && f.assetId) : []; }
+
       function verFoto(url, cat) {
         App.modal({ title: 'Resultados · ' + cat, content: h('img', { src: url, alt: 'Foto de resultados', style: { width: '100%', borderRadius: '6px' } }), actions: [{ label: 'Cerrar', kind: 'ghost' }] });
       }
@@ -273,20 +279,41 @@
         catch (e) { App.toast('No se pudo borrar: ' + (e && e.message || e), 'error'); }
       }
 
-      /* ---------- Leer la foto ---------- */
-      async function leerFoto(n, cat, file) {
+      /* ---------- Leer las fotos ----------
+         Se leen de a una y se juntan en una sola tabla ordenada por puesto. Si dos fotos se superponen (muestran el mismo
+         puesto), se queda la primera. Con `base` (resultados ya cargados) las fotos nuevas se suman a lo que había. */
+      async function leerFotos(n, cat, files, base) {
         const barra = h('i');
         const estado = h('span', null, 'Preparando el lector…');
-        const m = App.modal({ title: 'Leyendo la foto', content: h('div', { class: 'ta-progreso' }, estado, h('div', { class: 'barra' }, barra),
+        const m = App.modal({ title: files.length > 1 ? 'Leyendo ' + files.length + ' fotos' : 'Leyendo la foto', content: h('div', { class: 'ta-progreso' }, estado, h('div', { class: 'barra' }, barra),
           h('p', { class: 'muted small' }, 'La primera vez tarda un poco más: se descarga el lector.')) });
-        const ESTADOS = { 'loading tesseract core': 'Cargando el lector…', 'loading language traineddata': 'Cargando el idioma…', 'initializing api': 'Preparando…', 'recognizing text': 'Leyendo la foto…' };
+        const ESTADOS = { 'loading tesseract core': 'Cargando el lector…', 'loading language traineddata': 'Cargando el idioma…', 'initializing api': 'Preparando…', 'recognizing text': 'Leyendo' };
         try {
-          const subida = S.subirArchivo(file).catch((e) => { console.warn('No se pudo guardar la foto', e); return null; });
-          const r = await App.leerResultados(file, (st, p) => { estado.textContent = ESTADOS[st] || 'Leyendo…'; barra.style.width = Math.round(p * 100) + '%'; });
-          const foto = await subida;
+          const fotos = fotosDe(base).slice();
+          const filas = base ? (base.filas || []).map(f => Object.assign({}, f)) : [];
+          const puestos = new Set(filas.map(f => f.posicion).filter(x => x != null));
+          let leidas = 0, repetidas = 0, titulo = '';
+          for (let k = 0; k < files.length; k++) {
+            const pre = files.length > 1 ? 'Foto ' + (k + 1) + ' de ' + files.length + ': ' : '';
+            const subida = S.subirArchivo(files[k]).catch((e) => { console.warn('No se pudo guardar la foto', e); return null; });
+            const r = await App.leerResultados(files[k], (st, pr) => {
+              estado.textContent = pre + (ESTADOS[st] || 'Leyendo') + (st === 'recognizing text' ? '…' : '');
+              barra.style.width = Math.round(((k + (st === 'recognizing text' ? pr : 0)) / files.length) * 100) + '%';
+            });
+            const foto = await subida;
+            if (foto) fotos.push(foto);
+            if (!titulo && r.titulo) titulo = r.titulo;
+            r.filas.forEach(f => {
+              leidas++;
+              if (puestos.has(f.posicion)) { repetidas++; return; }
+              puestos.add(f.posicion);
+              filas.push(Object.assign({}, f, { inscId: null }));
+            });
+          }
           m.close();
-          if (!r.filas.length) App.toast('No se pudieron leer filas en la foto. Cargalas a mano o probá con otra foto.', 'error');
-          editor(n, cat, null, foto, r);
+          filas.sort((a, b) => (a.posicion == null) - (b.posicion == null) || (a.posicion || 0) - (b.posicion || 0));
+          if (!leidas) App.toast('No se pudieron leer filas en ' + (files.length > 1 ? 'las fotos' : 'la foto') + '. Cargalas a mano o probá con otra foto.', 'error');
+          editor(n, cat, null, fotos, { filas, titulo, leidas, repetidas, nFotos: files.length, sumadas: !!base });
         } catch (e) {
           console.error(e);
           m.close();
@@ -295,7 +322,8 @@
       }
 
       /* ---------- Revisar y guardar ---------- */
-      function editor(n, cat, filasGuardadas, foto, lectura) {
+      function editor(n, cat, filasGuardadas, fotos, lectura) {
+        fotos = fotos || [];
         const candidatos = delTorneo().slice().sort((a, b) => (catsDe(b).includes(cat) - catsDe(a).includes(cat)) || App.fmt.nombre(a).localeCompare(App.fmt.nombre(b), 'es'));
         let filas;
         if (lectura) {
@@ -352,18 +380,22 @@
         filas.forEach(agregar);
 
         const asignadas = filas.filter(f => f.inscId).length;
-        const urlFoto = foto && foto.assetId ? S.urlArchivo(foto.assetId) : '';
         const tituloLeido = lectura && lectura.titulo;
         const distinta = tituloLeido && !norm(tituloLeido).split(' ').some(w => w.length > 3 && norm(cat).includes(w));
         const info = h('div', { class: 'ta-ed-info' },
-          lectura ? h('span', null, 'Se leyeron ', h('strong', null, pl(lectura.filas.length, 'fila', 'filas')), ' y se asignaron ', h('strong', null, String(asignadas)), ' a competidores inscriptos.') : null,
+          lectura ? h('span', null, 'Se leyeron ', h('strong', null, pl(lectura.leidas, 'fila', 'filas')), lectura.nFotos > 1 ? ' en ' + lectura.nFotos + ' fotos' : '',
+            lectura.sumadas ? ', que se sumaron a los resultados que ya estaban' : '', '. La tabla tiene ', h('strong', null, pl(filas.length, 'puesto', 'puestos')),
+            ' y ', h('strong', null, String(asignadas)), ' tienen competidor asignado.') : null,
+          lectura && lectura.repetidas ? h('span', null, 'Se omitieron ' + pl(lectura.repetidas, 'fila repetida', 'filas repetidas') + ' (puestos que aparecían en más de una foto).') : null,
           lectura ? h('span', null, 'Revisá que cada fila tenga el competidor correcto y los puntos antes de guardar. Si alguna quedó marcada, elegí el competidor de la lista.') : h('span', null, 'Completá o corregí los resultados.'),
           distinta ? h('span', { class: 'pill pill-warn' }, 'La foto dice «' + tituloLeido + '» y estás cargando ' + cat) : null,
           (avisoPts = h('span', { class: 'pill pill-warn', hidden: true }, 'Hay puntos marcados en amarillo: revisalos contra la foto.')));
         marcarPuntos();
 
         const cont = h('div', { class: 'ta-editor' },
-          h('div', { class: 'ta-ed-top' }, urlFoto ? h('img', { src: urlFoto, alt: 'Foto subida', onclick: () => verFoto(urlFoto, cat) }) : null, info),
+          h('div', { class: 'ta-ed-top' },
+            fotos.length ? h('div', { class: 'ta-ed-fotos' }, fotos.map((f, k) => { const u = S.urlArchivo(f.assetId); return h('img', { src: u, alt: 'Foto ' + (k + 1), title: 'Ver foto ' + (k + 1), onclick: () => verFoto(u, cat) }); })) : null,
+            info),
           h('div', { class: 'ta-ed-wrap' }, h('table', null,
             h('thead', null, h('tr', null, h('th', null, 'Pos'), h('th', null, 'Kart'), h('th', null, 'Nombre en la foto'), h('th', null, 'Competidor'), h('th', null, 'Puntos'), h('th', null, ''))),
             tbody)),
@@ -387,7 +419,7 @@
               if (new Set(ids).size !== ids.length) { App.toast('Hay un competidor asignado a dos filas. Revisalo antes de guardar.', 'error'); return; }
               guardando = true;
               try {
-                await S.guardarPuntos(torneo.id, n, cat, { filas: datos, foto });
+                await S.guardarPuntos(torneo.id, n, cat, { filas: datos, fotos });
                 close();
                 App.toast('Resultados de ' + cat + ' guardados', 'ok');
               } catch (e) {

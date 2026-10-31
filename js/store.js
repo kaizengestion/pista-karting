@@ -858,8 +858,9 @@
         puntos: f.puntos == null || f.puntos === '' ? null : +f.puntos,
         inscId: f.inscId || null,
       }));
+      const fotos = (planilla.fotos || (planilla.foto ? [planilla.foto] : [])).filter((f) => f && f.assetId);
       await A.set('torneos/' + torneoId + '/puntos/' + clavePuntos(n, categoria),
-        { fecha: n, categoria, filas, foto: planilla.foto || null, actualizado: nowISO() });
+        { fecha: n, categoria, filas, fotos, foto: fotos[0] || null, actualizado: nowISO() });
     },
     async borrarPuntos(torneoId, n, categoria) {
       await listo();
