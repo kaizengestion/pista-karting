@@ -44,6 +44,7 @@
 .ta-editor input, .ta-editor select { min-height: 38px; padding: 6px 8px; font-size: .92rem; }
 .ta-editor .c-pos { width: 56px; } .ta-editor .c-kart { width: 64px; } .ta-editor .c-pts { width: 70px; }
 .ta-editor .c-nom { min-width: 150px; } .ta-editor .c-ins { min-width: 170px; }
+.ta-editor input.pts-dudoso { border-color: var(--warn); outline: 2px solid var(--warn); }
 .ta-editor tr.sin-asignar select { border-color: var(--danger); outline: 1px solid var(--danger); }
 .ta-editor .ta-ed-wrap { overflow-x: auto; }
 .ta-progreso { display: flex; flex-direction: column; gap: 10px; }
@@ -328,8 +329,26 @@
             h('td', { class: 'c-pos' }, r.pos), h('td', { class: 'c-kart' }, r.kart), h('td', { class: 'c-nom' }, r.nom), h('td', { class: 'c-ins' }, r.ins), h('td', { class: 'c-pts' }, r.pts),
             h('td', null, h('button', { type: 'button', class: 'btn btn-ghost btn-sm', 'aria-label': 'Quitar fila', onclick: () => { filasUI.splice(filasUI.indexOf(r), 1); r.tr.remove(); } }, '✕')));
           r.ins.addEventListener('change', () => r.tr.classList.toggle('sin-asignar', !r.ins.value));
+          r.pts.addEventListener('input', marcarPuntos);
+          r.pos.addEventListener('input', marcarPuntos);
           filasUI.push(r); tbody.appendChild(r.tr);
         }
+        /* En la tabla los puntos bajan con el puesto: el que no respeta ese orden probablemente se leyó mal (ej. "3" en vez de "31") */
+        function marcarPuntos() {
+          const orden = filasUI.filter(r => r.pos.value !== '' && r.pts.value !== '').sort((a, b) => +a.pos.value - +b.pos.value);
+          let dudosos = 0;
+          filasUI.forEach(r => r.pts.classList.remove('pts-dudoso'));
+          orden.forEach((r, i) => {
+            const v = +r.pts.value, ant = orden[i - 1], sig = orden[i + 1];
+            if ((ant && v > +ant.pts.value) || (sig && v < +sig.pts.value)) {
+              // de un par que no respeta el orden, se marca el que rompe la serie
+              const malo = ant && v > +ant.pts.value && (!orden[i - 2] || +orden[i - 2].pts.value >= v) ? ant : r;
+              if (!malo.pts.classList.contains('pts-dudoso')) { malo.pts.classList.add('pts-dudoso'); malo.pts.title = 'Revisá estos puntos: no siguen el orden de la tabla'; dudosos++; }
+            }
+          });
+          if (avisoPts) avisoPts.hidden = !dudosos;
+        }
+        let avisoPts = null;
         filas.forEach(agregar);
 
         const asignadas = filas.filter(f => f.inscId).length;
@@ -339,7 +358,9 @@
         const info = h('div', { class: 'ta-ed-info' },
           lectura ? h('span', null, 'Se leyeron ', h('strong', null, pl(lectura.filas.length, 'fila', 'filas')), ' y se asignaron ', h('strong', null, String(asignadas)), ' a competidores inscriptos.') : null,
           lectura ? h('span', null, 'Revisá que cada fila tenga el competidor correcto y los puntos antes de guardar. Si alguna quedó marcada, elegí el competidor de la lista.') : h('span', null, 'Completá o corregí los resultados.'),
-          distinta ? h('span', { class: 'pill pill-warn' }, 'La foto dice «' + tituloLeido + '» y estás cargando ' + cat) : null);
+          distinta ? h('span', { class: 'pill pill-warn' }, 'La foto dice «' + tituloLeido + '» y estás cargando ' + cat) : null,
+          (avisoPts = h('span', { class: 'pill pill-warn', hidden: true }, 'Hay puntos marcados en amarillo: revisalos contra la foto.')));
+        marcarPuntos();
 
         const cont = h('div', { class: 'ta-editor' },
           h('div', { class: 'ta-ed-top' }, urlFoto ? h('img', { src: urlFoto, alt: 'Foto subida', onclick: () => verFoto(urlFoto, cat) }) : null, info),
