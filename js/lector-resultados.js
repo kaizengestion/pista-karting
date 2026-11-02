@@ -150,11 +150,19 @@
     return /^\d+$/.test(c) && /\d/.test(t) || (/^\d+$/.test(c) && t.length === 1) ? c : null;
   }
   function interpretarLinea(linea, dentroDeTabla) {
-    const l = linea.replace(/[|¦!\[\]{}()"'“”‘’]/g, ' ').replace(/[,](?=\d)/g, '.').replace(/\s+/g, ' ').trim();
+    const l = linea.replace(/[|¦!\[\]{}()"'“”‘’]/g, ' ').replace(/[,](?=\d)/g, '.').replace(/\s+/g, ' ').trim()
+      // medio punto mal leído al final: "35.S", "35,s", "35½" → 35.5
+      .replace(/(\d)\s*[.,·]\s*[sS]\s*$/, '$1.5').replace(/(\d)\s*½\s*$/, '$1.5');
     const fin = /(\d{1,4}(?:\.\d{1,2})?)[^\dA-Za-zÁÉÍÓÚÑáéíóúñ]*$/.exec(l);
     if (!fin) return null;
     // se descartan los signos sueltos (—, +, :, .) que el lector agrega entre columnas
     const antes = l.slice(0, fin.index).trim().split(' ').filter(t => /[0-9A-Za-zÁÉÍÓÚÑÜáéíóúñü]/.test(t));
+    /* Puntos con decimales: el lector suele perder el punto y separa "35.5" en "35 5" (o "35 . 5"). Si justo después del nombre
+       vienen dos números y el último es un solo dígito, son un solo puntaje. Sin esto la fila quedaba sin nombre y se descartaba. */
+    let puntos = fin[1];
+    if (/^\d$/.test(puntos) && antes.length >= 2 && /^\d{1,3}$/.test(antes[antes.length - 1]) && /[A-Za-zÁÉÍÓÚÑÜáéíóúñü]{2,}/.test(antes[antes.length - 2])) {
+      puntos = antes.pop() + '.' + puntos;
+    }
     // el nombre: las últimas palabras con letras (al menos una de 3 letras)
     let k = antes.length;
     while (k > 0 && /[A-Za-zÁÉÍÓÚÑÜáéíóúñü]{2,}/.test(antes[k - 1]) && aNumero(antes[k - 1]) == null) k--;
@@ -163,12 +171,12 @@
     const nums = antes.slice(0, k).map(aNumero).filter(x => x != null);
     // Una fila arranca con el puesto o el kart; si no se pudieron leer, se acepta igual dentro de la tabla (el puesto sale del orden)
     if (!nums.length && !dentroDeTabla) return null;
-    if (!nums.length) return { posicion: null, kart: '', nombre: palabras.join(' '), puntos: +fin[1] };
+    if (!nums.length) return { posicion: null, kart: '', nombre: palabras.join(' '), puntos: +puntos };
     return {
       posicion: nums.length > 1 ? +nums[0] : null,
       kart: nums.length > 1 ? nums[nums.length - 1] : nums[0],
       nombre: palabras.join(' '),
-      puntos: +fin[1],
+      puntos: +puntos,
     };
   }
   function interpretar(texto) {

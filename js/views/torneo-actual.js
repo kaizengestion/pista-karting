@@ -47,7 +47,7 @@
 .ta-editor .c-pos { width: 56px; } .ta-editor .c-kart { width: 64px; } .ta-editor .c-pts { width: 70px; }
 .ta-editor .c-nom { min-width: 150px; } .ta-editor .c-ins { min-width: 170px; }
 .ta-editor input.pts-dudoso { border-color: var(--warn); outline: 2px solid var(--warn); }
-.ta-editor tr.sin-asignar select { border-color: var(--danger); outline: 1px solid var(--danger); }
+.ta-editor tr.sin-asignar select { border-color: var(--warn); outline: 1px solid var(--warn); }
 .ta-editor .ta-ed-wrap { overflow-x: auto; }
 .ta-progreso { display: flex; flex-direction: column; gap: 10px; }
 .ta-progreso .barra { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
@@ -74,8 +74,9 @@
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
-  /* Asignación de la planilla: todos los que aparecen en la foto están inscriptos (si no, no corren).
-     Cada fila se asigna al inscripto más parecido (apellido, nombre y kart), sin repetir, empezando por los pares más seguros. */
+  /* Asignación de la planilla: cada fila se asigna al inscripto más parecido (apellido, nombre y kart), sin repetir,
+     empezando por los pares más seguros. Solo se asigna si el parecido es real: una fila que no coincide con nadie
+     queda sin competidor (se guarda con el nombre de la foto) en vez de asignarse a cualquiera. */
   function distancia(a, b) {
     const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
     for (let j = 1; j <= b.length; j++) d[0][j] = j;
@@ -92,7 +93,11 @@
     const ws = palabras(fila.nombre);
     const ape = mejorParecido(ws.slice(0, 1), i.apellido);
     const nom = mejorParecido(ws.slice(1), i.nombre);
-    return ape * 2 + nom + (mismoKart(fila, i) ? 1.5 : 0);
+    const kart = mismoKart(fila, i);
+    /* Coincide si el apellido es casi igual (acepta 1 o 2 letras mal leídas: Villalba / Villalva),
+       o si el kart es el mismo y el apellido o el nombre se parecen bastante. Un parecido flojo no alcanza. */
+    const ok = ape >= 0.75 || (kart && (ape >= 0.5 || nom >= 0.75));
+    return ok ? ape * 2 + nom + (kart ? 1.5 : 0) : 0;
   }
   function asignarTodas(filas, enCat, otros) {
     // Las filas que ya tienen competidor (de fotos anteriores) lo conservan
@@ -104,9 +109,8 @@
       pares.sort((a, b) => b.p - a.p);
       pares.forEach(({ k, i, p }) => { if (p >= minimo && !res[k] && !usados.has(i.id)) { res[k] = i; usados.add(i.id); } });
     }
-    ronda(enCat, 1.2);   // coincidencia clara dentro de la categoría
-    ronda(enCat, 0.3);   // el resto, al más parecido de la categoría
-    ronda(otros, 2.2);   // si sobran filas: alguien de otra categoría que coincida bien
+    ronda(enCat, 1.5);   // coincidencia dentro de la categoría
+    ronda(otros, 2.4);   // si sobran filas: alguien de otra categoría que coincida muy bien
     return res;
   }
 
@@ -250,7 +254,8 @@
           return h('section', { class: 'ta-cat', 'aria-label': cat }, cab,
             anotados.length ? h('div', { class: 'ta-inscs' }, anotados.slice().sort((a, b) => String(a.nroKarting).localeCompare(String(b.nroKarting), 'es', { numeric: true }))
               .map(i => h('span', null, h('span', { class: 'kart-no' }, i.nroKarting || '—'), App.fmt.nombre(i), i.invitado ? h('span', { class: 'pill pill-inv' }, 'Invitado') : null))) : null,
-            acts);
+            acts,
+            h('p', { class: 'muted small' }, 'Si la tabla está en varias fotos, podés elegirlas todas juntas (en el celular, mantené apretada una foto en la galería para marcar las demás) o subir una y después sumar las otras con «Agregar más fotos».'));
         }
         return h('section', { class: 'ta-cat', 'aria-label': cat }, cab,
           h('div', { class: 'table-wrap' }, h('table', { class: 'tbl ta-tbl' },
@@ -339,7 +344,7 @@
         const enCat = candidatos.filter(c => catsDe(c).includes(cat)), otros = candidatos.filter(c => !catsDe(c).includes(cat));
         const etiqueta = (c) => (c.nroKarting ? '#' + c.nroKarting + ' · ' : '') + App.fmt.nombre(c) + (c.invitado ? ' (invitado)' : '');
         function opcionesInsc(sel) {
-          const s = h('select', { 'aria-label': 'Competidor' }, h('option', { value: '' }, '— Elegí el competidor —'),
+          const s = h('select', { 'aria-label': 'Competidor' }, h('option', { value: '' }, 'Sin competidor (usa el nombre de la foto)'),
             enCat.length ? h('optgroup', { label: cat }, enCat.map(c => h('option', { value: c.id }, etiqueta(c)))) : null,
             otros.length ? h('optgroup', { label: 'Otras categorías' }, otros.map(c => h('option', { value: c.id }, etiqueta(c)))) : null);
           s.value = sel || '';
@@ -387,7 +392,7 @@
             lectura.sumadas ? ', que se sumaron a los resultados que ya estaban' : '', '. La tabla tiene ', h('strong', null, pl(filas.length, 'puesto', 'puestos')),
             ' y ', h('strong', null, String(asignadas)), ' tienen competidor asignado.') : null,
           lectura && lectura.repetidas ? h('span', null, 'Se omitieron ' + pl(lectura.repetidas, 'fila repetida', 'filas repetidas') + ' (puestos que aparecían en más de una foto).') : null,
-          lectura ? h('span', null, 'Revisá que cada fila tenga el competidor correcto y los puntos antes de guardar. Si alguna quedó marcada, elegí el competidor de la lista.') : h('span', null, 'Completá o corregí los resultados.'),
+          lectura ? h('span', null, 'Revisá los competidores y los puntos contra la foto antes de guardar. Las filas marcadas no coinciden con ningún inscripto: elegí el competidor o dejalas así y se guardan con el nombre de la foto.') : h('span', null, 'Completá o corregí los resultados. Una fila sin competidor se guarda con el nombre escrito.'),
           distinta ? h('span', { class: 'pill pill-warn' }, 'La foto dice «' + tituloLeido + '» y estás cargando ' + cat) : null,
           (avisoPts = h('span', { class: 'pill pill-warn', hidden: true }, 'Hay puntos marcados en amarillo: revisalos contra la foto.')));
         marcarPuntos();
@@ -413,15 +418,17 @@
                 posicion: r.pos.value === '' ? null : +r.pos.value, kart: r.kart.value.trim(), nombre: r.nom.value.trim(),
                 inscId: r.ins.value || null, puntos: r.pts.value === '' ? null : +r.pts.value,
               })).filter(f => f.nombre || f.inscId || f.puntos != null);
-              const sinAsignar = filasUI.filter(r => !r.ins.value && (r.nom.value.trim() || r.pts.value !== ''));
-              if (sinAsignar.length) { App.toast(sinAsignar.length === 1 ? 'Elegí el competidor de la fila marcada antes de guardar.' : 'Elegí el competidor de las ' + sinAsignar.length + ' filas marcadas antes de guardar.', 'error'); sinAsignar[0].ins.focus(); return; }
               const ids = datos.map(f => f.inscId).filter(Boolean);
               if (new Set(ids).size !== ids.length) { App.toast('Hay un competidor asignado a dos filas. Revisalo antes de guardar.', 'error'); return; }
+              // Las filas sin competidor se guardan igual, con el nombre de la foto (se pueden asignar después con Editar)
+              const sinAsignar = filasUI.filter(r => !r.ins.value && (r.nom.value.trim() || r.pts.value !== ''));
+              const sinNombre = sinAsignar.filter(r => !r.nom.value.trim());
+              if (sinNombre.length) { App.toast('Hay una fila sin competidor y sin nombre. Escribí el nombre o elegí el competidor.', 'error'); sinNombre[0].nom.focus(); return; }
               guardando = true;
               try {
                 await S.guardarPuntos(torneo.id, n, cat, { filas: datos, fotos });
                 close();
-                App.toast('Resultados de ' + cat + ' guardados', 'ok');
+                App.toast('Resultados de ' + cat + ' guardados' + (sinAsignar.length ? ' (' + pl(sinAsignar.length, 'fila', 'filas') + ' con el nombre de la foto, sin competidor)' : ''), 'ok');
               } catch (e) {
                 App.toast('No se pudo guardar: ' + (e && e.message || e), 'error');
               } finally { guardando = false; }

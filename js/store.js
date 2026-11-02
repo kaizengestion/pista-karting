@@ -374,7 +374,52 @@
       const o = {};
       docs.forEach((v, k) => { o[k] = v; });
       window.localStorage.setItem(DEMO_KEY, JSON.stringify({ v: 1, docs: o }));
-    } catch (e) { /* cuota llena o bloqueado: queda en memoria */ }
+      errorGuardado = false;
+    } catch (e) {
+      // Cuota llena o bloqueado: lo nuevo queda solo en memoria y se pierde al cerrar. Hay que avisar sí o sí.
+      console.error('No se pudo guardar en el navegador', e);
+      if (!errorGuardado) {
+        errorGuardado = true;
+        try { if (window.App && typeof window.App.toast === 'function') window.App.toast('¡Atención! El navegador no pudo guardar los últimos cambios. Descargá una copia de seguridad ahora (botón arriba) antes de cerrar la página.', 'error'); } catch (x) { /* nada */ }
+      }
+    }
+  }
+  let errorGuardado = false;
+
+  /* Fotos del modo prueba: van en IndexedDB (cientos de MB), no en localStorage (unos 5 MB compartidos con los datos).
+     Antes iban en localStorage y con pocas fotos se llenaba: desde ahí los cambios dejaban de guardarse sin avisar. */
+  const IDB_NOMBRE = 'pista-karting', IDB_TABLA = 'archivos';
+  let idbAbierta = null;
+  function idb() {
+    if (idbAbierta) return idbAbierta;
+    idbAbierta = new Promise((ok, mal) => {
+      if (!window.indexedDB) return mal(new Error('sin IndexedDB'));
+      const r = window.indexedDB.open(IDB_NOMBRE, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(IDB_TABLA);
+      r.onsuccess = () => ok(r.result);
+      r.onerror = () => mal(r.error);
+    });
+    idbAbierta.catch(() => { idbAbierta = null; });
+    return idbAbierta;
+  }
+  async function idbHacer(modo, fn) {
+    const db = await idb();
+    return new Promise((ok, mal) => {
+      const tx = db.transaction(IDB_TABLA, modo);
+      const r = fn(tx.objectStore(IDB_TABLA));
+      tx.oncomplete = () => ok(r && r.result);
+      tx.onerror = () => mal(tx.error);
+      tx.onabort = () => mal(tx.error);
+    });
+  }
+  async function idbTodo() {
+    const db = await idb();
+    return new Promise((ok, mal) => {
+      const out = {};
+      const r = db.transaction(IDB_TABLA, 'readonly').objectStore(IDB_TABLA).openCursor();
+      r.onsuccess = () => { const c = r.result; if (c) { out[c.key] = c.value; c.continue(); } else ok(out); };
+      r.onerror = () => mal(r.error);
+    });
   }
 
   function adaptadorMemoria(inicial) {
@@ -415,8 +460,10 @@
         const pre = colPath === 'torneos' ? 't-' : colPath === 'inscripciones' ? 'i-' : '';
         return pre + Date.now().toString(36) + (++contador).toString(36) + Math.random().toString(36).slice(2, 6);
       },
-      recargar(nuevos) {
+      todo() { const o = {}; docs.forEach((v, k) => { o[k] = clone(v); }); return o; },
+      recargar(nuevos, guardar) {
         docs.clear(); Object.entries(nuevos || {}).forEach(([k, v]) => docs.set(k, v));
+        if (guardar) guardarDemo(docs);
         subs.forEach((s) => s.notificar());
       },
       subscribe(colPath, alRecibir) {
@@ -519,11 +566,29 @@
   let assetsNs = null;       // namespace de assets (modo db)
   const archivosDemo = new Map();
   const ARCH_KEY = 'pista-karting-demo-archivos';
-  function cargarArchivosDemo() {
-    try { const o = JSON.parse(window.localStorage.getItem(ARCH_KEY) || '{}'); Object.entries(o).forEach(([k, v]) => archivosDemo.set(k, v)); } catch (e) { /* sin localStorage */ }
+  const COPIA_KEY = 'pista-karting-ultima-copia';
+  async function cargarArchivosDemo() {
+    let viejos = {};
+    try { viejos = JSON.parse(window.localStorage.getItem(ARCH_KEY) || '{}') || {}; } catch (e) { /* sin localStorage */ }
+    Object.entries(viejos).forEach(([k, v]) => archivosDemo.set(k, v));
+    try {
+      Object.entries(await idbTodo()).forEach(([k, v]) => archivosDemo.set(k, v));
+      // Se pasan las fotos viejas de localStorage a IndexedDB y se libera ese lugar para los datos
+      const claves = Object.keys(viejos);
+      if (claves.length) {
+        await idbHacer('readwrite', (t) => { claves.forEach((k) => t.put(viejos[k], k)); });
+        try { window.localStorage.removeItem(ARCH_KEY); } catch (e) { /* nada */ }
+      }
+    } catch (e) { console.warn('Store: sin IndexedDB para las fotos', e); }
   }
-  function guardarArchivosDemo() {
-    try { const o = {}; archivosDemo.forEach((v, k) => { o[k] = v; }); window.localStorage.setItem(ARCH_KEY, JSON.stringify(o)); } catch (e) { /* sin lugar: queda en memoria */ }
+  async function guardarArchivoDemo(assetId, url) {
+    archivosDemo.set(assetId, url);
+    try { await idbHacer('readwrite', (t) => t.put(url, assetId)); }
+    catch (e) {
+      console.warn('Store: no se pudo guardar la foto en IndexedDB', e);
+      // Sin IndexedDB se intenta como antes, sin arriesgar el lugar de los datos si no entra
+      try { const o = {}; archivosDemo.forEach((v, k) => { o[k] = v; }); window.localStorage.setItem(ARCH_KEY, JSON.stringify(o)); } catch (x) { /* queda en memoria */ }
+    }
   }
   const ctx = { mode: null, isAdmin: false, uid: null, canUpload: false };
   let initPromise = null;
@@ -548,11 +613,13 @@
     } else {
       A = adaptadorMemoria(cargarDemo());
       assetsNs = null;
-      cargarArchivosDemo();
+      await cargarArchivosDemo();
+      // Se le pide al navegador que no borre estos datos por su cuenta (limpieza automática por falta de espacio)
+      try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* nada */ }
       // Otra pestaña del mismo dispositivo cambió los datos (ej.: inscripción desde el link del competidor)
       try {
         window.addEventListener('storage', (e) => {
-          if (e.key === DEMO_KEY && e.newValue) { try { const o = JSON.parse(e.newValue); if (o && o.v === 1) A.recargar(o.docs); } catch (x) { /* nada */ } }
+          if (e.key === DEMO_KEY && e.newValue) { try { const o = JSON.parse(e.newValue); if (o && o.v === 1) { A.recargar(o.docs); cargarArchivosDemo(); } } catch (x) { /* nada */ } }
           if (e.key === ARCH_KEY) cargarArchivosDemo();
         });
       } catch (e) { /* sin eventos de storage */ }
@@ -876,8 +943,7 @@
         if (/^image\//.test(p.tipo)) { const chica = await aJpeg(p.blob, 1200, 0.75).catch(() => null); if (chica && chica.size < p.blob.size) p = { blob: chica, tipo: 'image/jpeg', nombre: conExt(p.nombre, 'jpg') }; }
         const url = await leerDataUrl(p.blob);
         const assetId = 'demo-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-        archivosDemo.set(assetId, url);
-        guardarArchivosDemo();
+        await guardarArchivoDemo(assetId, url);
         return { assetId, nombre: p.nombre, tipo: p.tipo, tamano: p.blob.size };
       }
       if (!assetsNs) throw error(MSG_ASSETS.not_granted, 'not_granted');
@@ -900,6 +966,34 @@
       if (ctx.mode !== 'db' || /^demo-/.test(assetId)) return archivosDemo.get(assetId) || '';
       return '/_blob/' + assetId;
     },
+
+    /* ---------- Copia de seguridad (modo prueba)
+       Todo lo del navegador (torneos, competidores, resultados y fotos) en un solo objeto para bajar como archivo,
+       y al revés para restaurarlo en este u otro dispositivo. */
+    async exportarCopia() {
+      await listo();
+      if (ctx.mode !== 'demo') throw error('La copia de seguridad es para la versión de prueba.');
+      const archivos = {};
+      archivosDemo.forEach((v, k) => { archivos[k] = v; });
+      const copia = { app: 'pista-karting', version: 1, fecha: nowISO(), docs: A.todo(), archivos };
+      try { window.localStorage.setItem(COPIA_KEY, copia.fecha); } catch (e) { /* nada */ }
+      return copia;
+    },
+    async importarCopia(copia) {
+      await listo();
+      if (ctx.mode !== 'demo') throw error('La copia de seguridad es para la versión de prueba.');
+      if (!copia || copia.app !== 'pista-karting' || !esObjeto(copia.docs)) throw error('El archivo no es una copia de seguridad de esta página.');
+      for (const [k, v] of Object.entries(copia.archivos || {})) await guardarArchivoDemo(k, v);
+      A.recargar(copia.docs, true);
+      if (errorGuardado) throw error('Se restauró, pero el navegador no pudo guardarlo. Probá liberar espacio o usar otro navegador.');
+      return { torneos: Object.keys(copia.docs).filter((k) => /^torneos\/[^/]+$/.test(k)).length, competidores: Object.keys(copia.docs).filter((k) => /^inscripciones\/[^/]+$/.test(k)).length };
+    },
+    async borrarTodoDemo() {
+      try { Object.keys(window.localStorage).filter((k) => /^pista-karting-demo/.test(k)).forEach((k) => window.localStorage.removeItem(k)); } catch (e) { /* nada */ }
+      try { await idbHacer('readwrite', (t) => t.clear()); } catch (e) { /* nada */ }
+      archivosDemo.clear();
+    },
+    ultimaCopia() { try { return window.localStorage.getItem(COPIA_KEY) || null; } catch (e) { return null; } },
 
     /* ---------- Utilidades */
     async borrarEjemplos() {

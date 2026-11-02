@@ -187,6 +187,53 @@
     }
   }
 
+  /* Copia de seguridad (versión de prueba): los datos viven solo en este navegador, así que se bajan como archivo
+     para guardarlos (en la compu, el mail, WhatsApp) y restaurarlos acá o en otro dispositivo. */
+  const avisoCopia = h('span', { class: 'small' });
+  function mostrarUltimaCopia() {
+    const f = window.Store.ultimaCopia && window.Store.ultimaCopia();
+    avisoCopia.textContent = f ? 'Última copia: ' + new Date(f).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Todavía no descargaste ninguna copia.';
+  }
+  async function descargarCopia() {
+    try {
+      const copia = await window.Store.exportarCopia();
+      const blob = new Blob([JSON.stringify(copia)], { type: 'application/json' });
+      const a = h('a', { href: URL.createObjectURL(blob), download: 'rgk-copia-' + copia.fecha.slice(0, 16).replace(/[T:]/g, '-') + '.json' });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      mostrarUltimaCopia();
+      toast('Copia descargada. Guardala en un lugar seguro (la compu, el mail o un chat de WhatsApp con vos mismo).', 'ok');
+    } catch (e) { toast('No se pudo descargar la copia: ' + (e && e.message || e), 'error'); }
+  }
+  function restaurarCopia() {
+    const inp = h('input', { type: 'file', accept: '.json,application/json', hidden: true });
+    inp.addEventListener('change', async () => {
+      const f = inp.files && inp.files[0]; inp.remove();
+      if (!f) return;
+      let copia;
+      try { copia = JSON.parse(await f.text()); } catch (e) { toast('El archivo no es una copia de seguridad válida.', 'error'); return; }
+      const ok = await confirmDialog({ title: 'Restaurar copia', body: 'Lo que hay ahora en esta página se reemplaza por la copia' + (copia && copia.fecha ? ' del ' + new Date(copia.fecha).toLocaleString('es-AR') : '') + '. Si tenés cambios nuevos, descargá antes una copia de lo actual.', okLabel: 'Restaurar' });
+      if (!ok) return;
+      try {
+        const r = await window.Store.importarCopia(copia);
+        toast('Copia restaurada: ' + r.torneos + ' torneos y ' + r.competidores + ' competidores.', 'ok');
+        render();
+      } catch (e) { toast(e && e.message || String(e), 'error'); }
+    });
+    document.body.appendChild(inp); inp.click();
+  }
+  async function borrarTodo() {
+    const campo = h('input', { type: 'text', autocomplete: 'off', placeholder: 'BORRAR', 'aria-label': 'Escribí BORRAR para confirmar' });
+    const ok = await confirmDialog({ title: 'Borrar todo', danger: true, okLabel: 'Borrar todo', body: h('div', { class: 'stack' },
+      h('p', null, 'Se borran todos los torneos, competidores, resultados y fotos de este dispositivo. No se puede deshacer.'),
+      h('p', null, h('button', { type: 'button', class: 'btn btn-sm', onclick: descargarCopia }, 'Descargar una copia antes')),
+      h('label', null, 'Para confirmar, escribí BORRAR:'), campo) });
+    if (!ok) return;
+    if (campo.value.trim().toUpperCase() !== 'BORRAR') { toast('No se borró nada: había que escribir BORRAR.', 'error'); return; }
+    await window.Store.borrarTodoDemo();
+    location.hash = 'inicio'; location.reload();
+  }
+
   async function start() {
     let info = { mode: 'demo', isAdmin: true };
     try { info = await window.Store.init(); } catch (e) { console.error(e); }
@@ -197,12 +244,13 @@
         ? 'Versión de prueba. Lo que cargues se guarda solo en este dispositivo y navegador.'
         : 'Modo demostración: los datos son de ejemplo y se guardan solo en este navegador.';
       const wrap = document.querySelector('#demo-banner .wrap');
-      wrap.appendChild(h('button', { type: 'button', class: 'btn btn-sm', onclick: async () => {
-        const ok = await confirmDialog({ title: 'Borrar todo', body: 'Se borran todos los torneos, competidores y resultados que cargaste en este dispositivo, y la página queda vacía para empezar de cero.', okLabel: 'Borrar todo', danger: true });
-        if (!ok) return;
-        try { localStorage.removeItem('pista-karting-demo-v1'); localStorage.removeItem('pista-karting-demo-v2'); localStorage.removeItem('pista-karting-demo-v3'); localStorage.removeItem('pista-karting-demo-v4'); localStorage.removeItem('pista-karting-demo-v5'); localStorage.removeItem('pista-karting-demo-v6'); localStorage.removeItem('pista-karting-demo-v7'); localStorage.removeItem('pista-karting-demo-v8'); localStorage.removeItem('pista-karting-demo-v9'); localStorage.removeItem('pista-karting-demo-v10'); localStorage.removeItem('pista-karting-demo-archivos'); } catch (e) {}
-        location.hash = 'inicio'; location.reload();
-      } }, 'Borrar todo y empezar de cero'));
+      wrap.append(
+        h('button', { type: 'button', class: 'btn btn-sm btn-primary', onclick: descargarCopia }, 'Descargar copia de seguridad'),
+        h('button', { type: 'button', class: 'btn btn-sm', onclick: restaurarCopia }, 'Restaurar copia'),
+        avisoCopia,
+        h('span', { class: 'spacer' }),
+        h('button', { type: 'button', class: 'btn btn-sm btn-ghost', onclick: borrarTodo }, 'Borrar todo'));
+      mostrarUltimaCopia();
     }
     window.addEventListener('hashchange', render);
     render();
