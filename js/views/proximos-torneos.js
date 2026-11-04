@@ -89,7 +89,7 @@
     async render(el, ctx) {
       const S = window.Store;
       const root = h('div', { class: 'v-proximos' }, h('p', { class: 'loading' }, 'Cargando torneos…'));
-      el.appendChild(root);
+      el.append(root, App.tarjetaInvitacion());
 
       let torneos = null, inscs = [];
       const u1 = S.watchTorneos((list) => { torneos = list || []; draw(); });

@@ -264,6 +264,29 @@
     return base + '#inscripcion';
   }
 
+  /* Tarjeta con el link de invitación, para el pie de las pantallas de torneos */
+  css(`
+.invitacion-card { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.invitacion-card .link-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.invitacion-card .link-row input { flex: 1 1 260px; min-width: 0; font-family: var(--font-mono); font-size: .9rem; background: var(--surface-2); }
+`);
+  function tarjetaInvitacion() {
+    const link = linkInscripcion();
+    const inp = h('input', { type: 'text', readonly: true, value: link, 'aria-label': 'Link de invitación', onfocus: (e) => e.target.select() });
+    const copiar = async () => {
+      try { await navigator.clipboard.writeText(link); toast('Link copiado. Pegalo en WhatsApp o en un mail para los competidores.', 'ok'); }
+      catch (e) { inp.focus(); inp.select(); toast('No se pudo copiar solo: copialo a mano (ya está seleccionado).'); }
+    };
+    return h('section', { class: 'card invitacion-card', 'aria-label': 'Link de invitación para competidores' },
+      h('div', { class: 'stack', style: { gap: '4px' } },
+        h('h2', null, 'Link de invitación para competidores'),
+        h('p', { class: 'muted' }, 'Copialo y mandalo a los competidores para que se inscriban en el torneo. Lo que completen aparece en Competidores.')),
+      h('div', { class: 'link-row' },
+        inp,
+        h('button', { type: 'button', class: 'btn btn-dark', onclick: copiar }, 'Copiar link'),
+        h('a', { class: 'btn btn-ghost', href: '#registro' }, 'Ver formulario')));
+  }
+
   /* Listas compartidas por el formulario de inscripción y la ficha del competidor */
   const datos = {
     PROVINCIAS: ['Santa Fe', 'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy',
@@ -312,5 +335,5 @@
     },
   };
 
-  window.App = { h, append, css, toast, modal, confirm: confirmDialog, fmt, view, go, start, render, linkInscripcion, datos, isAdmin: true, mode: 'demo' };
+  window.App = { h, append, css, toast, modal, confirm: confirmDialog, fmt, view, go, start, render, linkInscripcion, tarjetaInvitacion, datos, isAdmin: true, mode: 'demo' };
 })();
