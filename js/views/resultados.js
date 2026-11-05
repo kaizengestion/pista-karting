@@ -226,7 +226,7 @@
         h('div', { class: 'res-head' },
           h('span', { class: 'eyebrow' }, 'RGK Santafesino'),
           h('h1', null, 'Resultados'),
-          h('p', null, 'Torneos finalizados y fechas ya corridas.' + (generado && !isNaN(generado) ? ' Actualizado el ' + generado.toLocaleString('es-AR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '.' : ''))),
+          h('p', null, 'Torneos finalizados y fechas ya corridas.' + (generado && !isNaN(generado) ? ' Actualizado el ' + generado.toLocaleString('es-AR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).replace(/\.$/, '') + '.' : ''))),
         buscar, lista);
       buscar.addEventListener('input', dibujar);
       dibujar();
