@@ -144,7 +144,8 @@
      Como la planilla viene ordenada, el puesto final es el orden de las filas. */
   const DIGITO = { O: '0', o: '0', D: '0', Q: '0', l: '1', I: '1', i: '1', '|': '1', Z: '2', z: '2', A: '4', S: '5', s: '5', G: '6', T: '7', B: '8', g: '9' };
   function aNumero(tok) {
-    const t = String(tok).replace(/[^0-9A-Za-z|]/g, '');
+    // una l, I o | pegada a un número es la raya de la columna, no un 1 ("134l" es el 134)
+    const t = String(tok).replace(/[^0-9A-Za-z|]/g, '').replace(/^[lIi|]+(?=\d)/, '').replace(/(\d)[lIi|]+$/, '$1');
     if (!t || t.length > 4) return null;
     const c = t.split('').map(ch => (/\d/.test(ch) ? ch : DIGITO[ch])).join('');
     return /^\d+$/.test(c) && /\d/.test(t) || (/^\d+$/.test(c) && t.length === 1) ? c : null;
@@ -179,6 +180,17 @@
       puntos: +puntos,
     };
   }
+  /* Dígitos de más en el kart: el puesto pegado adelante cuando no se leyó aparte ("540" en el puesto 5 era el kart 40)
+     y la raya de la columna leída como un 1 en un kart de 4 cifras ("1341" era el 134). El número leído tal cual queda
+     en kartLeido, para compararlo con los karts de los inscriptos. */
+  function limpiarKart(kart, puestoPegado) {
+    let k = String(kart || '');
+    const p = puestoPegado == null ? '' : String(puestoPegado);
+    if (p && k.startsWith(p) && k.length - p.length >= 2) k = k.slice(p.length);
+    if (k.length >= 4 && k.endsWith('1')) k = k.slice(0, -1);
+    if (k.length >= 4 && k.startsWith('1')) k = k.slice(1);
+    return k;
+  }
   function interpretar(texto) {
     const filas = [];
     let titulo = '';
@@ -202,6 +214,8 @@
       const nueva = Math.max(1, i + d);
       // con un solo número adelante, ese número era el puesto y no el kart
       if (f.posicion == null && +f.kart === nueva && filas.length > 3) f.kart = '';
+      f.kartLeido = f.kart;
+      f.kart = limpiarKart(f.kart, f.posicion == null ? nueva : null);
       f.posicion = nueva;
     });
     return { titulo, filas };

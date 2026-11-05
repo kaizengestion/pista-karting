@@ -99,6 +99,17 @@
     const ok = ape >= 0.75 || (kart && (ape >= 0.5 || nom >= 0.75));
     return ok ? ape * 2 + nom + (kart ? 1.5 : 0) : 0;
   }
+  /* El lector a veces suma un dígito al kart (el puesto pegado adelante o la raya de la columna leída como 1).
+     Si el kart leído no es de ningún inscripto pero sacándole una cifra de una punta sí, se usa ese (primero los de la categoría). */
+  const sinCeros = (x) => String(x == null ? '' : x).replace(/^0+/, '');
+  function corregirKart(f, enCat, otros) {
+    const k = sinCeros(f.kart), leido = sinCeros(f.kartLeido || f.kart);
+    if (!k) return f.kart;
+    const deCat = new Set(enCat.map(i => sinCeros(i.nroKarting)).filter(Boolean));
+    const resto = new Set(otros.map(i => sinCeros(i.nroKarting)).filter(Boolean));
+    const opciones = [k, leido, leido.slice(1), leido.slice(0, -1), leido.slice(1, -1), k.slice(1), k.slice(0, -1)].filter(Boolean);
+    return opciones.find(x => deCat.has(x)) || opciones.find(x => resto.has(x)) || f.kart;
+  }
   function asignarTodas(filas, enCat, otros) {
     // Las filas que ya tienen competidor (de fotos anteriores) lo conservan
     const res = filas.map(f => (f.inscId ? enCat.concat(otros).find(i => i.id === f.inscId) || null : null));
@@ -332,8 +343,11 @@
         const candidatos = delTorneo().slice().sort((a, b) => (catsDe(b).includes(cat) - catsDe(a).includes(cat)) || App.fmt.nombre(a).localeCompare(App.fmt.nombre(b), 'es'));
         let filas;
         if (lectura) {
-          const asignados = asignarTodas(lectura.filas, candidatos.filter(c => catsDe(c).includes(cat)), candidatos.filter(c => !catsDe(c).includes(cat)));
-          filas = lectura.filas.map((f, k) => Object.assign({}, f, { inscId: asignados[k] ? asignados[k].id : null }));
+          const cEn = candidatos.filter(c => catsDe(c).includes(cat)), cOtros = candidatos.filter(c => !catsDe(c).includes(cat));
+          const leidas = lectura.filas.map(f => { const g = Object.assign({}, f, { kart: corregirKart(f, cEn, cOtros) }); delete g.kartLeido; return g; });
+          const asignados = asignarTodas(leidas, cEn, cOtros);
+          // con competidor asignado vale el kart de su inscripción, no el de la foto
+          filas = leidas.map((f, k) => Object.assign({}, f, { inscId: asignados[k] ? asignados[k].id : null }, asignados[k] && asignados[k].nroKarting ? { kart: String(asignados[k].nroKarting) } : {}));
         } else {
           filas = (filasGuardadas || []).map(f => Object.assign({}, f));
         }
@@ -361,10 +375,24 @@
           r.tr = h('tr', { class: f.inscId ? null : 'sin-asignar' },
             h('td', { class: 'c-pos' }, r.pos), h('td', { class: 'c-kart' }, r.kart), h('td', { class: 'c-nom' }, r.nom), h('td', { class: 'c-ins' }, r.ins), h('td', { class: 'c-pts' }, r.pts),
             h('td', null, h('button', { type: 'button', class: 'btn btn-ghost btn-sm', 'aria-label': 'Quitar fila', onclick: () => { filasUI.splice(filasUI.indexOf(r), 1); r.tr.remove(); } }, '✕')));
-          r.ins.addEventListener('change', () => r.tr.classList.toggle('sin-asignar', !r.ins.value));
+          r.ins.addEventListener('change', () => {
+            r.tr.classList.toggle('sin-asignar', !r.ins.value);
+            const c = candidatos.find(x => x.id === r.ins.value);
+            if (c && c.nroKarting) { r.kart.value = String(c.nroKarting); marcarKart(r); }
+          });
+          r.kart.addEventListener('input', () => marcarKart(r));
+          marcarKart(r);
           r.pts.addEventListener('input', marcarPuntos);
           r.pos.addEventListener('input', marcarPuntos);
           filasUI.push(r); tbody.appendChild(r.tr);
+        }
+        /* Un kart que no es de ningún inscripto (o de 4 cifras) probablemente se leyó mal: se marca para revisarlo contra la foto */
+        const kartsInscriptos = new Set(candidatos.map(c => sinCeros(c.nroKarting)).filter(Boolean));
+        function marcarKart(r) {
+          const k = sinCeros(r.kart.value.trim());
+          const dudoso = !!k && (k.length > 3 || (kartsInscriptos.size > 0 && !kartsInscriptos.has(k)));
+          r.kart.classList.toggle('pts-dudoso', dudoso);
+          r.kart.title = dudoso ? 'Revisá este kart contra la foto: no es de ningún inscripto' : '';
         }
         /* En la tabla los puntos bajan con el puesto: el que no respeta ese orden probablemente se leyó mal (ej. "3" en vez de "31") */
         function marcarPuntos() {
@@ -392,7 +420,7 @@
             lectura.sumadas ? ', que se sumaron a los resultados que ya estaban' : '', '. La tabla tiene ', h('strong', null, pl(filas.length, 'puesto', 'puestos')),
             ' y ', h('strong', null, String(asignadas)), ' tienen competidor asignado.') : null,
           lectura && lectura.repetidas ? h('span', null, 'Se omitieron ' + pl(lectura.repetidas, 'fila repetida', 'filas repetidas') + ' (puestos que aparecían en más de una foto).') : null,
-          lectura ? h('span', null, 'Revisá los competidores y los puntos contra la foto antes de guardar. Las filas marcadas no coinciden con ningún inscripto: elegí el competidor o dejalas así y se guardan con el nombre de la foto.') : h('span', null, 'Completá o corregí los resultados. Una fila sin competidor se guarda con el nombre escrito.'),
+          lectura ? h('span', null, 'Revisá los competidores, los karts y los puntos contra la foto antes de guardar. Las filas marcadas no coinciden con ningún inscripto: elegí el competidor o dejalas así y se guardan con el nombre de la foto.') : h('span', null, 'Completá o corregí los resultados. Una fila sin competidor se guarda con el nombre escrito.'),
           distinta ? h('span', { class: 'pill pill-warn' }, 'La foto dice «' + tituloLeido + '» y estás cargando ' + cat) : null,
           (avisoPts = h('span', { class: 'pill pill-warn', hidden: true }, 'Hay puntos marcados en amarillo: revisalos contra la foto.')));
         marcarPuntos();
