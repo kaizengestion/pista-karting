@@ -131,7 +131,7 @@
     async render(el, ctx) {
       const S = window.Store;
       const root = h('div', { class: 'v-torneo-actual' }, h('p', { class: 'loading' }, 'Cargando torneo…'));
-      el.append(root, App.tarjetaInvitacion());
+      el.append(root, App.tarjetaResultados(), App.tarjetaInvitacion());
 
       let torneos = null, inscs = null, puntos = {};
       let torneo = null, puntosDe = null, unsubPuntos = null;

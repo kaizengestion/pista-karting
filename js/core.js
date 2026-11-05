@@ -164,11 +164,12 @@
     const store = window.Store;
     // Quien no administra solo ve el formulario de inscripción
     if (name === 'inscripcion') name = 'registro', App.vistaCompetidor = true;
+    else if (name === 'resultados') App.vistaCompetidor = true;   // resultados para competidores: solo lectura
     else App.vistaCompetidor = !App.isAdmin;
-    if (!App.isAdmin && name !== 'registro') name = 'registro';
+    if (!App.isAdmin && name !== 'registro' && name !== 'resultados') name = 'registro';
     if (!views[name]) name = App.isAdmin ? 'inicio' : 'registro';
     document.getElementById('topnav').hidden = App.vistaCompetidor;
-    document.getElementById('brand').setAttribute('href', App.vistaCompetidor ? '#inscripcion' : '#inicio');
+    document.getElementById('brand').setAttribute('href', name === 'resultados' ? location.hash : App.vistaCompetidor ? '#inscripcion' : '#inicio');
     document.getElementById('demo-banner').hidden = !(App.mode === 'demo' && !App.vistaCompetidor);
     if (current) current.cleanups.forEach(fn => { try { fn(); } catch (e) {} });
     const cleanups = [];

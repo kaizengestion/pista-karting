@@ -140,7 +140,7 @@
     async render(el, ctx) {
       const S = window.Store;
       const root = h('div', { class: 'v-pasados' }, h('p', { class: 'loading' }, 'Cargando torneos…'));
-      el.appendChild(root);
+      el.append(root, App.tarjetaResultados());
 
       let torneos = null;
       let fechaSel = null;
